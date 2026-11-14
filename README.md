@@ -92,3 +92,7 @@ Bara de unelte arată „Selectează”, ultimele 4 unelte folosite și grupuril
 ## Interfața nouă
 
 Bara de sus arată proiectul (nume, adresă; atins deschide lista de proiecte), starea salvării, filele cu iconițe și contul. În stânga, o coloană cu categorii mari (Desen, Pereți, Prize, Lumini, Comenzi, Aparate, Doze, Tablou) deschide o paletă cu plăcuțe. Planul stă pe o foaie, cu indicatori de stare deasupra (circuite conforme I7, atenționări, putere, disjunctor, tablou, setări proiect). Bara de acțiuni apare lângă elementul selectat, iar jos rămâne o singură bară cu zoom, scară, nivel, trasee și straturi. Panoul unei camere are Rezumat (cifre, verificări I7 cu „Arată”, circuitele din cameră, Măsoară) și Detalii.
+
+## Trasee pe la uși și editare manuală
+
+Implicit, traseele automate trec dintre camere doar pe la uși sau prin goluri (peste toc), nu prin peretele dintre camere; dacă ocolul ar fi foarte mare, aplicația acceptă totuși trecerea prin perete. Setarea „Trecere între camere” din Proiect permite și varianta „Prin perete (cel mai scurt)”. Pentru un aparat selectat, „Editează traseul” afișează doar circuitul lui, iar porțiunile se trag cu degetul; „Traseu automat” revine la calcul.
