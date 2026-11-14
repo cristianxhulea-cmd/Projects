@@ -129,6 +129,14 @@ main{min-height:0;position:relative}
 .hudMore{position:absolute;right:0;bottom:calc(100% + 8px);display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;max-width:min(560px,calc(100vw - 40px));padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18)}
 .hudMore .layers{margin-left:0}
 .layers{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+.ovl{position:absolute;inset:0;z-index:9;display:flex;flex-direction:column;background:var(--canvas);border-radius:inherit;overflow:hidden}
+.ovl[hidden]{display:none!important}
+.ov-h{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--panel)}
+.ov-h b{font-family:var(--f-display);font-size:19px;margin-right:6px}
+.ov-tabs{display:flex;gap:6px;flex-wrap:wrap}
+#v3dBox{flex:1;min-height:0;position:relative}
+#v3dBox canvas{display:block}
+#ecv{display:block;flex:1}
 .stage.meas .hud,.stage.meas .selbar,.stage.meas .statc{display:none}
 .measBar{position:absolute;left:10px;right:10px;bottom:10px;z-index:7;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);padding:12px 14px}
 .measBar form{display:flex;flex-direction:column;gap:8px}
@@ -513,6 +521,8 @@ body.focus #focusBtn{background:var(--accent);border-color:var(--accent);color:v
         <div class="statc" id="statc"></div>
         <div class="selbar" id="selbar"></div>
         <div class="measBar" id="measBar" hidden></div>
+        <div class="ovl" id="elev" hidden><div class="ov-h"><b id="elevT"></b><button class="btn ic" type="button" data-ev-n="-1" aria-label="Peretele anterior">‹</button><div class="ov-tabs" id="elevTabs"></div><button class="btn ic" type="button" data-ev-n="1" aria-label="Peretele următor">›</button><span class="muted" id="elevInfo" style="font-size:12px;flex:1;min-width:160px"></span><button class="btn ic" type="button" data-ov-x aria-label="Închide">✕</button></div><canvas id="ecv"></canvas></div>
+        <div class="ovl" id="v3d" hidden><div class="ov-h"><b>Vedere 3D</b><span class="muted" style="font-size:12px;flex:1;min-width:160px">Un deget rotește, două degete măresc și mută</span><select id="v3dIso" class="chipsel" aria-label="Circuit"></select><button class="chip" type="button" id="v3dWalls" aria-pressed="true">Pereți</button><button class="btn" type="button" id="v3dReset">Vedere inițială</button><button class="btn ic" type="button" data-ov-x aria-label="Închide">✕</button></div><div id="v3dBox"></div></div>
         <input class="nameEd" id="nameEd" hidden aria-label="Numele camerei" autocomplete="off">
         <div class="hud">
           <button class="btn ic" id="zOut" type="button" aria-label="Micșorează">−</button>
@@ -2174,7 +2184,7 @@ function renderSelbar(){
   }
   const o=sel.kind==='item'?P.items.find(i=>i.id===sel.id):sel.kind==='door'?P.doors.find(i=>i.id===sel.id):sel.kind==='win'?P.wins.find(i=>i.id===sel.id):sel.kind==='st'?P.struct.find(i=>i.id===sel.id):sel.kind==='jb'?P.jb.find(i=>i.id===sel.id):P.rooms.find(i=>i.id===sel.id);if(!o){el.innerHTML='';return}
   const name=sel.kind==='item'?T[o.type].n+(o.type==='prizaM'?` · ${nOf(o)} ${nOf(o)>1?'posturi':'post'}`:''):sel.kind==='door'?'Ușă':sel.kind==='jb'?JB[o.size].n:sel.kind==='st'?(o.k==='rez'?'Perete de rezistență':o.k==='gol'?'Gol în perete':'Grindă'):sel.kind==='win'?(o.kind==='balcon'?'Ușă de balcon':'Fereastră'):o.name,help=sel.kind==='room'?'atinge cotele albastre ca să scrii lungimile':sel.kind==='st'?'șterge-l și desenează-l din nou ca să-l schimbi':'trage ca să-l muți';
-  el.innerHTML=`<span class="tag"><b>${esc(name)}</b><span class="muted">${help}</span></span>${sel.kind==='item'&&R&&R.by[sel.id]?'<button class="btn pri" type="button" data-sb="route">Editează traseul</button>':''}${sel.kind==='room'&&!focusId?'<button class="btn" type="button" data-sb="enterRoom">Intră în cameră</button>':''}${focusId?'<button class="btn" type="button" data-sb="exitRoom">Ieși din cameră</button>':''}${sel.kind==='room'?'<button class="btn pri" type="button" data-sb="meas">Măsoară</button><button class="btn" type="button" data-sb="adj">+ Cameră alăturată</button>':''}<button class="btn" type="button" data-sb="info">${inspOpen?'Ascunde detalii':'Detalii'}</button><button class="btn dng" type="button" data-sb="del">Șterge</button><button class="btn" type="button" data-sb="close" aria-label="Deselectează">✕</button>`;
+  el.innerHTML=`<span class="tag"><b>${esc(name)}</b><span class="muted">${help}</span></span>${sel.kind==='item'&&R&&R.by[sel.id]?'<button class="btn pri" type="button" data-sb="route">Editează traseul</button>':''}${sel.kind==='room'&&!focusId?'<button class="btn" type="button" data-sb="enterRoom">Intră în cameră</button>':''}${focusId?'<button class="btn" type="button" data-sb="exitRoom">Ieși din cameră</button>':''}${sel.kind==='room'?'<button class="btn" type="button" data-sb="elev">Pereți</button><button class="btn pri" type="button" data-sb="meas">Măsoară</button><button class="btn" type="button" data-sb="adj">+ Cameră alăturată</button>':''}<button class="btn" type="button" data-sb="info">${inspOpen?'Ascunde detalii':'Detalii'}</button><button class="btn dng" type="button" data-sb="del">Șterge</button><button class="btn" type="button" data-sb="close" aria-label="Deselectează">✕</button>`;
 }
 function renderDyn(){
   const el=$('#insDyn');if(!el)return;
@@ -2261,6 +2271,7 @@ $('#selbar').addEventListener('click',e=>{
   else if(b.dataset.sb==='sk-clear'){snap();P.sketch=[];P.sketchErase=[];changed();renderSelbar()}
   else if(b.dataset.sb==='sk-gen'){snap();const n=generatePlan();if(!n){undoS.pop();renderSelbar();draw()}if(n){setTool('select');changed(true);fit();draw();toast(`Planul a fost actualizat: ${n} ${n===1?'cameră nouă sau modificată':'camere noi sau modificate'}. Atinge o cameră și apoi cotele albastre ca să scrii lungimile.`)}else {if(skOpen.length)toast(`Conturul nu se închide: ${skOpen.length===1?'un capăt de linie nu atinge':skOpen.length+' capete de linie nu ating'} alt perete. Le-am marcat cu cerc roșu. Prelungește linia până atinge peretele și generează din nou.`);else if(!P.sketchErase.length)toast('Nu am găsit camere închise în schiță. Desenează conturul sau completează-l pornind de la pereții existenți.')}}
   else if(b.dataset.sb==='meas'&&sel)startMeas(sel.id);
+  else if(b.dataset.sb==='elev'&&sel)openElev(sel.id);
   else if(b.dataset.sb==='route'&&sel){const cid=R&&R.by[sel.id];if(cid){sel=null;setIso(cid);renderInspector();renderSelbar();toastAct(`Traseul circuitului ${cid}: trage de o porțiune ca s-o muți, de exemplu spre ușă.`,'Gata',()=>setIso(''))}}
   else if(b.dataset.sb==='info'||b.dataset.sb==='proj')setInsp(!inspOpen);
   else if(b.dataset.sb==='enterRoom'&&sel&&sel.kind==='room'){const r=P.rooms.find(z=>z.id===sel.id);if(r)enterRoom(r.of||r.id)}
@@ -2276,6 +2287,7 @@ insp.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b||!sel)return;
   if(b.dataset.act==='goitem'){const q=P.items.find(i=>i.id===b.dataset.id);if(q){sel={kind:'item',id:q.id};centerOn(q);renderInspector();renderSelbar();draw()}return}
   if(b.dataset.act==='measure'){startMeas(sel.id);return}
+  if(b.dataset.act==='elev'){openElev(sel.id);return}
   if(b.dataset.act==='enter'){const r=P.rooms.find(x=>x.id===sel.id);if(r)enterRoom(r.of||r.id);return}
   const act=b.dataset.act,d=sel.kind==='door'?P.doors.find(i=>i.id===sel.id):null;
   if(act==='pick'&&sel.kind==='item'){pickSw=sel.id;setInsp(false);renderSelbar();draw();return}
@@ -2495,7 +2507,7 @@ vW.addEventListener('click',e=>{
   if(e.target.closest('[data-tdel]')){P.tasks=P.tasks.filter(x=>x.id!==t.id);editTask=null;save();renderWork()}
 });
 
-function showTab(t){if(meas&&t!=='plan')endMeas(false);
+function showTab(t){if(meas&&t!=='plan')endMeas(false);if(t!=='plan')closeOv();
   tab=t;document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
   ['plan','calcul','materiale','oferta','lucrari','admin'].forEach(k=>{$('#v-'+k).hidden=k!==t});
   if(t==='plan')requestAnimationFrame(resize);else renderTab();
@@ -2567,12 +2579,15 @@ async function exportPdf(){
   try{await loadJsPDF()}catch(e){toast('Nu am putut încărca generatorul de PDF. Verifică conexiunea la internet.');return}
   const lv0=P.lvCur,specs=[];
   for(const l of lvSorted(P))specs.push({title:`Plan instalație electrică — ${l.name}`,plan:l.id});
+  for(const l of lvSorted(P)){const rs=lvGet(P,l.id).rooms||[];for(const r of rs.filter(x=>!x.of)){const n=roomWalls(r.id,rs).length;for(let i=0;i<n;i+=4)specs.push({title:`Desfășurata pereților — ${r.name}${lvSorted(P).length>1?' ('+l.name+')':''}${n>4?' '+(i/4+1):''}`,elev:true,lv:l.id,rid:r.id,from:i})}}
   for(const b of RA.boards)specs.push(...sldPages(b));
   specs.push({title:'Tabel circuite',table:true});
   const imgs=[];
   for(const[i,sp]of specs.entries()){
     const pg=pageCanvas(sp.title,i+1,specs.length);
     if(sp.plan){if(P.lvCur!==sp.plan)switchLevel(sp.plan);const k2=1.7,im=planImage(Math.round(pg.area.w/k2),Math.round(pg.area.h/k2));pg.g.imageSmoothingQuality='high';pg.g.drawImage(im,pg.area.x,pg.area.y,pg.area.w,pg.area.h)}
+    else if(sp.elev){if(P.lvCur!==sp.lv)switchLevel(sp.lv);const ws=roomWalls(sp.rid),all=ws,part=ws.slice(sp.from,sp.from+4),a=pg.area,cw=a.w/2,chh=a.h/2;
+      part.forEach((w,i)=>{const cell={x:a.x+(i%2)*cw+10,y:a.y+Math.floor(i/2)*chh+10,w:cw-20,h:chh-20};pg.g.strokeStyle='#ccc';pg.g.lineWidth=2;pg.g.strokeRect(cell.x,cell.y,cell.w,cell.h);drawElev(pg.g,{x:cell.x+10,y:cell.y+6,w:cell.w-20,h:cell.h-12},w,{k:2.1,title:`${wallName(w,all)} · ${f(w.hi-w.lo,2)} m`,pal:{bg:'#fff',ink:'#111',muted:'#555',face:'#F1F4F7',line:'#999',win:'#D6E8F7'}})})}
     else if(sp.draw)sp.draw(pg.g,pg.area);
     else if(sp.table){const g=pg.g,a=pg.area,cols=[['Tablou',170],['Circuit',120],['Nivel',150],['Destinație',560],['Pct.',80],['Pi (W)',120],['Ib (A)',110],['Protecție',140],['Difer.',110],['Cablu',260],['L (m)',110],['ΔU %',110]];
       let y=a.y;g.lineWidth=1.5;g.strokeStyle='#111';g.textBaseline='middle';const row=(vals,bold)=>{let x=a.x;g.font=`${bold?700:500} 20px "IBM Plex Sans",Arial,sans-serif`;cols.forEach(([,w2],k)=>{g.strokeRect(x,y,w2,38);g.fillStyle='#111';g.fillText(String(vals[k]).slice(0,Math.floor(w2/11)),x+8,y+19);x+=w2});y+=38};
@@ -2949,10 +2964,10 @@ function renderStat(){
   const n=RA.boards.reduce((t,b)=>t+b.circuits.length,0),w=RA.levels.reduce((t,l)=>t+((l.R&&l.R.warn)||[]).length,0)+(R?Object.keys(R.flag||{}).length:0),tb=RA.boards[0]&&RA.boards[0].tot;
   el.innerHTML=(n?`<button class="schip ${w?'':'ok'}" type="button" data-st="calc"><i style="background:${w?'var(--muted)':'var(--ok)'}"></i>${n} ${n===1?'circuit':'circuite'}${w?'':' conforme I7'}</button>`:'<span class="schip"><i style="background:var(--muted)"></i>Pune aparatele și tabloul pe plan</span>')+
     (w?`<button class="schip w" type="button" data-st="calc"><i style="background:var(--warn)"></i>${w} ${w===1?'atenționare':'atenționări'}</button>`:'')+
-    (tb&&n?`<button class="schip kw" type="button" data-st="calc">${f(tb.Pc/1000,1)} kW · ${tb.main?'C'+tb.main:'—'} · ${tb.panel} mod.</button>`:'')+
+    `<button class="schip" type="button" data-st="3d" title="Vedere 3D a instalației"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg><span>3D</span></button>`+(tb&&n?`<button class="schip kw" type="button" data-st="calc">${f(tb.Pc/1000,1)} kW · ${tb.main?'C'+tb.main:'—'} · ${tb.panel} mod.</button>`:'')+
     `<button class="schip pj" type="button" data-st="proj" title="Setări proiect, niveluri">${'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>'}<span>Proiect</span></button>`;
 }
-$('#statc').addEventListener('click',e=>{const b=e.target.closest('[data-st]');if(!b)return;if(b.dataset.st==='calc')showTab('calcul');else{sel=null;setInsp(!inspOpen||!!sel);renderSelbar();draw()}});
+$('#statc').addEventListener('click',e=>{const b=e.target.closest('[data-st]');if(!b)return;if(b.dataset.st==='calc')showTab('calcul');else if(b.dataset.st==='3d')open3D();else{sel=null;setInsp(!inspOpen||!!sel);renderSelbar();draw()}});
 function selBox(){
   if(!sel)return null;let pts=[];
   if(sel.kind==='room'){const r=P.rooms.find(x=>x.id===sel.id);if(!r)return null;const root=r.of||r.id;for(const z of P.rooms.filter(q=>q.id===root||q.of===root))pts.push([z.x,z.y],[z.x+z.w,z.y+z.h],[z.x+z.w,z.y],[z.x,z.y+z.h])}
@@ -2984,8 +2999,145 @@ function roomSummary(r){
     <div class="kpis"><div><b>${pr}</b><span>${pr===1?'priză':'prize'}</span></div><div><b>${lu}/${sw}</b><span>lumini / întrer.</span></div><div><b>${de}</b><span>${de===1?'dedicat':'dedicați'}</span></div></div>
     <div><h4>Verificări</h4><ul class="rchk">${ck.join('')||'<li><i>·</i><span>Pune aparate în cameră ca să vezi verificările.</span></li>'}</ul></div>
     ${cs.length?`<div><h4>Circuite în cameră</h4><div class="rcirc">${cs.map(c=>`<div><span class="dot" style="background:${colOf(c.id)}"></span><b class="mono">${c.id}</b><span>${esc(c.name)} · ${c.curve}${c.In}${c.rcd?' · ΔI 30 mA':''}</span><small class="mono">${f(c.Ib,1)} A</small></div>`).join('')}</div></div>`:''}
-    <div class="bar"><button class="btn pri" type="button" data-act="measure">Măsoară camera</button>${focusId?'':'<button class="btn" type="button" data-act="enter">Intră în cameră</button>'}</div></div>`;
+    <div class="bar"><button class="btn pri" type="button" data-act="measure">Măsoară camera</button><button class="btn" type="button" data-act="elev">Desfășurata pereților</button>${focusId?'':'<button class="btn" type="button" data-act="enter">Intră în cameră</button>'}</div></div>`;
 }
+const routeZ=()=>R&&R.tot&&R.tot.z!=null?R.tot.z:(P.route==='pardoseala'?0:P.H-.3);
+const SIDEN={sus:'de sus',dreapta:'din dreapta',jos:'de jos','stânga':'din stânga'};
+function roomWalls(rid,rooms){
+  const grp=(rooms||P.rooms).filter(z=>z.id===rid||z.of===rid),W=[];
+  for(const g of grp){
+    const E=[{k:'sus',o:'h',c:g.y,lo:g.x,hi:g.x+g.w,rev:false},{k:'dreapta',o:'v',c:g.x+g.w,lo:g.y,hi:g.y+g.h,rev:false},{k:'jos',o:'h',c:g.y+g.h,lo:g.x,hi:g.x+g.w,rev:true},{k:'stânga',o:'v',c:g.x,lo:g.y,hi:g.y+g.h,rev:true}];
+    for(const e of E){const inner=grp.some(q=>{if(q===g)return false;const sg=sharedSeg(g,q);return sg&&sg.o===e.o&&Math.abs(sg.c-e.c)<.02&&sg.a<=e.lo+.02&&sg.b>=e.hi-.02});if(!inner)W.push({...e,g,rid})}
+  }
+  return W;
+}
+function elevData(w){
+  const H=w.o==='h',T_=q=>H?q.x:q.y,on=q=>Math.abs((H?q.y:q.x)-w.c)<.03&&T_(q)>=w.lo-.03&&T_(q)<=w.hi+.03,z=routeZ();
+  const gid=new Set(P.rooms.filter(q=>q.id===w.rid||q.of===w.rid).map(q=>q.id));
+  const items=P.items.filter(i=>T[i.type].h!=='ceil'&&on(i)&&(gid.has(i.room)||i.type==='tablou')).map(i=>({t:T_(i),h:hOf(P,i),it:i,cid:R&&R.by[i.id]}));
+  const cut=(a,b)=>[Math.max(a,w.lo),Math.min(b,w.hi)];
+  const doors=P.doors.filter(d=>d.o===w.o&&Math.abs(d.c-w.c)<.02).map(d=>cut(...dEnds(d))).filter(([a,b])=>b-a>.05);
+  const wins=P.wins.filter(d=>d.o===w.o&&Math.abs(d.c-w.c)<.02).map(d=>{const[a,b]=cut(...dEnds(d));return{a,b,s:+d.sill||0,hg:+d.hg||0}}).filter(o=>o.b-o.a>.05);
+  const boxes=R?R.phys.filter(q=>on(q)&&q.cis.length).map(q=>({t:T_(q),h:q.z!=null?q.z:z,id:q.id,ci:q.cis[0]})):[];
+  const near=t=>items.some(o=>Math.abs(o.t-t)<.04)||boxes.some(o=>Math.abs(o.t-t)<.04);
+  const drops=[],runs=[];
+  if(R)for(const s of R.segs){
+    for(const[e,h]of[[s.a,s.fh],[s.b,s.th]])if(on(e)&&Math.abs(h-z)>.01&&near(T_(e)))drops.push({t:T_(e),h0:Math.min(h,z),h1:Math.max(h,z),ci:s.ci});
+    for(let k=0;k+1<s.pts.length;k++){const A=s.pts[k],B=s.pts[k+1];if(on(A)&&on(B)&&Math.abs(T_(A)-T_(B))>.02)runs.push({t0:Math.min(T_(A),T_(B)),t1:Math.max(T_(A),T_(B)),ci:s.ci})}
+  }
+  const dd=new Map();for(const d of drops){const k=Math.round(d.t*100)+'|'+d.ci;const o=dd.get(k);if(!o)dd.set(k,{...d});else{o.h0=Math.min(o.h0,d.h0);o.h1=Math.max(o.h1,d.h1)}}
+  return{items,doors,wins,boxes,drops:[...dd.values()],runs,z};
+}
+function wallName(w,all){const same=all.filter(x=>x.k===w.k).length>1;return`Peretele ${SIDEN[w.k]}${same?' '+(all.filter(x=>x.k===w.k).indexOf(w)+1):''}`}
+function drawElev(g,a,w,o={}){
+  const k=o.k||1,pal=o.pal||{bg:C.canvas,ink:C.ink,muted:C.muted,face:C.room,line:C.muted,win:'#CFE3F5'},d=elevData(w),Hh2=P.H,L=w.hi-w.lo;
+  const fnt=(wt,sz,mono)=>`${wt} ${sz*k}px ${mono?'"IBM Plex Mono",ui-monospace,monospace':'"IBM Plex Sans",system-ui,sans-serif'}`;
+  const ml=58*k,mr=74*k,mt=(o.title?44:18)*k,mb=78*k,s=Math.min((a.w-ml-mr)/L,(a.h-mt-mb)/Hh2),ox=a.x+ml+((a.w-ml-mr)-L*s)/2,oy=a.y+mt+Hh2*s;
+  const X=t=>ox+(w.rev?(w.hi-t):(t-w.lo))*s,Y=h=>oy-h*s,col=ci=>C.circ[ci%8];
+  g.save();g.textBaseline='middle';
+  if(o.title){g.fillStyle=pal.ink;g.font=fnt(700,17);g.textAlign='left';g.fillText(o.title,a.x+8*k,a.y+18*k)}
+  g.fillStyle=pal.face;g.fillRect(ox,Y(Hh2),L*s,Hh2*s);g.strokeStyle=pal.ink;g.lineWidth=2*k;g.strokeRect(ox,Y(Hh2),L*s,Hh2*s);
+  g.lineWidth=4*k;g.beginPath();g.moveTo(ox-10*k,oy);g.lineTo(ox+L*s+10*k,oy);g.stroke();
+  for(const[a0,b0]of d.doors){const x0=Math.min(X(a0),X(b0)),x1=Math.max(X(a0),X(b0));g.fillStyle=pal.bg;g.fillRect(x0,Y(2.1),x1-x0,2.1*s);g.lineWidth=1.5*k;g.strokeStyle=pal.ink;g.strokeRect(x0,Y(2.1),x1-x0,2.1*s);g.fillStyle=pal.muted;g.font=fnt(600,11);g.textAlign='center';g.fillText('ușă',(x0+x1)/2,Y(1.05))}
+  for(const q of d.wins){const x0=Math.min(X(q.a),X(q.b)),x1=Math.max(X(q.a),X(q.b));g.fillStyle=pal.win;g.fillRect(x0,Y(q.s+q.hg),x1-x0,q.hg*s);g.lineWidth=1.5*k;g.strokeStyle=pal.ink;g.strokeRect(x0,Y(q.s+q.hg),x1-x0,q.hg*s);g.fillStyle=pal.muted;g.font=fnt(600,11);g.textAlign='center';g.fillText('fereastră',(x0+x1)/2,Y(q.s+q.hg/2))}
+  g.setLineDash([6*k,5*k]);g.lineWidth=1*k;g.strokeStyle=pal.muted;
+  if(d.z>0&&d.z<Hh2){g.beginPath();g.moveTo(ox,Y(d.z));g.lineTo(ox+L*s,Y(d.z));g.stroke()}
+  g.setLineDash([]);
+  for(const r of d.runs){g.strokeStyle=col(r.ci);g.lineWidth=4*k;g.beginPath();g.moveTo(X(r.t0),Y(d.z));g.lineTo(X(r.t1),Y(d.z));g.stroke()}
+  const lab=[];
+  for(const q of d.drops){const x=X(q.t);g.strokeStyle=col(q.ci);g.lineWidth=4*k;g.beginPath();g.moveTo(x,Y(q.h1));g.lineTo(x,Y(q.h0));g.stroke();if(q.h1-q.h0>=.3)lab.push({x,y:(Y(q.h1)+Y(q.h0))/2,txt:f(q.h1-q.h0,2)+' m',c:col(q.ci)})}
+  for(const q of d.boxes){const x=X(q.t),y=Y(q.h),r=7*k;g.fillStyle=pal.bg;g.fillRect(x-r,y-r,2*r,2*r);g.strokeStyle=col(q.ci);g.lineWidth=2*k;g.strokeRect(x-r,y-r,2*r,2*r);g.beginPath();g.moveTo(x-r,y-r);g.lineTo(x+r,y+r);g.moveTo(x+r,y-r);g.lineTo(x-r,y+r);g.lineWidth=1*k;g.stroke();g.fillStyle=col(q.ci);g.font=fnt(700,10,1);g.textAlign='center';g.fillText(q.id,x,y-r-8*k)}
+  for(const q of d.items){const x=X(q.t),y=Y(q.h),c=q.it.type==='tablou'?pal.ink:q.cid?colOf(q.cid):pal.muted,r=11*k;
+    if(q.it.type==='tablou'){g.fillStyle=pal.ink;g.fillRect(x-16*k,y-22*k,32*k,44*k);g.fillStyle=pal.bg;g.font=fnt(700,11,1);g.textAlign='center';g.fillText('TE',x,y)}
+    else{g.fillStyle=pal.bg;g.strokeStyle=c;g.lineWidth=2*k;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();g.stroke();g.fillStyle=c;g.font=fnt(700,codeOf(q.it).length>2?8.5:10,1);g.textAlign='center';g.fillText(codeOf(q.it),x,y+.5*k)}
+    g.font=fnt(600,10.5,1);g.fillStyle=pal.ink;g.textAlign='left';g.fillText(`h ${Math.round(q.h*100)}`,x+r+4*k,y-6*k);if(q.cid){g.fillStyle=c;g.fillText(q.cid,x+r+4*k,y+7*k)}}
+  g.font=fnt(700,10.5,1);g.textAlign='left';for(const l of lab){g.fillStyle=pal.bg;const tw=g.measureText(l.txt).width+6*k;g.fillRect(l.x+5*k,l.y-7*k,tw,14*k);g.fillStyle=l.c;g.fillText(l.txt,l.x+8*k,l.y)}
+  const ts=[...new Set([...d.items.map(q=>Math.round(q.t*100)),...d.boxes.map(q=>Math.round(q.t*100))])].map(v=>v/100).map(t=>({t,x:X(t),dist:w.rev?(w.hi-t):(t-w.lo)})).sort((p,q)=>p.x-q.x);
+  const dy=oy+22*k;g.strokeStyle=pal.muted;g.lineWidth=1*k;g.beginPath();g.moveTo(ox,dy);g.lineTo(ox+L*s,dy);g.stroke();
+  g.font=fnt(500,10,1);g.fillStyle=pal.ink;g.textAlign='center';
+  const tick=x=>{g.beginPath();g.moveTo(x,dy-5*k);g.lineTo(x,dy+5*k);g.stroke()};tick(ox);tick(ox+L*s);
+  let lastX=-1e9,row=0;for(const q of ts){tick(q.x);row=q.x-lastX<34*k?1-row:0;lastX=q.x;g.fillText(String(Math.round(q.dist*100)),q.x,dy+(row?26:14)*k)}
+  g.font=fnt(700,11,1);g.fillText(`${Math.round(L*100)} cm`,ox+L*s/2,dy+44*k);
+  g.textAlign='left';g.fillStyle=pal.muted;g.font=fnt(500,10,1);g.fillText(`tavan ${f(Hh2,2)} m`,ox+L*s+8*k,Y(Hh2));if(d.z>0&&d.z<Hh2)g.fillText(`traseu ${f(d.z,2)} m`,ox+L*s+8*k,Y(d.z));g.fillText('pardoseală',ox+L*s+8*k,oy);
+  if(!d.items.length&&!d.boxes.length){g.fillStyle=pal.muted;g.font=fnt(500,13);g.textAlign='center';g.fillText('Nimic de montat pe acest perete',ox+L*s/2,Y(Hh2/2))}
+  g.restore();
+  return d;
+}
+const elevS={rid:null,i:0};
+function openElev(rid){const r=P.rooms.find(z=>z.id===rid);if(!r)return;elevS.rid=r.of||r.id;elevS.i=0;$('#elev').hidden=false;renderElev()}
+function closeOv(){$('#elev').hidden=true;$('#v3d').hidden=true;if(v3.raf)cancelAnimationFrame(v3.raf)}
+function renderElev(){
+  const el=$('#elev');if(el.hidden)return;const W2=roomWalls(elevS.rid),r=P.rooms.find(z=>z.id===elevS.rid);if(!r||!W2.length){closeOv();return}
+  elevS.i=clamp(elevS.i,0,W2.length-1);const w=W2[elevS.i];
+  $('#elevT').textContent=`${r.name} · ${wallName(w,W2)} · ${f(w.hi-w.lo,2)} m`;
+  $('#elevTabs').innerHTML=W2.map((x,i)=>`<button type="button" class="chip" data-ew="${i}" aria-pressed="${i===elevS.i}">${wallName(x,W2).replace('Peretele ','')}</button>`).join('');
+  const cv2=$('#ecv'),b=cv2.parentElement.getBoundingClientRect(),hh=b.height-$('#elev .ov-h').offsetHeight,dp=devicePixelRatio||1;
+  cv2.width=Math.round(b.width*dp);cv2.height=Math.round(hh*dp);cv2.style.width=b.width+'px';cv2.style.height=hh+'px';
+  const g=cv2.getContext('2d');g.setTransform(dp,0,0,dp,0,0);g.fillStyle=C.canvas;g.fillRect(0,0,b.width,hh);
+  const d=drawElev(g,{x:8,y:8,w:b.width-16,h:hh-16},w);
+  $('#elevInfo').textContent=d.items.length?`${d.items.length} ${d.items.length===1?'aparat':'aparate'} · ${d.drops.length} ${d.drops.length===1?'coborâre':'coborâri'} · cotele de jos sunt în cm, de la colțul din stânga`:'';
+}
+$('#elev').addEventListener('click',e=>{const t=e.target.closest('[data-ew]');if(t){elevS.i=+t.dataset.ew;renderElev();return}if(e.target.closest('[data-ov-x]'))closeOv();if(e.target.closest('[data-ev-n]')){elevS.i=(elevS.i+(+e.target.closest('[data-ev-n]').dataset.evN)+roomWalls(elevS.rid).length)%roomWalls(elevS.rid).length;renderElev()}});
+const v3={ready:false,loading:null,scene:null,cam:null,ren:null,th:-.8,ph:.95,rad:12,tg:null,meshes:[],walls:[],iso:'',wallOn:true,raf:0};
+function load3(){if(window.THREE)return Promise.resolve();if(v3.loading)return v3.loading;v3.loading=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js';sc.onload=res;sc.onerror=()=>{v3.loading=null;rej(new Error('3d'))};document.head.appendChild(sc)});return v3.loading}
+async function open3D(){
+  $('#v3d').hidden=false;$('#v3dBox').innerHTML='<div class="empty" style="margin:20px">Se încarcă vederea 3D…</div>';
+  try{await load3()}catch(e){$('#v3dBox').innerHTML='<div class="empty" style="margin:20px">Nu am putut încărca vederea 3D. Verifică conexiunea la internet.</div>';return}
+  build3D();
+}
+function cyl(T3,A,B,r,mat){const a=new T3.Vector3(...A),b=new T3.Vector3(...B),dir=b.clone().sub(a),len=dir.length();if(len<1e-4)return null;const m=new T3.Mesh(new T3.CylinderGeometry(r,r,len,8),mat);m.position.copy(a.clone().add(b).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new T3.Vector3(0,1,0),dir.normalize());return m}
+function build3D(){
+  const T3=window.THREE,box=$('#v3dBox');box.innerHTML='';
+  const scene=new T3.Scene();scene.background=new T3.Color(C.canvas);
+  scene.add(new T3.AmbientLight(0xffffff,.75));const dl=new T3.DirectionalLight(0xffffff,.55);dl.position.set(5,12,8);scene.add(dl);
+  const H=P.H,z=routeZ(),rooms=P.rooms;if(!rooms.length){box.innerHTML='<div class="empty" style="margin:20px">Desenează întâi camerele pe plan.</div>';return}
+  const x0=Math.min(...rooms.map(r=>r.x)),x1=Math.max(...rooms.map(r=>r.x+r.w)),y0=Math.min(...rooms.map(r=>r.y)),y1=Math.max(...rooms.map(r=>r.y+r.h));
+  const floorM=new T3.MeshLambertMaterial({color:new T3.Color(C.room)});
+  for(const r of rooms){const m=new T3.Mesh(new T3.PlaneGeometry(r.w,r.h),floorM);m.rotation.x=-Math.PI/2;m.position.set(r.x+r.w/2,0,r.y+r.h/2);scene.add(m)}
+  const lines=new Map();for(const r of rooms)for(const[o,c,lo,hi]of[['h',r.y,r.x,r.x+r.w],['h',r.y+r.h,r.x,r.x+r.w],['v',r.x,r.y,r.y+r.h],['v',r.x+r.w,r.y,r.y+r.h]]){const k=o+'|'+Math.round(c*100);if(!lines.has(k))lines.set(k,{o,c,iv:[]});lines.get(k).iv.push([lo,hi])}
+  const gols=(P.struct||[]).filter(g=>g.k==='gol');
+  const wallM=new T3.MeshLambertMaterial({color:new T3.Color(C.wall),transparent:true,opacity:.22,depthWrite:false}),edgeM=new T3.LineBasicMaterial({color:new T3.Color(C.wall),transparent:true,opacity:.55});
+  v3.walls=[];
+  const addWall=(o,c,a,b,h0,h1)=>{if(b-a<.01||h1-h0<.01)return;const len=b-a,geo=new T3.BoxGeometry(o==='h'?len:.1,h1-h0,o==='h'?.1:len),m=new T3.Mesh(geo,wallM);m.position.set(o==='h'?(a+b)/2:c,(h0+h1)/2,o==='h'?c:(a+b)/2);scene.add(m);const e=new T3.LineSegments(new T3.EdgesGeometry(geo),edgeM);e.position.copy(m.position);scene.add(e);v3.walls.push(m,e)};
+  for(const{o,c,iv}of lines.values()){
+    iv.sort((p,q)=>p[0]-q[0]);const mg=[];for(const[a,b]of iv){const l=mg[mg.length-1];if(l&&a<=l[1]+.01)l[1]=Math.max(l[1],b);else mg.push([a,b])}
+    const ops=[...P.doors.filter(d=>d.o===o&&Math.abs(d.c-c)<.02).map(d=>{const[a,b]=dEnds(d);return{a,b,top:2.1,bot:0}}),...P.wins.filter(d=>d.o===o&&Math.abs(d.c-c)<.02).map(d=>{const[a,b]=dEnds(d);return{a,b,bot:+d.sill||0,top:(+d.sill||0)+(+d.hg||0)}}),...gols.filter(g=>g.o===o&&Math.abs(g.c-c)<.02).map(g=>({a:Math.min(g.a,g.b),b:Math.max(g.a,g.b),bot:0,top:H}))];
+    for(const[a,b]of mg){const cuts=[a,b,...ops.flatMap(q=>[q.a,q.b]).filter(t=>t>a&&t<b)].sort((p,q)=>p-q);
+      for(let i=0;i+1<cuts.length;i++){const p0=cuts[i],p1=cuts[i+1],mid=(p0+p1)/2,op=ops.find(q=>mid>q.a&&mid<q.b);if(!op)addWall(o,c,p0,p1,0,H);else{addWall(o,c,p0,p1,0,op.bot);addWall(o,c,p0,p1,op.top,H)}}}
+  }
+  v3.meshes=[];const mats={},mat=ci=>mats[ci]||(mats[ci]=new T3.MeshLambertMaterial({color:new T3.Color(C.circ[ci%8]),transparent:true,opacity:1}));
+  if(R)for(const s of R.segs){const P3=[[s.a.x,s.fh,s.a.y],[s.a.x,z,s.a.y],...s.pts.map(q=>[q.x,z,q.y]),[s.b.x,z,s.b.y],[s.b.x,s.th,s.b.y]];
+    for(let i=0;i+1<P3.length;i++){const m=cyl(T3,P3[i],P3[i+1],s.feed?.03:.02,mat(s.ci).clone());if(m){m.userData.ci=s.ci;scene.add(m);v3.meshes.push(m)}}}
+  if(R)for(const q of R.phys){if(!q.cis.length)continue;const m=new T3.Mesh(new T3.BoxGeometry(.12,.12,.12),mat(q.cis[0]).clone());m.position.set(q.x,q.z!=null?q.z:z,q.y);m.userData.ci=q.cis[0];scene.add(m);v3.meshes.push(m)}
+  for(const it of P.items){const cid=R&&R.by[it.id],c=cid&&R.circuits.find(x=>x.id===cid),h=hOf(P,it);let m;
+    if(it.type==='tablou')m=new T3.Mesh(new T3.BoxGeometry(.5,.6,.14),new T3.MeshLambertMaterial({color:new T3.Color(C.ink)}));
+    else if(T[it.type].h==='ceil')m=new T3.Mesh(new T3.CylinderGeometry(.16,.16,.04,16),c?mat(c.ci).clone():new T3.MeshLambertMaterial({color:0x999999}));
+    else if(T[it.type].g==='ded')m=new T3.Mesh(new T3.BoxGeometry(.3,.3,.3),c?mat(c.ci).clone():new T3.MeshLambertMaterial({color:0x999999}));
+    else m=new T3.Mesh(new T3.BoxGeometry(.1,.1,.1),c?mat(c.ci).clone():new T3.MeshLambertMaterial({color:0x999999}));
+    m.position.set(it.x,T[it.type].h==='ceil'?H-.02:h,it.y);if(c)m.userData.ci=c.ci;scene.add(m);v3.meshes.push(m)}
+  const ren=new T3.WebGLRenderer({antialias:true});ren.setPixelRatio(Math.min(2,devicePixelRatio||1));box.appendChild(ren.domElement);
+  const cam=new T3.PerspectiveCamera(45,1,.05,200);v3.scene=scene;v3.cam=cam;v3.ren=ren;v3.tg=new T3.Vector3((x0+x1)/2,H*.35,(y0+y1)/2);v3.span=Math.max(x1-x0,y1-y0);v3.th=-.8;v3.ph=.95;{const bb=box.getBoundingClientRect(),asp=bb.width/Math.max(1,bb.height);v3.rad0=(v3.span*1.45+3)/Math.min(1,asp*1.25);v3.rad=v3.rad0}
+  $('#v3dIso').innerHTML='<option value="">Toate circuitele</option>'+(R?R.circuits.map(c=>`<option value="${c.ci}"${String(c.ci)===v3.iso?' selected':''}>${c.id} · ${esc(c.name)}</option>`).join(''):'');
+  applyIso3();applyWalls3();size3();ctl3(ren.domElement);
+}
+function size3(){if(!v3.ren||$('#v3d').hidden)return;const b=$('#v3dBox').getBoundingClientRect();v3.ren.setSize(b.width,b.height);v3.cam.aspect=b.width/Math.max(1,b.height);v3.cam.updateProjectionMatrix();rend3()}
+function rend3(){if(!v3.ren)return;const{cam,tg}=v3;cam.position.set(tg.x+v3.rad*Math.sin(v3.ph)*Math.cos(v3.th),tg.y+v3.rad*Math.cos(v3.ph),tg.z+v3.rad*Math.sin(v3.ph)*Math.sin(v3.th));cam.lookAt(tg);v3.ren.render(v3.scene,cam)}
+function applyIso3(){for(const m of v3.meshes){if(m.userData.ci==null)continue;const on=v3.iso===''||String(m.userData.ci)===v3.iso;m.material.opacity=on?1:.1;m.material.depthWrite=on}rend3()}
+function applyWalls3(){for(const m of v3.walls)m.visible=v3.wallOn;$('#v3dWalls').setAttribute('aria-pressed',v3.wallOn);rend3()}
+function ctl3(el){
+  el.style.touchAction='none';const pts=new Map();let last=null;
+  const st=()=>{const a=[...pts.values()];if(a.length===1)return{x:a[0].x,y:a[0].y,d:0};const[p,q]=a;return{x:(p.x+q.x)/2,y:(p.y+q.y)/2,d:Math.hypot(p.x-q.x,p.y-q.y)}};
+  el.addEventListener('pointerdown',e=>{el.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});last=st()});
+  el.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});const n=st();if(!last){last=n;return}
+    if(pts.size===1){v3.th+=(n.x-last.x)*.008;v3.ph=clamp(v3.ph-(n.y-last.y)*.008,.12,1.5)}
+    else{if(last.d)v3.rad=clamp(v3.rad*last.d/Math.max(1,n.d),2,80);const T3=window.THREE,right=new T3.Vector3(Math.sin(v3.th),0,-Math.cos(v3.th)),fwd=new T3.Vector3(Math.cos(v3.th),0,Math.sin(v3.th)),k=v3.rad*.0016;v3.tg.add(right.multiplyScalar(-(n.x-last.x)*k)).add(fwd.multiplyScalar((n.y-last.y)*k))}
+    last=n;rend3()});
+  const up=e=>{pts.delete(e.pointerId);last=pts.size?st():null};el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+  el.addEventListener('wheel',e=>{e.preventDefault();v3.rad=clamp(v3.rad*(e.deltaY>0?1.1:.9),2,80);rend3()},{passive:false});
+}
+$('#v3d').addEventListener('click',e=>{if(e.target.closest('[data-ov-x]'))closeOv();else if(e.target.id==='v3dWalls'){v3.wallOn=!v3.wallOn;applyWalls3()}else if(e.target.id==='v3dReset'){v3.th=-.8;v3.ph=.95;v3.rad=v3.rad0||v3.rad;rend3()}});
+$('#v3dIso').addEventListener('change',e=>{v3.iso=e.target.value;applyIso3()});
+addEventListener('resize',()=>{size3();if(!$('#elev').hidden)renderElev()});
 function groupOf(id){return P.rooms.filter(z=>z.id===id||z.of===id)}
 function fitRects(rs,pad){const x0=Math.min(...rs.map(r=>r.x)),y0=Math.min(...rs.map(r=>r.y)),x1=Math.max(...rs.map(r=>r.x+r.w)),y1=Math.max(...rs.map(r=>r.y+r.h));const side=inspOpen&&!view.rot&&W>760&&!matchMedia('(orientation:portrait) and (max-width:1100px)').matches,bot=inspOpen&&!view.rot&&!side;const AW=W-(side?(insp.offsetWidth||340)+30:0),AH=Hh-(bot?(insp.offsetHeight||Hh*.55)+20:0),sw=Math.abs(Math.sin(view.rot))>.7,FW=(sw?AH:AW)-pad*2,FH=(sw?AW:AH)-pad*2;view.auto=false;view.s=clamp(Math.min(FW/Math.max(.5,x1-x0),FH/Math.max(.5,y1-y0)),12,320);view.ox=AW/2-(x0+x1)/2*view.s;view.oy=AH/2-(y0+y1)/2*view.s}
 function enterRoom(id){if(!P.rooms.some(z=>z.id===id))return;focusId=id;sel=null;isoId='';renderIso();setInsp(true);fitRects(groupOf(id),60);renderSelbar();draw()}
@@ -3016,7 +3168,7 @@ insp.addEventListener('change',e=>{
   else{const w=wallOf(it);if(w){const t=clamp(w.a+v/100,w.a,w.b);if(w.o==='h')it.x=+t.toFixed(3);else it.y=+t.toFixed(3)}}
   changed(true);
 });
-function switchLevel(id){
+function switchLevel(id){if(typeof closeOv==='function'&&!$('#elev').hidden)closeOv();
   if(id===P.lvCur||!P.levels.some(l=>l.id===id))return;
   const cur={};LVK.forEach(k=>cur[k]=P[k]);P.lvData[P.lvCur]=cur;
   const d=P.lvData[id]||{};LVK.forEach(k=>P[k]=d[k]||(k==='routes'||k==='boxes'?{}:[]));delete P.lvData[id];

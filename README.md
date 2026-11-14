@@ -96,3 +96,7 @@ Bara de sus arată proiectul (nume, adresă; atins deschide lista de proiecte), 
 ## Trasee pe la uși și editare manuală
 
 Implicit, traseele automate trec dintre camere doar pe la uși sau prin goluri (peste toc), nu prin peretele dintre camere; dacă ocolul ar fi foarte mare, aplicația acceptă totuși trecerea prin perete. Setarea „Trecere între camere” din Proiect permite și varianta „Prin perete (cel mai scurt)”. Pentru un aparat selectat, „Editează traseul” afișează doar circuitul lui, iar porțiunile se trag cu degetul; „Traseu automat” revine la calcul.
+
+## Desfășurata pereților și vederea 3D
+
+„Pereți” (în bara camerei selectate) sau „Desfășurata pereților” (în Rezumat) arată fiecare perete din față: ușile și ferestrele, linia traseului sub tavan, coborârile pe perete cu lungimea lor, aparatele cu înălțimea de montaj și cotele de la colțul din stânga, în cm. Proiectul tehnic PDF are câte o pagină cu desfășuratele fiecărei camere. Butonul „3D” de deasupra planului deschide casa în 3D, cu pereți semitransparenți, traseele pe culoarea circuitului și coborârile pe pereți; se poate filtra pe circuit și ascunde pereții. Biblioteca 3D (Three.js) se încarcă doar la deschiderea vederii.
