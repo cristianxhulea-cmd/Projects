@@ -100,3 +100,7 @@ Implicit, traseele automate trec dintre camere doar pe la uși sau prin goluri (
 ## Desfășurata pereților și vederea 3D
 
 „Pereți” (în bara camerei selectate) sau „Desfășurata pereților” (în Rezumat) arată fiecare perete din față: ușile și ferestrele, linia traseului sub tavan, coborârile pe perete cu lungimea lor, aparatele cu înălțimea de montaj și cotele de la colțul din stânga, în cm. Proiectul tehnic PDF are câte o pagină cu desfășuratele fiecărei camere. Butonul „3D” de deasupra planului deschide casa în 3D, cu pereți semitransparenți, traseele pe culoarea circuitului și coborârile pe pereți; se poate filtra pe circuit și ascunde pereții. Biblioteca 3D (Three.js) se încarcă doar la deschiderea vederii.
+
+## Trasee mixte
+
+Setarea „Trasee orizontale” are trei variante: „Prize pe jos, lumini sus” (implicit la proiectele noi), „Toate sub tavan” și „Toate în pardoseală”. În varianta mixtă, circuitele de prize și consumatorii montați jos merg prin pardoseală și urcă pe perete până la aparat; iluminatul și consumatorii montați sus (aer condiționat, boiler, peste 1,40 m) merg la 30 cm sub tavan. Lungimile de cablu, metrii de șliț, desfășurata și vederea 3D folosesc înălțimea fiecărui traseu.

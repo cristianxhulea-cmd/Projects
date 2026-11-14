@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="ElectroPlan">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="app-version" content="8de63df7b59e">
+<meta name="app-version" content="e3ad354366f0">
 </head>
 <body>
 <title>ElectroPlan</title>
@@ -691,8 +691,8 @@ function legWall(p,A,B){
 function chaseOf(p,out,z){
   const ch={};const add=(m,k,v)=>{ch[m]=ch[m]||{m:0,dz:0};ch[m][k]+=v};
   for(const s of out.segs){
-    if(Math.abs(s.fh-z)>.01)add(matAt(p,s.a,s.ra),'m',Math.abs(s.fh-z));
-    if(Math.abs(s.th-z)>.01)add(matAt(p,s.b,s.rb),'m',Math.abs(s.th-z));
+    const sz=s.z??z;if(Math.abs(s.fh-sz)>.01)add(matAt(p,s.a,s.ra),'m',Math.abs(s.fh-sz));
+    if(Math.abs(s.th-sz)>.01)add(matAt(p,s.b,s.rb),'m',Math.abs(s.th-sz));
     for(let k=0;k+1<s.pts.length;k++){const A=s.pts[k],B=s.pts[k+1],r=legWall(p,A,B);if(!r)continue;const mid={x:(A.x+B.x)/2,y:(A.y+B.y)/2};add(matAt(p,mid,r.id),'m',Math.abs(A.x-B.x)+Math.abs(A.y-B.y))}
   }
   for(const it of p.items){if(T[it.type].h==='ceil'||!out.by[it.id])continue;const n=(T[it.type].g==='priza'||T[it.type].g==='intr')?(p.aparataj==='modular'?devInfo(p,it).boxes.length:devInfo(p,it).cls):1;add(matAt(p,it,it.room),'dz',n)}
@@ -834,7 +834,7 @@ function structChecks(p,out,z){
         if(w.o!==o&&w.c>t1+.03&&w.c<t2-.03&&c>=lo(w)&&c<=hi(w))mark(o==='h'?w.c:c,o==='h'?c:w.c,s.ci,'str');
         else if(w.o===o&&Math.abs(w.c-c)<.05&&Math.min(t2,hi(w))-Math.max(t1,lo(w))>.05){const m=(Math.max(t1,lo(w))+Math.min(t2,hi(w)))/2;mark(o==='h'?m:c,o==='h'?c:m,s.ci,'slit')}
       }
-      if(z>0)for(const g of gr){if(g.o!==o&&g.c>t1+.03&&g.c<t2-.03&&c>=lo(g)&&c<=hi(g))mark(o==='h'?g.c:c,o==='h'?c:g.c,s.ci,'gr')}
+      if((s.z??z)>0)for(const g of gr){if(g.o!==o&&g.c>t1+.03&&g.c<t2-.03&&c>=lo(g)&&c<=hi(g))mark(o==='h'?g.c:c,o==='h'?c:g.c,s.ci,'gr')}
     }
   }
   const msg={str:'străpunge un perete de rezistență',slit:'merge în lungul unui perete de rezistență (șliț)',gr:'traversează o grindă'};
@@ -878,7 +878,7 @@ function doorChecks(p,out){
 }
 const clampIn=(r,q,m)=>({x:clamp(q.x,r.x+m,r.x+r.w-m),y:clamp(q.y,r.y+m,r.y+r.h-m)});
 
-function blank(name){return{id:uid(),name:name||'Proiect nou',client:'',adresa:'',telefon:'',start:'',H:2.6,route:'tavan',cable:'CYY-F',reserve:10,maxPrize:8,maxLum:10,ks:.4,spd:true,swOff:.2,rooms:[],items:[],doors:[],wins:[],struct:[],routes:{},boxes:{},jb:[],sketch:[],tasks:[],prices:{}}}
+function blank(name){return{id:uid(),name:name||'Proiect nou',client:'',adresa:'',telefon:'',start:'',H:2.6,route:'mixt',cable:'CYY-F',reserve:10,maxPrize:8,maxLum:10,ks:.4,spd:true,swOff:.2,rooms:[],items:[],doors:[],wins:[],struct:[],routes:{},boxes:{},jb:[],sketch:[],tasks:[],prices:{}}}
 const norm=p=>{if(!Array.isArray(p.doors))p.doors=[];if(!Array.isArray(p.wins))p.wins=[];if(!Array.isArray(p.struct))p.struct=[];if(!p.routes||typeof p.routes!=='object')p.routes={};if(!p.boxes||typeof p.boxes!=='object')p.boxes={};if(!Array.isArray(p.jb))p.jb=[];if(!Array.isArray(p.sketch))p.sketch=[];if(!Array.isArray(p.sketchErase))p.sketchErase=[];if(!Array.isArray(p.levels)||!p.levels.length){p.levels=[{id:'L0',name:'Parter',elev:0}];p.lvCur='L0'}if(!p.lvData||typeof p.lvData!=='object')p.lvData={};if(!p.levels.some(l=>l.id===p.lvCur))p.lvCur=p.levels[0].id;if(p.swOff==null)p.swOff=.2;return p};
 function sample(){
   const p=blank('Exemplu — apartament 3 camere');
@@ -1104,6 +1104,7 @@ function compute(p,o={}){
   for(const r of rooms)for(const it of inRoom(r,['ded']))ded.push({kind:'ded',parts:[{r,items:[it]}],n:1});
   const used=[],shared={},baths=p.rooms.filter(r=>r.type==='baie'),CW=closedWalls(p);
   [...lum,...pr,...ded].forEach((s,k)=>{
+    const zc=p.route==='mixt'?((s.kind==='lum'||(s.kind==='ded'&&hOf(p,s.parts[0].items[0])>1.4))?p.H-.3:0):z;
     const id=(o.pre||'')+'C'+(k+1+(o.base||0)),ci=k;
     let a={x:tb.x,y:tb.y},ah=tz,cum=0,len=0,Lmax=0,pk='TE';const xcab={};
     const F=baths.filter(r=>!s.parts.some(x=>x.r.id===r.id));
@@ -1111,19 +1112,19 @@ function compute(p,o={}){
       const W=p.routes[key];let pts=W&&W.length?legsOf([fr,...W,to]):routeAuto(fr,to,F,p.rooms,CW);
       if(!pts){pts=cleanPts([fr,{x:to.x,y:fr.y},to]);out.warn.push(`${id}: nu am găsit un traseu care să ocolească baia. Trage traseul manual.`)}
       if(F.length&&!pathOk(pts,F)){out.warn.push(`${id}: traseul trece prin baie. În baie intră doar circuitele care o alimentează. Mută traseul.`);for(let k=0;k+1<pts.length;k++)for(const rc of F)if(crossRect(pts[k],pts[k+1],rc))out.hits.push({x:(pts[k].x+pts[k+1].x)/2,y:(pts[k].y+pts[k+1].y)/2,ci,kind:'baie'})}
-      const l=Math.abs(fh-z)+pathLen(pts)+Math.abs(th-z);out.segs.push({a:{x:fr.x,y:fr.y},b:{x:to.x,y:to.y},pts,ci,feed,l,key,man:!!(W&&W.length),fh,th,ra:fr.room||null,rb:to.room||null});len+=l;return l};
+      const l=Math.abs(fh-zc)+pathLen(pts)+Math.abs(th-zc);out.segs.push({a:{x:fr.x,y:fr.y},b:{x:to.x,y:to.y},pts,ci,feed,l,key,man:!!(W&&W.length),fh,th,z:zc,ra:fr.room||null,rb:to.room||null});len+=l;return l};
     if(s.kind==='ded'){const it=s.parts[0].items[0];Lmax=add(a,ah,it,hOf(p,it),true,'TE>'+it.id)}
     else for(const[pi,part]of s.parts.entries()){
       const nk='n:'+part.r.id+':'+part.items[0].id,uj=(p.jb||[]).filter(j=>j.room===part.r.id).sort((u,v)=>(Math.abs(u.x-a.x)+Math.abs(u.y-a.y))-(Math.abs(v.x-a.x)+Math.abs(v.y-a.y)))[0];
       const cab=1+part.items.length+(pi<s.parts.length-1?1:0);
-      let sb=null;if(!uj&&p.shareBoxes!==false){const L=shared[part.r.id]||(shared[part.r.id]=[]);sb=L.find(q=>q.cab+cab<=JB.xl.cap);if(!sb){sb={i:L.length,cab:0,bx:null};L.push(sb)}}
-      const bk=sb?'sb:'+part.r.id+':'+sb.i:nk,ov=p.boxes[bk];
-      const bx=uj?boxAt(part.r,uj,z):ov?boxAt(part.r,ov,z):sb&&sb.bx?sb.bx:boxSpot(p,part.r,a,z,used,F),d={x:bx.x,y:bx.y,room:part.r.id};
+      let sb=null;if(!uj&&p.shareBoxes!==false){const sk=part.r.id+(zc>0?'':':f'),L=shared[sk]||(shared[sk]=[]);sb=L.find(q=>q.cab+cab<=JB.xl.cap);if(!sb){sb={i:L.length,cab:0,bx:null};L.push(sb)}}
+      const bk=sb?'sb:'+part.r.id+(zc>0?'':':f')+':'+sb.i:nk,ov=p.boxes[bk];
+      const bx=uj?boxAt(part.r,uj,zc):ov?boxAt(part.r,ov,zc):sb&&sb.bx?sb.bx:boxSpot(p,part.r,a,zc,used,F),d={x:bx.x,y:bx.y,room:part.r.id};
       if(sb){sb.bx=bx;sb.cab+=cab}
-      used.push(d);cum+=add(a,ah,d,z,true,pk+'>'+nk);out.nodes.push({...bx,ci,cid:id,room:part.r.name,rid:part.r.id,key:nk,bkey:bk,sb:sb?bk:null,man:!!ov,jb:uj?uj.id:null,cab});
+      used.push(d);cum+=add(a,ah,d,zc,true,pk+'>'+nk);out.nodes.push({...bx,ci,cid:id,room:part.r.name,rid:part.r.id,key:nk,bkey:bk,sb:sb?bk:null,man:!!ov,jb:uj?uj.id:null,cab});
       if(bx.bad)out.warn.push(`${part.r.name}: nu am găsit un perete liber pentru doza de derivație a circuitului ${id}.`);
-      for(const it of part.items){const l=add(d,z,it,hOf(p,it),false,nk+'>'+it.id);Lmax=Math.max(Lmax,cum+l);const co=it.type==='intrCS'?4:it.type==='intrCR'?5:0;if(co){const nm=`${p.cable} ${co}×1,5`;xcab[nm]=(xcab[nm]||0)+l}}
-      a=d;ah=z;pk=nk;
+      for(const it of part.items){const l=add(d,zc,it,hOf(p,it),false,nk+'>'+it.id);Lmax=Math.max(Lmax,cum+l);const co=it.type==='intrCS'?4:it.type==='intrCR'?5:0;if(co){const nm=`${p.cable} ${co}×1,5`;xcab[nm]=(xcab[nm]||0)+l}}
+      a=d;ah=zc;pk=nk;
     }
     Lmax+=o.ex||0;len+=o.ex||0;
     const items=s.parts.flatMap(x=>x.items),t0=T[items[0].type];
@@ -2152,7 +2153,7 @@ function renderInspector(){
     <div><h4>Setări proiect</h4><div class="fields">
       <label class="f full">Nume proiect<input data-s="proj" data-f="name" id="p-name" value="${esc(P.name)}"></label>
       <label class="f">Înălțime cameră (m)<input data-s="proj" data-f="H" id="p-H" type="number" inputmode="decimal" min="2" max="5" step=".05" value="${P.H}"></label>
-      <label class="f">Trasee orizontale<select data-s="proj" data-f="route" id="p-route">${opt({tavan:'Sub tavan',pardoseala:'În pardoseală'},P.route)}</select></label>
+      <label class="f">Trasee orizontale<select data-s="proj" data-f="route" id="p-route">${opt({mixt:'Prize pe jos, lumini sus',tavan:'Toate sub tavan',pardoseala:'Toate în pardoseală'},P.route||'tavan')}</select></label>
       <label class="f">Trecere între camere<select data-s="proj" data-f="through" id="p-through">${opt({usa:'Pe la uși (peste toc)',perete:'Prin perete (cel mai scurt)'},P.through==='perete'?'perete':'usa')}</select></label>
       <label class="f">Tip cablu<select data-s="proj" data-f="cable" id="p-cable">${opt({'CYY-F':'CYY-F','NYM-J':'NYM-J','MYYM':'MYYM'},P.cable)}</select></label>
       <label class="f">Rezervă cablu (%)<input data-s="proj" data-f="reserve" id="p-res" type="number" inputmode="decimal" min="0" max="50" step="1" value="${P.reserve}"></label>
@@ -2370,7 +2371,7 @@ function renderCalc(){
   const doze=RA.levels.flatMap(x=>x.R.phys.map(n=>({...n,lvn:x.l.name})));
   el.innerHTML=`<div class="wrap">
     <div class="bar" style="justify-content:space-between"><h1>Circuite și tablou</h1><button class="btn pri" type="button" id="pdfBtn">Exportă PDF</button></div>
-    <p class="lede">Calculat automat din plan${multi?` pe ${P.levels.length} niveluri`:''}: ${RA.boards.reduce((t,b)=>t+b.circuits.length,0)} circuite, trasee ${P.route==='tavan'?'orizontale la 30 cm sub tavan':'prin pardoseală'}, cablu ${esc(P.cable)} în tub de protecție.${multi&&RA.boards.length===1?' Nivelurile fără tablou propriu sunt alimentate din tabloul principal, printr-o trecere între niveluri.':''}</p>
+    <p class="lede">Calculat automat din plan${multi?` pe ${P.levels.length} niveluri`:''}: ${RA.boards.reduce((t,b)=>t+b.circuits.length,0)} circuite, trasee ${P.route==='tavan'?'orizontale la 30 cm sub tavan':P.route==='mixt'?'la prize și consumatori prin pardoseală, la iluminat și la consumatorii montați sus (aer condiționat, boiler) la 30 cm sub tavan':'prin pardoseală'}, cablu ${esc(P.cable)} în tub de protecție.${multi&&RA.boards.length===1?' Nivelurile fără tablou propriu sunt alimentate din tabloul principal, printr-o trecere între niveluri.':''}</p>
     ${warns.length?`<ul class="warns">${warns.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}
     ${RA.boards.map(board).join('')}
     <h2>Doze de derivație</h2>
@@ -3038,11 +3039,11 @@ function elevData(w){
   const near=t=>items.some(o=>Math.abs(o.t-t)<.04)||boxes.some(o=>Math.abs(o.t-t)<.04);
   const drops=[],runs=[];
   if(R)for(const s of R.segs){
-    for(const[e,h]of[[s.a,s.fh],[s.b,s.th]])if(on(e)&&Math.abs(h-z)>.01&&near(T_(e)))drops.push({t:T_(e),h0:Math.min(h,z),h1:Math.max(h,z),ci:s.ci});
-    for(let k=0;k+1<s.pts.length;k++){const A=s.pts[k],B=s.pts[k+1];if(on(A)&&on(B)&&Math.abs(T_(A)-T_(B))>.02)runs.push({t0:Math.min(T_(A),T_(B)),t1:Math.max(T_(A),T_(B)),ci:s.ci})}
+    const sz=s.z??z;for(const[e,h]of[[s.a,s.fh],[s.b,s.th]])if(on(e)&&Math.abs(h-sz)>.01&&near(T_(e)))drops.push({t:T_(e),h0:Math.min(h,sz),h1:Math.max(h,sz),ci:s.ci});
+    for(let k=0;k+1<s.pts.length;k++){const A=s.pts[k],B=s.pts[k+1];if(on(A)&&on(B)&&Math.abs(T_(A)-T_(B))>.02)runs.push({t0:Math.min(T_(A),T_(B)),t1:Math.max(T_(A),T_(B)),ci:s.ci,z:sz})}
   }
   const dd=new Map();for(const d of drops){const k=Math.round(d.t*100)+'|'+d.ci;const o=dd.get(k);if(!o)dd.set(k,{...d});else{o.h0=Math.min(o.h0,d.h0);o.h1=Math.max(o.h1,d.h1)}}
-  return{items,doors,wins,boxes,drops:[...dd.values()],runs,z};
+  const zs=R?[...new Set(R.segs.map(s=>Math.round((s.z??z)*100)/100))]:[z];return{items,doors,wins,boxes,drops:[...dd.values()],runs,z:Math.max(...zs),zs};
 }
 function wallName(w,all){const same=all.filter(x=>x.k===w.k).length>1;return`Peretele ${SIDEN[w.k]}${same?' '+(all.filter(x=>x.k===w.k).indexOf(w)+1):''}`}
 function drawElev(g,a,w,o={}){
@@ -3059,7 +3060,7 @@ function drawElev(g,a,w,o={}){
   g.setLineDash([6*k,5*k]);g.lineWidth=1*k;g.strokeStyle=pal.muted;
   if(d.z>0&&d.z<Hh2){g.beginPath();g.moveTo(ox,Y(d.z));g.lineTo(ox+L*s,Y(d.z));g.stroke()}
   g.setLineDash([]);
-  for(const r of d.runs){g.strokeStyle=col(r.ci);g.lineWidth=4*k;g.beginPath();g.moveTo(X(r.t0),Y(d.z));g.lineTo(X(r.t1),Y(d.z));g.stroke()}
+  for(const r of d.runs){g.strokeStyle=col(r.ci);g.lineWidth=4*k;g.beginPath();g.moveTo(X(r.t0),Y(r.z??d.z));g.lineTo(X(r.t1),Y(r.z??d.z));g.stroke()}
   const lab=[];
   for(const q of d.drops){const x=X(q.t);g.strokeStyle=col(q.ci);g.lineWidth=4*k;g.beginPath();g.moveTo(x,Y(q.h1));g.lineTo(x,Y(q.h0));g.stroke();if(q.h1-q.h0>=.3)lab.push({x,y:(Y(q.h1)+Y(q.h0))/2,txt:f(q.h1-q.h0,2)+' m',c:col(q.ci)})}
   for(const q of d.boxes){const x=X(q.t),y=Y(q.h),r=7*k;g.fillStyle=pal.bg;g.fillRect(x-r,y-r,2*r,2*r);g.strokeStyle=col(q.ci);g.lineWidth=2*k;g.strokeRect(x-r,y-r,2*r,2*r);g.beginPath();g.moveTo(x-r,y-r);g.lineTo(x+r,y+r);g.moveTo(x+r,y-r);g.lineTo(x-r,y+r);g.lineWidth=1*k;g.stroke();g.fillStyle=col(q.ci);g.font=fnt(700,10,1);g.textAlign='center';g.fillText(q.id,x,y-r-8*k)}
@@ -3074,7 +3075,7 @@ function drawElev(g,a,w,o={}){
   const tick=x=>{g.beginPath();g.moveTo(x,dy-5*k);g.lineTo(x,dy+5*k);g.stroke()};tick(ox);tick(ox+L*s);
   let lastX=-1e9,row=0;for(const q of ts){tick(q.x);row=q.x-lastX<34*k?1-row:0;lastX=q.x;g.fillText(String(Math.round(q.dist*100)),q.x,dy+(row?26:14)*k)}
   g.font=fnt(700,11,1);g.fillText(`${Math.round(L*100)} cm`,ox+L*s/2,dy+44*k);
-  g.textAlign='left';g.fillStyle=pal.muted;g.font=fnt(500,10,1);g.fillText(`tavan ${f(Hh2,2)} m`,ox+L*s+8*k,Y(Hh2));if(d.z>0&&d.z<Hh2)g.fillText(`traseu ${f(d.z,2)} m`,ox+L*s+8*k,Y(d.z));g.fillText('pardoseală',ox+L*s+8*k,oy);
+  g.textAlign='left';g.fillStyle=pal.muted;g.font=fnt(500,10,1);g.fillText(`tavan ${f(Hh2,2)} m`,ox+L*s+8*k,Y(Hh2));if(d.z>0&&d.z<Hh2)g.fillText(`traseu ${f(d.z,2)} m`,ox+L*s+8*k,Y(d.z));g.fillText(d.zs&&d.zs.includes(0)?'pardoseală · traseu':'pardoseală',ox+L*s+8*k,oy);
   if(!d.items.length&&!d.boxes.length){g.fillStyle=pal.muted;g.font=fnt(500,13);g.textAlign='center';g.fillText('Nimic de montat pe acest perete',ox+L*s/2,Y(Hh2/2))}
   g.restore();
   return d;
@@ -3102,6 +3103,39 @@ async function open3D(){
   build3D();
 }
 function cyl(T3,A,B,r,mat){const a=new T3.Vector3(...A),b=new T3.Vector3(...B),dir=b.clone().sub(a),len=dir.length();if(len<1e-4)return null;const m=new T3.Mesh(new T3.CylinderGeometry(r,r,len,8),mat);m.position.copy(a.clone().add(b).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new T3.Vector3(0,1,0),dir.normalize());return m}
+function wallNormal(it){
+  const r=P.rooms.find(z=>z.id===it.room)||P.rooms.find(z=>it.x>=z.x-.05&&it.x<=z.x+z.w+.05&&it.y>=z.y-.05&&it.y<=z.y+z.h+.05);if(!r)return[0,1];
+  const d=[[Math.abs(it.x-r.x),[1,0]],[Math.abs(it.x-r.x-r.w),[-1,0]],[Math.abs(it.y-r.y),[0,1]],[Math.abs(it.y-r.y-r.h),[0,-1]]].sort((a,b)=>a[0]-b[0]);
+  return d[0][1];
+}
+function makeDevice(T3,it,col,H){
+  const g=new T3.Group(),M=(c,o={})=>new T3.MeshLambertMaterial({color:new T3.Color(c),transparent:true,opacity:1,...o}),white=0xF4F4F1,dark=0x2B2F33;
+  const add=(geo,m,x=0,y=0,z=0)=>{const ms=new T3.Mesh(geo,m);ms.position.set(x,y,z);g.add(ms);return ms};
+  const box=(w,h,d,m,x,y,z)=>add(new T3.BoxGeometry(w,h,d),m,x,y,z);
+  const cylZ=(r,len,m,x,y,z,seg=20)=>{const ms=add(new T3.CylinderGeometry(r,r,len,seg),m,x,y,z);ms.rotation.x=Math.PI/2;return ms};
+  const t=it.type,gr=T[t].g,cm=M(col);
+  if(gr==='priza'){
+    const n=t==='prizaM'?nOf(it):t==='priza2'?2:1,pw=.085;
+    for(let i=0;i<n;i++){const x=(i-(n-1)/2)*pw;box(pw-.004,.085,.012,M(white),x,0,.006);box(pw+.006,.095,.006,cm,x,0,0);
+      if(t==='tv'){cylZ(.012,.004,M(dark),x,0,.014)}else{cylZ(.016,.003,M(0xDADAD6),x,0,.0135);cylZ(.0045,.006,M(dark),x-.011,0,.015,10);cylZ(.0045,.006,M(dark),x+.011,0,.015,10)}}
+    if(t==='prizaip')box(pw+.01,.07,.025,M(0xBFC5CA,{opacity:.85}),0,.012,.03);
+    return g}
+  if(gr==='intr'){
+    const n=t==='intr2'?2:1;box(.085,.085,.012,M(white),0,0,.006);box(.095,.095,.006,cm,0,0,0);
+    for(let i=0;i<n;i++){const w=n===2?.03:.05,x=n===2?(i?.017:-.017):0,rk=box(w,.05,.01,M(t==='intrCS'||t==='intrCR'?0xE8E8E3:0xEDEDEA),x,0,.016);rk.rotation.x=-.12}
+    if(t==='intrCS'||t==='intrCR')box(.012,.006,.004,cm,0,-.03,.022);
+    return g}
+  if(t==='lumina'){add(new T3.CylinderGeometry(.18,.2,.03,28),M(white),0,-.015,0);const dome=add(new T3.SphereGeometry(.16,24,12,0,Math.PI*2,0,Math.PI/2),M(0xFFF6D8,{emissive:new T3.Color(0x5a4a10)}),0,-.03,0);dome.rotation.x=Math.PI;add(new T3.TorusGeometry(.19,.01,6,28),cm,0,-.03,0).rotation.x=Math.PI/2;return g}
+  if(t==='spot'){add(new T3.CylinderGeometry(.05,.05,.015,20),M(0xDADAD6),0,-.008,0);add(new T3.CylinderGeometry(.032,.032,.02,16),M(0xFFF3C4,{emissive:new T3.Color(0x6a5a10)}),0,-.015,0);add(new T3.TorusGeometry(.05,.006,6,20),cm,0,-.016,0).rotation.x=Math.PI/2;return g}
+  if(t==='aplica'){box(.1,.14,.02,cm,0,0,.01);const sh=add(new T3.CylinderGeometry(.07,.1,.16,20,1,true,0,Math.PI),M(0xFFF6D8,{emissive:new T3.Color(0x4a3a08),side:T3.DoubleSide}),0,.02,.02);sh.rotation.y=-Math.PI/2;return g}
+  if(t==='tablou'){box(.42,.55,.12,M(0xE6E8EA),0,0,.06);box(.38,.5,.01,M(0xD3D7DB),0,0,.125);box(.3,.06,.012,M(dark),0,.05,.128);box(.03,.08,.01,M(0x8A9096),.16,0,.132);box(.44,.57,.01,cm,0,0,.0);return g}
+  if(t==='msr'||t==='msv'){const h=t==='msr'?.85:.82;box(.6,h,.58,M(white),0,h/2,.29);box(.6,.1,.585,M(0xE2E2DE),0,h-.05,.29);if(t==='msr'){add(new T3.TorusGeometry(.17,.03,10,28),M(0xB9BEC3),0,h*.45,.585);cylZ(.15,.01,M(0x9DB7C9,{opacity:.85}),0,h*.45,.585)}else box(.4,.02,.02,M(0xB9BEC3),0,h-.14,.59);box(.6,.02,.01,cm,0,h-.01,.585);return g}
+  if(t==='cuptor'){box(.6,.6,.56,M(0x3A3F44),0,.3,.28);box(.48,.3,.01,M(0x15181B,{opacity:.9}),0,.27,.565);box(.5,.03,.03,M(0xB9BEC3),0,.47,.575);box(.6,.02,.01,cm,0,.59,.565);return g}
+  if(t==='plita'){box(.62,.86,.6,M(0xE9E6DF),0,.43,.3);box(.6,.012,.52,M(0x111315),0,.866,.3);for(const[x,z]of[[-.15,.18],[.15,.18],[-.15,.42],[.15,.42]])add(new T3.TorusGeometry(.07,.004,4,24),M(0x666b70),x,.874,z).rotation.x=Math.PI/2;box(.62,.02,.01,cm,0,.86,.6);return g}
+  if(t==='boiler'){const b=add(new T3.CylinderGeometry(.22,.22,.8,28),M(white),0,-.2,.24);add(new T3.TorusGeometry(.22,.008,6,28),cm,0,.18,.24).rotation.x=Math.PI/2;return g}
+  if(t==='ac'){box(.82,.28,.2,M(white),0,0,.1);box(.7,.02,.01,M(0xC9CED3),0,-.08,.2);box(.82,.01,.2,cm,0,.14,.1);return g}
+  box(.35,.35,.25,M(0xE6E8EA),0,0,.125);box(.36,.02,.01,cm,0,.16,.25);return g;
+}
 function build3D(){
   const T3=window.THREE,box=$('#v3dBox');box.innerHTML='';
   const scene=new T3.Scene();scene.background=new T3.Color(C.canvas);
@@ -3122,15 +3156,15 @@ function build3D(){
       for(let i=0;i+1<cuts.length;i++){const p0=cuts[i],p1=cuts[i+1],mid=(p0+p1)/2,op=ops.find(q=>mid>q.a&&mid<q.b);if(!op)addWall(o,c,p0,p1,0,H);else{addWall(o,c,p0,p1,0,op.bot);addWall(o,c,p0,p1,op.top,H)}}}
   }
   v3.meshes=[];const mats={},mat=ci=>mats[ci]||(mats[ci]=new T3.MeshLambertMaterial({color:new T3.Color(C.circ[ci%8]),transparent:true,opacity:1}));
-  if(R)for(const s of R.segs){const P3=[[s.a.x,s.fh,s.a.y],[s.a.x,z,s.a.y],...s.pts.map(q=>[q.x,z,q.y]),[s.b.x,z,s.b.y],[s.b.x,s.th,s.b.y]];
-    for(let i=0;i+1<P3.length;i++){const m=cyl(T3,P3[i],P3[i+1],s.feed?.03:.02,mat(s.ci).clone());if(m){m.userData.ci=s.ci;scene.add(m);v3.meshes.push(m)}}}
-  if(R)for(const q of R.phys){if(!q.cis.length)continue;const m=new T3.Mesh(new T3.BoxGeometry(.12,.12,.12),mat(q.cis[0]).clone());m.position.set(q.x,q.z!=null?q.z:z,q.y);m.userData.ci=q.cis[0];scene.add(m);v3.meshes.push(m)}
-  for(const it of P.items){const cid=R&&R.by[it.id],c=cid&&R.circuits.find(x=>x.id===cid),h=hOf(P,it);let m;
-    if(it.type==='tablou')m=new T3.Mesh(new T3.BoxGeometry(.5,.6,.14),new T3.MeshLambertMaterial({color:new T3.Color(C.ink)}));
-    else if(T[it.type].h==='ceil')m=new T3.Mesh(new T3.CylinderGeometry(.16,.16,.04,16),c?mat(c.ci).clone():new T3.MeshLambertMaterial({color:0x999999}));
-    else if(T[it.type].g==='ded')m=new T3.Mesh(new T3.BoxGeometry(.3,.3,.3),c?mat(c.ci).clone():new T3.MeshLambertMaterial({color:0x999999}));
-    else m=new T3.Mesh(new T3.BoxGeometry(.1,.1,.1),c?mat(c.ci).clone():new T3.MeshLambertMaterial({color:0x999999}));
-    m.position.set(it.x,T[it.type].h==='ceil'?H-.02:h,it.y);if(c)m.userData.ci=c.ci;scene.add(m);v3.meshes.push(m)}
+  if(R)for(const s of R.segs){const sz=(s.z??z)+((s.z??z)<.01?.03:0),P3=[[s.a.x,s.fh,s.a.y],[s.a.x,sz,s.a.y],...s.pts.map(q=>[q.x,sz,q.y]),[s.b.x,sz,s.b.y],[s.b.x,s.th,s.b.y]];
+    for(let i=0;i+1<P3.length;i++){const m=cyl(T3,P3[i],P3[i+1],s.feed?.017:.011,mat(s.ci).clone());if(m){m.userData.ci=s.ci;scene.add(m);v3.meshes.push(m)}}}
+  if(R)for(const q of R.phys){if(!q.cis.length)continue;const m=new T3.Mesh(new T3.BoxGeometry(.09,.09,.06),mat(q.cis[0]).clone());m.position.set(q.x,q.z!=null?q.z:z,q.y);m.userData.ci=q.cis[0];scene.add(m);v3.meshes.push(m)}
+  for(const it of P.items){const cid=R&&R.by[it.id],c=cid&&R.circuits.find(x=>x.id===cid),h=hOf(P,it),col=c?C.circ[c.ci%8]:'#999999',ceil=T[it.type].h==='ceil',gr=T[it.type].g;
+    const m=makeDevice(T3,it,col,H);
+    if(gr==='priza'||gr==='intr')m.scale.setScalar(1.6);else if(it.type==='spot')m.scale.setScalar(1.4);
+    if(ceil)m.position.set(it.x,H,it.y);
+    else{const[nx,nz]=wallNormal(it),floorDev=['msr','msv','cuptor','plita'].includes(it.type);m.rotation.y=Math.atan2(nx,nz);m.position.set(it.x+nx*.05,floorDev?0:h,it.y+nz*.05)}
+    m.traverse(o=>{if(o.isMesh){if(c)o.userData.ci=c.ci;v3.meshes.push(o)}});scene.add(m)}
   const ren=new T3.WebGLRenderer({antialias:true});ren.setPixelRatio(Math.min(2,devicePixelRatio||1));box.appendChild(ren.domElement);
   const cam=new T3.PerspectiveCamera(45,1,.05,200);v3.scene=scene;v3.cam=cam;v3.ren=ren;v3.tg=new T3.Vector3((x0+x1)/2,H*.35,(y0+y1)/2);v3.span=Math.max(x1-x0,y1-y0);v3.th=-.8;v3.ph=.95;{const bb=box.getBoundingClientRect(),asp=bb.width/Math.max(1,bb.height);v3.rad0=(v3.span*1.45+3)/Math.min(1,asp*1.25);v3.rad=v3.rad0}
   $('#v3dIso').innerHTML='<option value="">Toate circuitele</option>'+(R?R.circuits.map(c=>`<option value="${c.ci}"${String(c.ci)===v3.iso?' selected':''}>${c.id} · ${esc(c.name)}</option>`).join(''):'');
