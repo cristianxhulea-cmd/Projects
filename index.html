@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="ElectroPlan">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="app-version" content="e3ad354366f0">
+<meta name="app-version" content="e9b6c18ca942">
 </head>
 <body>
 <title>ElectroPlan</title>
@@ -878,8 +878,8 @@ function doorChecks(p,out){
 }
 const clampIn=(r,q,m)=>({x:clamp(q.x,r.x+m,r.x+r.w-m),y:clamp(q.y,r.y+m,r.y+r.h-m)});
 
-function blank(name){return{id:uid(),name:name||'Proiect nou',client:'',adresa:'',telefon:'',start:'',H:2.6,route:'mixt',cable:'CYY-F',reserve:10,maxPrize:8,maxLum:10,ks:.4,spd:true,swOff:.2,rooms:[],items:[],doors:[],wins:[],struct:[],routes:{},boxes:{},jb:[],sketch:[],tasks:[],prices:{}}}
-const norm=p=>{if(!Array.isArray(p.doors))p.doors=[];if(!Array.isArray(p.wins))p.wins=[];if(!Array.isArray(p.struct))p.struct=[];if(!p.routes||typeof p.routes!=='object')p.routes={};if(!p.boxes||typeof p.boxes!=='object')p.boxes={};if(!Array.isArray(p.jb))p.jb=[];if(!Array.isArray(p.sketch))p.sketch=[];if(!Array.isArray(p.sketchErase))p.sketchErase=[];if(!Array.isArray(p.levels)||!p.levels.length){p.levels=[{id:'L0',name:'Parter',elev:0}];p.lvCur='L0'}if(!p.lvData||typeof p.lvData!=='object')p.lvData={};if(!p.levels.some(l=>l.id===p.lvCur))p.lvCur=p.levels[0].id;if(p.swOff==null)p.swOff=.2;return p};
+function blank(name){return{id:uid(),name:name||'Proiect nou',client:'',adresa:'',telefon:'',start:'',H:2.6,route:'mixt',routeV:2,cable:'CYY-F',reserve:10,maxPrize:8,maxLum:10,ks:.4,spd:true,swOff:.2,rooms:[],items:[],doors:[],wins:[],struct:[],routes:{},boxes:{},jb:[],sketch:[],tasks:[],prices:{}}}
+const norm=p=>{if(!Array.isArray(p.doors))p.doors=[];if(!Array.isArray(p.wins))p.wins=[];if(!Array.isArray(p.struct))p.struct=[];if(!p.routes||typeof p.routes!=='object')p.routes={};if(!p.boxes||typeof p.boxes!=='object')p.boxes={};if(!Array.isArray(p.jb))p.jb=[];if(!Array.isArray(p.sketch))p.sketch=[];if(!Array.isArray(p.sketchErase))p.sketchErase=[];if(!Array.isArray(p.levels)||!p.levels.length){p.levels=[{id:'L0',name:'Parter',elev:0}];p.lvCur='L0'}if(!p.lvData||typeof p.lvData!=='object')p.lvData={};if(!p.levels.some(l=>l.id===p.lvCur))p.lvCur=p.levels[0].id;if(p.swOff==null)p.swOff=.2;if(!p.routeV){if(!p.route||p.route==='tavan')p.route='mixt';p.routeV=2}return p};
 function sample(){
   const p=blank('Exemplu — apartament 3 camere');
   p.client='Exemplu (date fictive)';p.adresa='Str. Exemplu nr. 1, ap. 4';
@@ -2153,7 +2153,7 @@ function renderInspector(){
     <div><h4>Setări proiect</h4><div class="fields">
       <label class="f full">Nume proiect<input data-s="proj" data-f="name" id="p-name" value="${esc(P.name)}"></label>
       <label class="f">Înălțime cameră (m)<input data-s="proj" data-f="H" id="p-H" type="number" inputmode="decimal" min="2" max="5" step=".05" value="${P.H}"></label>
-      <label class="f">Trasee orizontale<select data-s="proj" data-f="route" id="p-route">${opt({mixt:'Prize pe jos, lumini sus',tavan:'Toate sub tavan',pardoseala:'Toate în pardoseală'},P.route||'tavan')}</select></label>
+      <label class="f">Trasee orizontale<select data-s="proj" data-f="route" id="p-route">${opt({mixt:'Prize pe jos, lumini sus',tavan:'Toate sub tavan',pardoseala:'Toate în pardoseală'},P.route||'mixt')}</select></label>
       <label class="f">Trecere între camere<select data-s="proj" data-f="through" id="p-through">${opt({usa:'Pe la uși (peste toc)',perete:'Prin perete (cel mai scurt)'},P.through==='perete'?'perete':'usa')}</select></label>
       <label class="f">Tip cablu<select data-s="proj" data-f="cable" id="p-cable">${opt({'CYY-F':'CYY-F','NYM-J':'NYM-J','MYYM':'MYYM'},P.cable)}</select></label>
       <label class="f">Rezervă cablu (%)<input data-s="proj" data-f="reserve" id="p-res" type="number" inputmode="decimal" min="0" max="50" step="1" value="${P.reserve}"></label>
