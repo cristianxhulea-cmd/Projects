@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="ElectroPlan">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="app-version" content="e9b6c18ca942">
+<meta name="app-version" content="95669775cc93">
 </head>
 <body>
 <title>ElectroPlan</title>
@@ -298,6 +298,7 @@ body.focus #focusBtn{background:var(--accent);border-color:var(--accent);color:v
 .acts .btn.ic{width:40px;height:40px;justify-content:center;border-radius:var(--r-md)}
 #ioBtn{height:40px;border-radius:var(--r-md)}
 #ioBtn .lbl{display:none}
+@media (max-width:1180px){#fbBtn .lbl{display:none}}
 #accBtn.av{width:40px;height:40px;padding:0;justify-content:center;border-radius:50%;background:var(--ink);color:var(--canvas);border-color:var(--ink);font-weight:700;font-size:13px}
 .btn{border-radius:9px}
 .plan{grid-template-columns:92px minmax(0,1fr);background:var(--bg)}
@@ -522,6 +523,7 @@ body.focus #focusBtn{background:var(--accent);border-color:var(--accent);color:v
     <div class="acts">
       <button class="btn" id="accBtn" type="button" hidden>Conectează-te</button>
       <button class="btn pri" id="installBtn" type="button" hidden>Instalează aplicația</button>
+      <button class="btn" id="fbBtn" type="button" hidden title="Trimite o sugestie sau o problemă"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 10.5h7M8.5 14h4"/></svg><span class="lbl">Feedback</span></button>
       <button class="btn ic" id="helpBtn" type="button" title="Cum lucrezi cu ElectroPlan" aria-label="Ajutor" style="font-weight:700;min-width:34px;justify-content:center">?</button>
       <button class="btn ic" id="undoBtn" type="button" title="Anulează (Ctrl+Z)" aria-label="Anulează"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
       <button class="btn ic" id="redoBtn" type="button" title="Refă (Ctrl+Y)" aria-label="Refă"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
@@ -581,6 +583,15 @@ body.focus #focusBtn{background:var(--accent);border-color:var(--accent);color:v
     <label class="ck"><input type="checkbox" id="guideOff"> Nu mai afișa la proiectele noi</label>
     <div class="bar" style="justify-content:flex-end"><button class="btn pri" type="button" id="guideOk">Am înțeles</button></div>
   </div>
+</dialog>
+<dialog id="fbDlg">
+  <form class="dl" id="fbF">
+    <div><h2>Feedback</h2><p class="muted" style="margin:0">Spune-ne ce ai vrea să apară, ce nu îți place sau ce nu merge. Citim fiecare mesaj.</p></div>
+    <div class="bar" role="radiogroup" aria-label="Tip" id="fbKinds"><button class="chip" type="button" data-fbk="vreau" aria-pressed="true">Aș vrea să apară</button><button class="chip" type="button" data-fbk="nu_place" aria-pressed="false">Nu îmi place</button><button class="chip" type="button" data-fbk="bug" aria-pressed="false">Nu merge</button></div>
+    <label class="f">Mesajul tău<textarea id="fbText" rows="5" maxlength="4000" style="font-family:inherit;font-size:15px;min-height:130px" placeholder="ex. Aș vrea să pot pune și o priză de pardoseală."></textarea></label>
+    <p class="muted" id="fbCtx" style="margin:0;font-size:12px"></p>
+    <div class="bar" style="justify-content:flex-end"><button class="btn" type="button" id="fbC">Renunță</button><button class="btn pri" type="submit" id="fbGo">Trimite</button></div>
+  </form>
 </dialog>
 <dialog id="accDlg">
   <form class="dl" id="accF">
@@ -651,14 +662,16 @@ const T={
   plita:{n:'Plită inducție',g:'ded',w:7200,h:.6,code:'PLT',conn:'racord'},
   ac:{n:'Aer condiționat',g:'ded',w:2600,h:2.2,code:'AC',conn:'racord',curve:'C',cos:.9},
   boiler:{n:'Boiler electric',g:'ded',w:2000,h:1.8,code:'BOI',conn:'racord'},
+  feon:{n:'Feon (uscător de păr)',g:'ded',w:2000,h:1.1,code:'FEN',conn:'priza'},
+  vent:{n:'Ventilator aerisire',g:'ded',w:40,h:2.2,code:'VNT',conn:'racord',onLum:true},
   ded:{n:'Consumator dedicat',g:'ded',w:2000,h:.6,code:'D',conn:'racord'},
   trecere:{n:'Trecere între niveluri',g:'aux',w:0,h:0,code:'TR'},
   tablou:{n:'Tablou electric',g:'tab',w:0,h:1.6,code:'TE'}
 };
-const TOOLS=[['Plan',['select','schita','scris','room','usa','geam','gol']],['Structură',['rez','grinda']],['Doze',['dozaS','dozaM','dozaL']],['Prize',['priza','priza2','prizaM','prizaip','tv']],['Iluminat',['lumina','spot','aplica','intr','intr2','intrCS','intrCR']],['Consumatori',['msr','msv','cuptor','plita','ac','boiler','ded']],['Alimentare',['tablou','trecere']]];
+const TOOLS=[['Plan',['select','schita','scris','room','usa','geam','gol']],['Structură',['rez','grinda']],['Doze',['dozaS','dozaM','dozaL']],['Prize',['priza','priza2','prizaM','prizaip','tv']],['Iluminat',['lumina','spot','aplica','intr','intr2','intrCS','intrCR']],['Consumatori',['msr','msv','cuptor','plita','ac','boiler','feon','vent','ded']],['Alimentare',['tablou','trecere']]];
 const JB={s:{n:'Doză Ø80',cap:4,lbl:'Ø80 mm',k:5},m:{n:'Doză 100×100',cap:6,lbl:'100×100 mm',k:6},l:{n:'Doză 160×100',cap:10,lbl:'160×100 mm',k:8},xl:{n:'Doză 200×150',cap:16,lbl:'200×150 mm',k:10}};
 const JBT={dozaS:'s',dozaM:'m',dozaL:'l'};
-const SHORT={intrCS:'Cap scară',intrCR:'Cruce',scris:'Scris',trecere:'Trecere nivel',schita:'Schiță',gol:'Gol perete',prizaM:'Priză 1–5',dozaS:'Doză mică',dozaM:'Doză medie',dozaL:'Doză mare',tv:'Priză TV',select:'Selectează',room:'Cameră',usa:'Ușă',geam:'Fereastră',rez:'Perete rez.',grinda:'Grindă',priza:'Priză',priza2:'Priză dublă',prizaip:'Priză IP44',lumina:'Plafonieră',spot:'Spot',aplica:'Aplică',intr:'Întrerupător',intr2:'Întrer. dublu',msr:'Mașină rufe',msv:'Mașină vase',cuptor:'Cuptor',plita:'Plită',ac:'Aer cond.',boiler:'Boiler',ded:'Alt consumator',tablou:'Tablou'};
+const SHORT={intrCS:'Cap scară',intrCR:'Cruce',scris:'Scris',trecere:'Trecere nivel',schita:'Schiță',gol:'Gol perete',prizaM:'Priză 1–5',dozaS:'Doză mică',dozaM:'Doză medie',dozaL:'Doză mare',tv:'Priză TV',select:'Selectează',room:'Cameră',usa:'Ușă',geam:'Fereastră',rez:'Perete rez.',grinda:'Grindă',priza:'Priză',priza2:'Priză dublă',prizaip:'Priză IP44',lumina:'Plafonieră',spot:'Spot',aplica:'Aplică',intr:'Întrerupător',intr2:'Întrer. dublu',msr:'Mașină rufe',msv:'Mașină vase',cuptor:'Cuptor',plita:'Plită',ac:'Aer cond.',boiler:'Boiler',feon:'Feon',vent:'Ventilator',ded:'Alt consumator',tablou:'Tablou'};
 const RT={living:'Living',dormitor:'Dormitor',bucatarie:'Bucătărie',baie:'Baie',hol:'Hol',birou:'Birou',debara:'Debara',altul:'Altă cameră'};
 const ST={todo:'De făcut',doing:'În lucru',done:'Finalizat'};
 const KEY0='electroplan.v1';let KEY=KEY0;
@@ -876,10 +889,16 @@ function doorChecks(p,out){
     if(lum&&!mine.some(d=>switchOk(p,d,r)))out.warn.push(`${r.name}: pune un întrerupător lângă ușă, pe partea clanței, la 10–30 cm de toc.`);
   }
 }
+const BOXZ=.3;
+function spotBad(p,q,z){for(const o of['h','v']){const c=o==='h'?q.y:q.x,t=o==='h'?q.x:q.y,on=x=>x.o===o&&Math.abs(x.c-c)<.02;
+  for(const d of p.doors.filter(on)){const[a,b]=dEnds(d);if(t>a-.15&&t<b+.15&&z<2.25)return'în golul ușii'}
+  for(const w of p.wins.filter(on)){const[a,b]=dEnds(w);if(t>a-.15&&t<b+.15&&z>w.sill-.15&&z<w.sill+w.hg+.15)return'în golul ferestrei'}
+  for(const st of(p.struct||[]).filter(x=>(x.k==='gol'||x.k==='rez')&&on(x)))if(t>=Math.min(st.a,st.b)-.05&&t<=Math.max(st.a,st.b)+.05)return st.k==='gol'?'unde peretele lipsește':'pe un perete de rezistență'}
+  return null}
 const clampIn=(r,q,m)=>({x:clamp(q.x,r.x+m,r.x+r.w-m),y:clamp(q.y,r.y+m,r.y+r.h-m)});
 
-function blank(name){return{id:uid(),name:name||'Proiect nou',client:'',adresa:'',telefon:'',start:'',H:2.6,route:'mixt',routeV:2,cable:'CYY-F',reserve:10,maxPrize:8,maxLum:10,ks:.4,spd:true,swOff:.2,rooms:[],items:[],doors:[],wins:[],struct:[],routes:{},boxes:{},jb:[],sketch:[],tasks:[],prices:{}}}
-const norm=p=>{if(!Array.isArray(p.doors))p.doors=[];if(!Array.isArray(p.wins))p.wins=[];if(!Array.isArray(p.struct))p.struct=[];if(!p.routes||typeof p.routes!=='object')p.routes={};if(!p.boxes||typeof p.boxes!=='object')p.boxes={};if(!Array.isArray(p.jb))p.jb=[];if(!Array.isArray(p.sketch))p.sketch=[];if(!Array.isArray(p.sketchErase))p.sketchErase=[];if(!Array.isArray(p.levels)||!p.levels.length){p.levels=[{id:'L0',name:'Parter',elev:0}];p.lvCur='L0'}if(!p.lvData||typeof p.lvData!=='object')p.lvData={};if(!p.levels.some(l=>l.id===p.lvCur))p.lvCur=p.levels[0].id;if(p.swOff==null)p.swOff=.2;if(!p.routeV){if(!p.route||p.route==='tavan')p.route='mixt';p.routeV=2}return p};
+function blank(name){return{id:uid(),name:name||'Proiect nou',client:'',adresa:'',telefon:'',start:'',H:2.6,route:'pardoseala',routeV:3,cable:'CYY-F',reserve:10,maxPrize:8,maxLum:10,ks:.4,spd:true,swOff:.2,rooms:[],items:[],doors:[],wins:[],struct:[],routes:{},boxes:{},jb:[],sketch:[],tasks:[],prices:{}}}
+const norm=p=>{if(!Array.isArray(p.doors))p.doors=[];if(!Array.isArray(p.wins))p.wins=[];if(!Array.isArray(p.struct))p.struct=[];if(!p.routes||typeof p.routes!=='object')p.routes={};if(!p.boxes||typeof p.boxes!=='object')p.boxes={};if(!Array.isArray(p.jb))p.jb=[];if(!Array.isArray(p.sketch))p.sketch=[];if(!Array.isArray(p.sketchErase))p.sketchErase=[];if(!Array.isArray(p.levels)||!p.levels.length){p.levels=[{id:'L0',name:'Parter',elev:0}];p.lvCur='L0'}if(!p.lvData||typeof p.lvData!=='object')p.lvData={};if(!p.levels.some(l=>l.id===p.lvCur))p.lvCur=p.levels[0].id;if(p.swOff==null)p.swOff=.2;if(!p.routeV){if(!p.route||p.route==='tavan')p.route='mixt';p.routeV=2}if(p.routeV<3){if(p.route==='mixt')p.route='pardoseala';p.routeV=3}return p};
 function sample(){
   const p=blank('Exemplu — apartament 3 camere');
   p.client='Exemplu (date fictive)';p.adresa='Str. Exemplu nr. 1, ap. 4';
@@ -1011,7 +1030,7 @@ async function sbPull(){
   if(del.size){store.projects=store.projects.filter(p=>!del.has(p.id)||(p.updated||0)>del.get(p.id));if(!store.projects.length)store.projects.push(norm(blank('Proiect 1')))}
   onRemote({docs:data.filter(r=>!r.deleted).map(r=>({id:r.id,data:()=>({p:r.data,updated:+r.updated})})),docChanges:()=>[]});
 }
-function renderAccount(){const b=$('#accBtn');if(!b)return;b.hidden=!sb;b.classList.toggle('av',!!sbUser);b.textContent=sbUser?((sbUser.email||'?').split('@')[0].replace(/[^a-zA-Z]/g,'').slice(0,2).toUpperCase()||'?'):'Conectează-te';b.title=sbUser?sbUser.email||'':'Salvează proiectele online'}
+function renderAccount(){const fb=$('#fbBtn');if(fb)fb.hidden=!sbUser;const b=$('#accBtn');if(!b)return;b.hidden=!sb;b.classList.toggle('av',!!sbUser);b.textContent=sbUser?((sbUser.email||'?').split('@')[0].replace(/[^a-zA-Z]/g,'').slice(0,2).toUpperCase()||'?'):'Conectează-te';b.title=sbUser?sbUser.email||'':'Salvează proiectele online'}
 async function sbConnect(){
   if(!SB_KEY||!/^https?:$/.test(location.protocol)){setSync('local');return}
   try{await loadSB()}catch(e){siteMode=false;setSync('local');if(!$('#intro').hidden)showIntro();toast('Nu mă pot conecta acum la cont. Lucrezi local, pe acest dispozitiv.');return}
@@ -1031,6 +1050,22 @@ async function sbConnect(){
 }
 $('#accBtn').onclick=()=>{if(!sbUser){setAuthMode('in');showIntro();return}const on=true;$('#accH').textContent=on?`Conectat ca ${sbUser.email}. ${acct?(acct.role==='admin'?'Cont de administrator. ':acct.status==='trial'?`Perioadă de probă: mai ai ${daysLeft(acct)} ${daysLeft(acct)===1?'zi':'zile'}, până la ${dRo(isoD(new Date(acct.valid_until)))}. `:`Abonament activ până la ${dRo(isoD(new Date(acct.valid_until)))}. `):''}Proiectele se salvează online automat.`:'Te conectezi cu adresa de e-mail: primești un link, îl deschizi pe acest dispozitiv și gata. Proiectele se salvează online și apar pe orice dispozitiv pe care te conectezi.';$('#accEL').hidden=on;$('#accGo').hidden=on;$('#accOut').hidden=!on;$('#accSync').hidden=!on;$('#accDlg').showModal()};
 $('#accC').onclick=()=>$('#accDlg').close();
+let fbKind='vreau';
+const TABN={plan:'Plan',calcul:'Circuite',materiale:'Materiale',oferta:'Documente',lucrari:'Lucrări',admin:'Admin'};
+const fbCtx=()=>{const it=sel&&sel.kind==='item'?P.items.find(i=>i.id===sel.id):null,mv=document.querySelector('meta[name="app-version"]');return{tab:TABN[tab]||tab,sel:it?T[it.type].n:sel?sel.kind:'',project:P.name,device:devName(),v:mv?mv.content:''}};
+const FBPH={vreau:'ex. Aș vrea să pot pune și o priză de pardoseală.',nu_place:'ex. Nu îmi place că trebuie să apăs de două ori ca să selectez o priză.',bug:'ex. Când apăs Exportă PDF pe tabletă, nu se întâmplă nimic.'};
+function setFbKind(k){fbKind=k;document.querySelectorAll('[data-fbk]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.fbk===k));$('#fbText').placeholder=FBPH[k]}
+function openFb(){if(!sbUser){toast('Conectează-te ca să trimiți feedback.');return}const c=fbCtx();$('#fbCtx').textContent=`Trimitem și unde erai: ${c.tab}${c.sel?' · '+c.sel:''} · ${c.device}.`;$('#fbDlg').showModal();setTimeout(()=>$('#fbText').focus(),50)}
+$('#fbBtn').onclick=openFb;
+$('#fbKinds').addEventListener('click',e=>{const b=e.target.closest('[data-fbk]');if(b)setFbKind(b.dataset.fbk)});
+$('#fbC').onclick=()=>$('#fbDlg').close();
+$('#fbF').addEventListener('submit',async e=>{e.preventDefault();const t=$('#fbText').value.trim();if(t.length<3){toast('Scrie câteva cuvinte despre ce ai observat.');$('#fbText').focus();return}
+  const go=$('#fbGo');go.disabled=true;go.textContent='Se trimite…';
+  try{const{error}=await sb.from('feedback').insert({user_id:sbUser.id,email:sbUser.email||'',kind:fbKind,body:t.slice(0,4000),context:fbCtx()});
+    if(error){toast(/relation|does not exist|schema cache/i.test(error.message||'')?'Feedback-ul nu e pornit încă. Spune-i administratorului.':'Nu am putut trimite: '+(error.message||'eroare')+'. Mesajul a rămas aici.');return}
+    $('#fbText').value='';setFbKind('vreau');$('#fbDlg').close();toast('Mulțumim! Am primit mesajul.')}
+  catch(x){toast('Nu există conexiune la internet. Mesajul a rămas aici, încearcă din nou.')}
+  finally{go.disabled=false;go.textContent='Trimite'}});
 $('#accSync').onclick=async()=>{await sbPull();flush();toast('Sincronizat.')};
 $('#accOut').onclick=async()=>{$('#accDlg').close();await sb.auth.signOut();toast('Te-ai deconectat.')};
 $('#accF').addEventListener('submit',async e=>{e.preventDefault();const em=$('#accE').value.trim();if(!/^\S+@\S+\.\S+$/.test(em)){toast('Scrie o adresă de e-mail validă.');return}
@@ -1042,7 +1077,7 @@ function replaceP(q){const i=store.projects.findIndex(x=>x.id===P.id);store.proj
 function undo(){if(!undoS.length)return;redoS.push(JSON.stringify(P));replaceP(JSON.parse(undoS.pop()));sel=null;changed(true)}
 function redo(){if(!redoS.length)return;undoS.push(JSON.stringify(P));replaceP(JSON.parse(redoS.pop()));sel=null;changed(true)}
 
-function isLight(i){return T[i.type].g==='lum'}
+function isLight(i){const t=T[i.type];return t.g==='lum'||!!t.onLum}
 function isSw(i){return T[i.type].g==='intr'}
 function ctrlOf(p,sw){const L=p.items.filter(isLight);if(Array.isArray(sw.ctrl))return L.filter(l=>sw.ctrl.includes(l.id));return L.filter(l=>l.room===sw.room)}
 function ctrlBy(p,light){return p.items.filter(i=>isSw(i)&&ctrlOf(p,i).some(l=>l.id===light.id))}
@@ -1075,7 +1110,7 @@ function compute(p,o={}){
   const flush=a=>{if(cur&&cur.parts.length)a.push(cur);cur=null};
   const lum=[];
   for(const r of rooms){
-    const its=inRoom(r,['lum','intr']);if(!its.length)continue;
+    const its=p.items.filter(i=>i.room===r.id&&(['lum','intr'].includes(T[i.type].g)||T[i.type].onLum));if(!its.length)continue;
     const n=its.filter(i=>T[i.type].g==='lum').length;
     const free=its.filter(i=>isLight(i)&&!ctrlBy(p,i).length).length;if(free)out.warn.push(`${r.name}: ${free===1?'un corp de iluminat nu e comandat':free+' corpuri de iluminat nu sunt comandate'} de niciun întrerupător.`);
     if(!n&&its.some(i=>isSw(i)&&!Array.isArray(i.ctrl)))out.warn.push(`${r.name}: are întrerupător, dar niciun corp de iluminat.`);
@@ -1101,42 +1136,46 @@ function compute(p,o={}){
   }
   flush(pr);
   const ded=[];
-  for(const r of rooms)for(const it of inRoom(r,['ded']))ded.push({kind:'ded',parts:[{r,items:[it]}],n:1});
+  for(const r of rooms)for(const it of inRoom(r,['ded']).filter(i=>!T[i.type].onLum))ded.push({kind:'ded',parts:[{r,items:[it]}],n:1});
   const used=[],shared={},baths=p.rooms.filter(r=>r.type==='baie'),CW=closedWalls(p);
   [...lum,...pr,...ded].forEach((s,k)=>{
-    const zc=p.route==='mixt'?((s.kind==='lum'||(s.kind==='ded'&&hOf(p,s.parts[0].items[0])>1.4))?p.H-.3:0):z;
+    let zc=p.route==='mixt'?((s.kind==='lum'||(s.kind==='ded'&&hOf(p,s.parts[0].items[0])>1.4))?p.H-.3:0):z;
     const id=(o.pre||'')+'C'+(k+1+(o.base||0)),ci=k;
     let a={x:tb.x,y:tb.y},ah=tz,cum=0,len=0,Lmax=0,pk='TE';const xcab={};
     const F=baths.filter(r=>!s.parts.some(x=>x.r.id===r.id));
-    const add=(fr,fh,to,th,feed,key)=>{
+    const bz=zc>0?zc:BOXZ,loop=s.kind==='lum'&&zc<=0;
+    const add=(fr,fh,to,th,feed,key,zo)=>{const zc0=zc;if(zo!=null)zc=zo;try{
       const W=p.routes[key];let pts=W&&W.length?legsOf([fr,...W,to]):routeAuto(fr,to,F,p.rooms,CW);
       if(!pts){pts=cleanPts([fr,{x:to.x,y:fr.y},to]);out.warn.push(`${id}: nu am găsit un traseu care să ocolească baia. Trage traseul manual.`)}
       if(F.length&&!pathOk(pts,F)){out.warn.push(`${id}: traseul trece prin baie. În baie intră doar circuitele care o alimentează. Mută traseul.`);for(let k=0;k+1<pts.length;k++)for(const rc of F)if(crossRect(pts[k],pts[k+1],rc))out.hits.push({x:(pts[k].x+pts[k+1].x)/2,y:(pts[k].y+pts[k+1].y)/2,ci,kind:'baie'})}
-      const l=Math.abs(fh-zc)+pathLen(pts)+Math.abs(th-zc);out.segs.push({a:{x:fr.x,y:fr.y},b:{x:to.x,y:to.y},pts,ci,feed,l,key,man:!!(W&&W.length),fh,th,z:zc,ra:fr.room||null,rb:to.room||null});len+=l;return l};
+      const l=Math.abs(fh-zc)+pathLen(pts)+Math.abs(th-zc);out.segs.push({a:{x:fr.x,y:fr.y},b:{x:to.x,y:to.y},pts,ci,feed,l,key,man:!!(W&&W.length),fh,th,z:zc,ra:fr.room||null,rb:to.room||null});len+=l;return l}finally{zc=zc0}};
     if(s.kind==='ded'){const it=s.parts[0].items[0];Lmax=add(a,ah,it,hOf(p,it),true,'TE>'+it.id)}
     else for(const[pi,part]of s.parts.entries()){
       const nk='n:'+part.r.id+':'+part.items[0].id,uj=(p.jb||[]).filter(j=>j.room===part.r.id).sort((u,v)=>(Math.abs(u.x-a.x)+Math.abs(u.y-a.y))-(Math.abs(v.x-a.x)+Math.abs(v.y-a.y)))[0];
-      const cab=1+part.items.length+(pi<s.parts.length-1?1:0);
+      const viaSw=new Map();if(loop)for(const it of part.items){if(!isLight(it))continue;const sw=ctrlBy(p,it).find(q=>part.items.includes(q));if(sw)viaSw.set(it.id,sw)}
+      const cab=1+part.items.length-viaSw.size+(pi<s.parts.length-1?1:0);
       let sb=null;if(!uj&&p.shareBoxes!==false){const sk=part.r.id+(zc>0?'':':f'),L=shared[sk]||(shared[sk]=[]);sb=L.find(q=>q.cab+cab<=JB.xl.cap);if(!sb){sb={i:L.length,cab:0,bx:null};L.push(sb)}}
       const bk=sb?'sb:'+part.r.id+(zc>0?'':':f')+':'+sb.i:nk,ov=p.boxes[bk];
-      const bx=uj?boxAt(part.r,uj,zc):ov?boxAt(part.r,ov,zc):sb&&sb.bx?sb.bx:boxSpot(p,part.r,a,zc,used,F),d={x:bx.x,y:bx.y,room:part.r.id};
+      const bx=uj?boxAt(part.r,uj,bz):ov?boxAt(part.r,ov,bz):sb&&sb.bx?sb.bx:boxSpot(p,part.r,a,bz,used,F),d={x:bx.x,y:bx.y,room:part.r.id};
+      {const why=(uj||ov)&&spotBad(p,bx,bz);if(why)out.warn.push(`${part.r.name}: doza de derivație a circuitului ${id} e ${why}. Mut-o pe un perete plin.`)}
       if(sb){sb.bx=bx;sb.cab+=cab}
-      used.push(d);cum+=add(a,ah,d,zc,true,pk+'>'+nk);out.nodes.push({...bx,ci,cid:id,room:part.r.name,rid:part.r.id,key:nk,bkey:bk,sb:sb?bk:null,man:!!ov,jb:uj?uj.id:null,cab});
+      used.push(d);cum+=add(a,ah,d,bz,true,pk+'>'+nk);out.nodes.push({...bx,ci,cid:id,room:part.r.name,rid:part.r.id,key:nk,bkey:bk,sb:sb?bk:null,man:!!ov,jb:uj?uj.id:null,cab});
       if(bx.bad)out.warn.push(`${part.r.name}: nu am găsit un perete liber pentru doza de derivație a circuitului ${id}.`);
-      for(const it of part.items){const l=add(d,zc,it,hOf(p,it),false,nk+'>'+it.id);Lmax=Math.max(Lmax,cum+l);const co=it.type==='intrCS'?4:it.type==='intrCR'?5:0;if(co){const nm=`${p.cable} ${co}×1,5`;xcab[nm]=(xcab[nm]||0)+l}}
-      a=d;ah=zc;pk=nk;
+      const swL={};for(const it of part.items){if(viaSw.has(it.id))continue;const l=add(d,bz,it,hOf(p,it),false,nk+'>'+it.id);swL[it.id]=l;Lmax=Math.max(Lmax,cum+l);const co=it.type==='intrCS'?4:it.type==='intrCR'?5:0;if(co){const nm=`${p.cable} ${co}×1,5`;xcab[nm]=(xcab[nm]||0)+l}}
+      for(const[lid,sw]of viaSw){const it=part.items.find(q=>q.id===lid),hi=hOf(p,it),up=T[it.type].h==='ceil'||hi>=p.H-.05,l=add(sw,hOf(p,sw),it,hi,false,sw.id+'>'+it.id,up?p.H:null);Lmax=Math.max(Lmax,cum+(swL[sw.id]||0)+l)}
+      a=d;ah=bz;pk=nk;
     }
     Lmax+=o.ex||0;len+=o.ex||0;
     const items=s.parts.flatMap(x=>x.items),t0=T[items[0].type];
     const P=items.reduce((t,i)=>t+wOf(i),0),cos=s.kind==='ded'?(t0.cos||1):1,Ib=P/(U*cos);
-    const minIn=s.kind==='lum'?10:16,In=STD.find(v=>v>=Math.max(Ib,minIn))||63;
-    let S=SECTS.find(v=>IZ[v]>=In&&v>=(s.kind==='lum'?1.5:2.5))||16;
+    const minIn=s.kind==='lum'?10:(s.kind==='ded'&&t0.minIn)||16,In=STD.find(v=>v>=Math.max(Ib,minIn))||63;
+    let S=SECTS.find(v=>IZ[v]>=In&&v>=(s.kind==='lum'||In<=10?1.5:2.5))||16;
     const lim=s.kind==='lum'?3:5,du=S=>200*Lmax*Ib*cos/(GAMMA*S*U);
     while(du(S)>lim&&S<16)S=SECTS[SECTS.indexOf(S)+1];
     if(Ib>63)out.warn.push(`${id}: curentul de ${f(Ib)} A depășește 63 A. Folosește alimentare trifazică pentru acest consumator.`);
     if(du(S)>lim)out.warn.push(`${id}: căderea de tensiune rămâne peste ${lim} %. Mută tabloul mai aproape sau împarte circuitul.`);
     const curve=s.kind==='ded'?(t0.curve||'B'):'B';
-    const name=s.kind==='lum'?(s.bath?'Iluminat baie':'Iluminat'):s.kind==='priza'?'Prize':t0.n;
+    const name=s.kind==='lum'?(s.bath?'Iluminat baie':'Iluminat')+(items.some(i=>T[i.type].onLum)?' și ventilator':''):s.kind==='priza'?'Prize':t0.n;
     const where=[...new Set(s.parts.map(x=>x.r.name))].join(', ');
     const cabMain=`${p.cable} 3×${fS(S)}`,cabs={[cabMain]:len-Object.values(xcab).reduce((t,v)=>t+v,0)};for(const k in xcab)cabs[k]=(cabs[k]||0)+xcab[k];
     out.circuits.push({cabs,bath:!!s.bath||s.parts.every(x=>x.r.type==='baie'),id,ci,kind:s.kind,name,where,items,n:items.length,P,Ib,In,curve,S,cable:`${p.cable} 3×${fS(S)}`,len,Lmax,du:du(S),lim,rcd:null,tube:S<=2.5?16:S<=4?20:25});
@@ -1207,6 +1246,7 @@ function devInfo(p,it){
     case'priza2':socks=2;ck='p2:'+st;cn=`Priză dublă ${SN} 16 A`;break;
     case'prizaM':{const n=nOf(it);socks=n;cls=n;ck='pm'+n+':'+st;cn=n===1?`Priză ${SN} 16 A cu ramă de 1 post`:`Priză ${SN} 16 A în ramă de ${n} posturi`;cu='set';break}
     case'prizaip':socks=1;ck='ip:'+st;cn=`Priză ${SN} IP44 cu capac`;break;
+    case'feon':socks=1;ck='ip:'+st;cn=`Priză ${SN} IP44 cu capac`;break;
     case'tv':socks=2;extra=1;cls=2;ck='tv:'+st;cn=`Set priză TV: priză dublă ${SN} + priză TV/SAT`;cu='set';mech.push(['tvm','Priză TV/SAT modulară 1M',1]);break;
     case'intr':extra=1;ck='i1';cn='Întrerupător simplu 10 A';mech.push(['i1','Întrerupător modular 1M',1]);break;
     case'intr2':extra=2;ck='i2';cn='Întrerupător dublu 10 A';mech.push(['i1','Întrerupător modular 1M',2]);break;
@@ -1227,7 +1267,7 @@ function materials(p,r,o={}){
   const racord=p.items.filter(i=>T[i.type].conn==='racord'&&r.by[i.id]).length;
   const devs=p.items.filter(i=>p.rooms.some(x=>x.id===i.room)&&(T[i.type].g==='priza'||T[i.type].g==='intr'||(T[i.type].conn==='priza'&&r.by[i.id])));
   if(p.aparataj==='modular'){
-    for(const it of devs){const d=devInfo(p,it);for(const bx of modBoxes(d.mods)){add('Tuburi și doze','doza:mod:'+bx,BOXN[bx],'buc',1);add('Aparataj','sup:'+bx,`Suport aparataj ${bx} module`,'buc',1);add('Aparataj','rama:'+bx+(it.type==='prizaip'?':ip':''),`Ramă ${bx} module`+(it.type==='prizaip'?' cu capac IP44':''),'buc',1)}for(const[k,n,q]of d.mech)add('Aparataj','mec:'+k,n,'buc',q)}
+    for(const it of devs){const d=devInfo(p,it);for(const bx of modBoxes(d.mods)){add('Tuburi și doze','doza:mod:'+bx,BOXN[bx],'buc',1);add('Aparataj','sup:'+bx,`Suport aparataj ${bx} module`,'buc',1);add('Aparataj','rama:'+bx+(it.type==='prizaip'||it.type==='feon'?':ip':''),`Ramă ${bx} module`+(it.type==='prizaip'||it.type==='feon'?' cu capac IP44':''),'buc',1)}for(const[k,n,q]of d.mech)add('Aparataj','mec:'+k,n,'buc',q)}
   }else for(const it of devs){const d=devInfo(p,it);add('Tuburi și doze','doza:ap','Doză de aparataj Ø68 mm','buc',d.cls);add('Aparataj','cl:'+d.ck,d.cn,d.cu||'buc',1)}
   for(const k of['s','m','l','xl'])add('Tuburi și doze','doza:der:'+k,`Doză de derivație ${JB[k].lbl}`,'buc',r.phys.filter(q=>q.size===k).length);
   add('Tuburi și doze','doza:rac','Doză de racord pentru consumator fix','buc',racord);
@@ -1928,7 +1968,7 @@ cv.addEventListener('pointermove',e=>{
   if(g.k==='st'){g.x=x;g.y=y;draw();return}
   if(g.k==='moveJb'){
     if(!g.moved&&Math.hypot(X-g.X,Y-g.Y)<5)return;if(!g.moved){snap();g.moved=true}
-    const j=P.jb.find(i=>i.id===g.id),q=jbPt(x,y);if(j&&q){j.x=q.x;j.y=q.y;j.room=q.room}R=computeLv();draw();return;
+    const j=P.jb.find(i=>i.id===g.id),q=jbPt(x,y);if(j&&q&&!spotBad(P,q,P.route==='tavan'?P.H-.3:BOXZ)){j.x=q.x;j.y=q.y;j.room=q.room}R=computeLv();draw();return;
   }
   if(g.k==='leg'){
     if(!g.moved&&Math.hypot(X-g.X,Y-g.Y)<5)return;if(!g.moved){snap();g.moved=true}
@@ -1942,6 +1982,7 @@ cv.addEventListener('pointermove',e=>{
     if(!g.moved&&Math.hypot(X-g.X,Y-g.Y)<5)return;if(!g.moved){snap();g.moved=true}
     const r=P.rooms.find(q=>q.id===g.room);if(!r)return;
     const c=[[Math.abs(y-r.y),{x:clamp(r05(x),r.x+.1,r.x+r.w-.1),y:r.y}],[Math.abs(y-r.y-r.h),{x:clamp(r05(x),r.x+.1,r.x+r.w-.1),y:r.y+r.h}],[Math.abs(x-r.x),{x:r.x,y:clamp(r05(y),r.y+.1,r.y+r.h-.1)}],[Math.abs(x-r.x-r.w),{x:r.x+r.w,y:clamp(r05(y),r.y+.1,r.y+r.h-.1)}]].sort((a,b)=>a[0]-b[0])[0][1];
+    {const why=spotBad(P,c,P.route==='tavan'?P.H-.3:BOXZ);if(why){if(!g.warned){g.warned=1;toast('Doza nu poate sta '+why+'. Mut-o pe un perete plin.')}return}g.warned=0}
     P.boxes[g.key]=c;R=computeLv();draw();return;
   }
   if(g.k==='moveWin'){
@@ -1977,7 +2018,7 @@ function up(e,cancel){
   }
   if(g.k==='place'&&g.type==='geam'){const q=placeWin(g.x,g.y);if(!q){toast('Atinge un perete ca să pui fereastra.');draw();return}snap();q.id=uid();P.wins.push(q);sel={kind:'win',id:q.id};changed(true);return}
   if(g.k==='place'&&g.type==='usa'){const q=placeDoor(g.x,g.y);if(!q){toast('Atinge un perete ca să pui ușa.');draw();return}snap();q.id=uid();P.doors.push(q);sel={kind:'door',id:q.id};changed(true);return}
-  if(g.k==='place'&&JBT[g.type]){const q=jbPt(g.x,g.y);if(!q){toast('Atinge un perete din interiorul unei camere.');draw();return}snap();const j={id:uid(),size:JBT[g.type],room:q.room,x:q.x,y:q.y};P.jb.push(j);sel={kind:'jb',id:j.id};changed(true);return}
+  if(g.k==='place'&&JBT[g.type]){const q=jbPt(g.x,g.y);if(!q){toast('Atinge un perete din interiorul unei camere.');draw();return}{const why=spotBad(P,q,P.route==='tavan'?P.H-.3:BOXZ);if(why){toast('Doza nu poate sta '+why+'. Pune-o pe un perete plin.');draw();return}}snap();const j={id:uid(),size:JBT[g.type],room:q.room,x:q.x,y:q.y};P.jb.push(j);sel={kind:'jb',id:j.id};changed(true);return}
   if(g.k==='place'&&focusId&&!placePt(g.type,g.x,g.y).room){toast('Ești în camera '+((P.rooms.find(z=>z.id===focusId)||{}).name||'')+'. Pune elementele în chenarul ei sau ieși din cameră.');draw();return}
   if(g.k==='place'){const q=placePt(g.type,g.x,g.y);snap();const it={id:uid(),type:g.type,room:q.room,x:q.x,y:q.y};if(g.type==='prizaM')it.n=lastN;P.items.push(it);sel={kind:'item',id:it.id};changed(true)}
 }
@@ -2044,7 +2085,7 @@ const CATS=[['Desen','schita',['schita','scris','room','usa','geam','gol'],'Dese
 ['Prize','priza',['priza','priza2','prizaM','prizaip','tv'],'Atinge un perete ca să plasezi. Înălțimea se pune singură, după I7.'],
 ['Lumini','lumina',['lumina','spot','aplica'],'Atinge camera ca să pui corpul de iluminat.'],
 ['Comenzi','intr',['intr','intr2','intrCS','intrCR'],'Pune întrerupătorul lângă ușă, pe partea clanței.'],
-['Aparate','ded',['msr','msv','cuptor','plita','ac','boiler','ded'],'Consumatorii mari primesc circuit dedicat, cu protecția potrivită.'],
+['Aparate','ded',['msr','msv','cuptor','plita','ac','boiler','feon','vent','ded'],'Consumatorii mari primesc circuit dedicat, cu protecția potrivită.'],
 ['Doze','dozaM',['dozaS','dozaM','dozaL'],'Doze de derivație puse de tine. Altfel aplicația le alege singură.'],
 ['Tablou','tablou',['tablou','trecere'],'Tabloul electric și trecerile de cabluri între niveluri.']];
 let flyCat=null;
@@ -2078,7 +2119,7 @@ function renderInspector(){
     <div class="fields">
       ${t.g==='priza'?`<label class="f full">Tip priză<select data-s="item" data-f="st" id="i-st"><option value="">Ca în proiect (${(P.sockType||'schuko')==='slim'?'Slim':'Schuko'})</option>${opt({schuko:'Schuko',slim:'Slim'},it.st||'__')}</select></label>`:''}
       ${it.type==='prizaM'?`<label class="f full">Număr de posturi<select data-s="item" data-f="n" id="i-n">${[1,2,3,4,5].map(v=>`<option value="${v}"${v===nOf(it)?' selected':''}>${v} ${v>1?'posturi':'post'}</option>`).join('')}</select></label>`:''}
-      ${isSw(it)?`<div class="full"><h4>Comandă</h4><p class="muted" style="margin:0 0 6px;font-size:13px">${(()=>{const L=ctrlOf(P,it);return L.length?`Aprinde ${L.length} ${L.length===1?'corp':'corpuri'} de iluminat${Array.isArray(it.ctrl)?' (ales manual)':' (cele din cameră)'}.`:'Nu comandă nicio lumină.'})()}</p><div class="bar"><button class="btn" type="button" data-act="pick">Alege luminile pe plan</button>${Array.isArray(it.ctrl)?'<button class="btn" type="button" data-act="ctrlAuto">Luminile din cameră</button>':''}</div></div>`:''}
+      ${isSw(it)?`<div class="full"><h4>Comandă</h4><p class="muted" style="margin:0 0 6px;font-size:13px">${(()=>{const L=ctrlOf(P,it);return L.length?`Comandă ${L.length} ${L.length===1?'element':'elemente'} (lumini, ventilator)${Array.isArray(it.ctrl)?' (ales manual)':' (cele din cameră)'}.`:'Nu comandă nicio lumină.'})()}</p><div class="bar"><button class="btn" type="button" data-act="pick">Alege luminile pe plan</button>${Array.isArray(it.ctrl)?'<button class="btn" type="button" data-act="ctrlAuto">Luminile din cameră</button>':''}</div></div>`:''}
       ${isLight(it)?`<div class="full"><h4>Comandat de</h4><p class="muted" style="margin:0;font-size:13px">${(()=>{const S=ctrlBy(P,it);return S.length?S.map(s2=>T[s2.type].n+(s2.label?' „'+esc(s2.label)+'”':'')).join(', '):'niciun întrerupător'})()}</p></div>`:''}
       <label class="f full">Etichetă<input data-s="item" data-f="label" id="i-label" value="${esc(it.label||'')}" placeholder="ex. Priză TV"></label>
       ${t.g==='intr'||t.g==='tab'?'':`<label class="f">Putere (W)<input data-s="item" data-f="w" id="i-w" type="number" inputmode="decimal" min="0" step="10" value="${it.w??''}" placeholder="${t.w}"></label>`}
@@ -2153,7 +2194,7 @@ function renderInspector(){
     <div><h4>Setări proiect</h4><div class="fields">
       <label class="f full">Nume proiect<input data-s="proj" data-f="name" id="p-name" value="${esc(P.name)}"></label>
       <label class="f">Înălțime cameră (m)<input data-s="proj" data-f="H" id="p-H" type="number" inputmode="decimal" min="2" max="5" step=".05" value="${P.H}"></label>
-      <label class="f">Trasee orizontale<select data-s="proj" data-f="route" id="p-route">${opt({mixt:'Prize pe jos, lumini sus',tavan:'Toate sub tavan',pardoseala:'Toate în pardoseală'},P.route||'mixt')}</select></label>
+      <label class="f">Trasee orizontale<select data-s="proj" data-f="route" id="p-route">${opt({pardoseala:'Toate pe jos, lumini prin întrerupător',mixt:'Prize pe jos, lumini sus',tavan:'Toate sub tavan'},P.route||'mixt')}</select></label>
       <label class="f">Trecere între camere<select data-s="proj" data-f="through" id="p-through">${opt({usa:'Pe la uși (peste toc)',perete:'Prin perete (cel mai scurt)'},P.through==='perete'?'perete':'usa')}</select></label>
       <label class="f">Tip cablu<select data-s="proj" data-f="cable" id="p-cable">${opt({'CYY-F':'CYY-F','NYM-J':'NYM-J','MYYM':'MYYM'},P.cable)}</select></label>
       <label class="f">Rezervă cablu (%)<input data-s="proj" data-f="reserve" id="p-res" type="number" inputmode="decimal" min="0" max="50" step="1" value="${P.reserve}"></label>
@@ -2161,6 +2202,7 @@ function renderInspector(){
       <label class="f">Max. lumini / circuit<input data-s="proj" data-f="maxLum" id="p-ml" type="number" min="1" max="30" step="1" value="${P.maxLum}"></label>
       <label class="f">Coef. simultaneitate<input data-s="proj" data-f="ks" id="p-ks" type="number" inputmode="decimal" min=".1" max="1" step=".05" value="${P.ks}"></label>
       <label class="f">Aparataj<select data-s="proj" data-f="aparataj" id="p-ap">${opt({clasic:'Clasic',modular:'Modular'},P.aparataj||'clasic')}</select></label>
+      <label class="f">Temă<select id="p-theme">${opt(THEMES,themeGet())}</select></label>
       <label class="f">Tip priză implicit<select data-s="proj" data-f="sockType" id="p-st">${opt({schuko:'Schuko',slim:'Slim'},P.sockType||'schuko')}</select></label>
       ${P.aparataj==='modular'?`<label class="f">Module priză Schuko<input data-s="proj" data-f="modSchuko" id="p-ms" type="number" min="1" max="4" step="1" value="${P.modSchuko||2}"></label>
       <label class="f">Module priză slim<input data-s="proj" data-f="modSlim" id="p-msl" type="number" min="1" max="4" step="1" value="${P.modSlim||1}"></label>`:''}
@@ -2231,7 +2273,7 @@ function renderDyn(){
   if(sel&&sel.kind==='room'){
     const r=P.rooms.find(i=>i.id===sel.id);if(!r){el.innerHTML='';return}
     const its=P.items.filter(i=>i.room===r.id),c=g=>its.filter(i=>T[i.type].g===g).length;
-    el.innerHTML=`<dl class="spec"><dt>Suprafață</dt><dd>${f(r.w*r.h,2)} m²</dd><dt>Perimetru</dt><dd>${f(2*(r.w+r.h),2)} m</dd><dt>Prize</dt><dd>${c('priza')}</dd><dt>Lumini / întrerupătoare</dt><dd>${c('lum')} / ${c('intr')}</dd><dt>Consumatori dedicați</dt><dd>${c('ded')}</dd></dl>`;
+    el.innerHTML=`<dl class="spec"><dt>Suprafață</dt><dd>${f(r.w*r.h,2)} m²</dd><dt>Perimetru</dt><dd>${f(2*(r.w+r.h),2)} m</dd><dt>Prize</dt><dd>${c('priza')}</dd><dt>Lumini / întrerupătoare</dt><dd>${c('lum')} / ${c('intr')}</dd><dt>Consumatori dedicați</dt><dd>${its.filter(i=>T[i.type].g==='ded'&&!T[i.type].onLum).length}</dd></dl>`;
     return;
   }
   const w=R.warn.length?`<ul class="warns">${R.warn.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:(R.circuits.length?'<div class="okmsg">Toate circuitele respectă căderea de tensiune admisă.</div>':'');
@@ -2371,7 +2413,7 @@ function renderCalc(){
   const doze=RA.levels.flatMap(x=>x.R.phys.map(n=>({...n,lvn:x.l.name})));
   el.innerHTML=`<div class="wrap">
     <div class="bar" style="justify-content:space-between"><h1>Circuite și tablou</h1><button class="btn pri" type="button" id="pdfBtn">Exportă PDF</button></div>
-    <p class="lede">Calculat automat din plan${multi?` pe ${P.levels.length} niveluri`:''}: ${RA.boards.reduce((t,b)=>t+b.circuits.length,0)} circuite, trasee ${P.route==='tavan'?'orizontale la 30 cm sub tavan':P.route==='mixt'?'la prize și consumatori prin pardoseală, la iluminat și la consumatorii montați sus (aer condiționat, boiler) la 30 cm sub tavan':'prin pardoseală'}, cablu ${esc(P.cable)} în tub de protecție.${multi&&RA.boards.length===1?' Nivelurile fără tablou propriu sunt alimentate din tabloul principal, printr-o trecere între niveluri.':''}</p>
+    <p class="lede">Calculat automat din plan${multi?` pe ${P.levels.length} niveluri`:''}: ${RA.boards.reduce((t,b)=>t+b.circuits.length,0)} circuite, trasee ${P.route==='tavan'?'orizontale la 30 cm sub tavan':P.route==='mixt'?'la prize și consumatori prin pardoseală, la iluminat și la consumatorii montați sus (aer condiționat, boiler) la 30 cm sub tavan':'prin pardoseală, cu dozele de derivație pe perete, la 30 cm de pardoseală; la iluminat cablul merge de la doză la întrerupător, iar de la întrerupător urcă pe perete și ajunge la corpul de iluminat pe tavan'}, cablu ${esc(P.cable)} în tub de protecție.${multi&&RA.boards.length===1?' Nivelurile fără tablou propriu sunt alimentate din tabloul principal, printr-o trecere între niveluri.':''}</p>
     ${warns.length?`<ul class="warns">${warns.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}
     ${RA.boards.map(board).join('')}
     <h2>Doze de derivație</h2>
@@ -2669,7 +2711,7 @@ function offerScope(){
   if(!RA)R=computeLv();const items=RA.levels.flatMap(x=>lvGet(P,x.id).items),cn=g=>items.filter(i=>T[i.type].g===g).reduce((t,i)=>t+ptsOf(i),0);
   const circ=RA.boards.reduce((t,b)=>t+b.circuits.length,0),tb=RA.boards[0]&&RA.boards[0].tot;
   const parts=[];if(circ)parts.push(`${circ} circuite`);if(tb)parts.push(`tablou electric ${tb.panel} module`);
-  const pr=cn('priza'),lu=items.filter(i=>T[i.type].g==='lum').length,sw=cn('intr'),de=items.filter(i=>T[i.type].g==='ded').length;
+  const pr=cn('priza'),lu=items.filter(i=>T[i.type].g==='lum').length,sw=cn('intr'),de=items.filter(i=>T[i.type].g==='ded'&&!T[i.type].onLum).length;
   if(pr)parts.push(`${pr} ${pr===1?'priză':'prize'}`);if(lu)parts.push(`${lu} ${lu===1?'corp de iluminat':'corpuri de iluminat'}`);if(sw)parts.push(`${sw} ${sw===1?'întrerupător':'întrerupătoare'}`);if(de)parts.push(`${de} ${de===1?'consumator cu circuit dedicat':'consumatori cu circuit dedicat'}`);
   return parts.join(', ');
 }
@@ -2931,7 +2973,8 @@ function blockAcct(d){
   if(sus)wipeKeys=[KEY0+':'+sbUser.id,KEY0+':'+sbUser.id+':cfg'];
   cloud.col=null;cloud.queue.clear();acct=null;renderAdminTab();sb.auth.signOut({scope:'local'}).catch(()=>{});
 }
-const adm={users:[],log:[],q:'',busy:false,err:''};
+const adm={users:[],log:[],fb:[],fbErr:'',fbF:'open',q:'',busy:false,err:''};
+const FBK={vreau:['Aș vrea să apară','var(--accent)'],nu_place:['Nu îmi place','var(--warn)'],bug:['Nu merge','var(--bad)']},FBS={nou:'Nou',vazut:'Văzut',rezolvat:'Rezolvat'};
 function admBadge(u){const exp=new Date(u.valid_until)<=new Date();
   const [t,c]=u.role==='admin'?['Admin','var(--accent)']:u.status==='suspended'?['Suspendat','var(--bad)']:exp?['Expirat','var(--muted)']:u.status==='trial'?[`Probă · ${daysLeft(u)} ${daysLeft(u)===1?'zi':'zile'}`,'var(--warn)']:['Activ','var(--ok)'];
   return`<span class="pill" style="color:${c};border:1px solid currentColor;white-space:nowrap">${t}</span>`}
@@ -2954,19 +2997,23 @@ function renderAdmin(){
     <div class="stats"><div class="stat"><span>Utilizatori</span><b>${adm.users.length}</b></div><div class="stat"><span>În probă</span><b>${n(u=>u.status==='trial'&&new Date(u.valid_until)>now)}</b></div><div class="stat"><span>Activi</span><b>${n(u=>u.status==='active'&&new Date(u.valid_until)>now)}</b></div><div class="stat"><span>Expirați</span><b>${n(u=>u.status!=='suspended'&&u.role!=='admin'&&new Date(u.valid_until)<=now)}</b></div><div class="stat"><span>Suspendați</span><b>${n(u=>u.status==='suspended')}</b></div></div>
     <div class="bar"><input id="admQ" type="search" placeholder="Caută după e-mail" value="${esc(adm.q)}" style="flex:1;min-width:200px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--canvas);color:var(--ink)"><button class="btn" type="button" data-adm="reload">${adm.busy?'Se încarcă…':'Reîncarcă'}</button></div>
     <div class="tbl"><table><thead><tr><th>Cont</th><th>Stare</th><th class="n">Valabil până la</th><th>Activ ultima dată</th><th>Dispozitiv</th><th class="n">Proiecte</th><th>Acțiuni</th></tr></thead><tbody>${rows||'<tr><td colspan="7" class="muted">Niciun cont găsit.</td></tr>'}</tbody></table></div>
+    <div class="bar" style="justify-content:space-between"><h2>Feedback de la testeri</h2><div class="bar">${[['open','Deschise'],['all','Toate']].map(([k,n])=>`<button class="chip" type="button" data-fbf="${k}" aria-pressed="${adm.fbF===k}">${n} (${k==='open'?adm.fb.filter(x=>x.status!=='rezolvat').length:adm.fb.length})</button>`).join('')}</div></div>
+    ${adm.fbErr?`<div class="warns"><li style="list-style:none">${esc(adm.fbErr)}</li></div>`:''}
+    <div class="tbl"><table><thead><tr><th>Data</th><th>Cont</th><th>Tip</th><th>Mesaj</th><th>Stare</th></tr></thead><tbody>${adm.fb.filter(x=>adm.fbF==='all'||x.status!=='rezolvat').map(x=>{const k=FBK[x.kind]||[x.kind,'var(--muted)'],cx=x.context||{};return`<tr><td class="mono" style="white-space:nowrap">${new Date(x.at).toLocaleString('ro-RO',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</td><td style="overflow-wrap:anywhere">${esc(x.email)}</td><td><span class="pill" style="color:${k[1]};border:1px solid currentColor;white-space:nowrap">${esc(k[0])}</span></td><td style="min-width:240px;max-width:520px;white-space:pre-wrap;overflow-wrap:anywhere">${esc(x.body)}<div class="muted" style="font-size:12px;margin-top:4px">${esc([cx.tab,cx.sel,cx.device,cx.v].filter(Boolean).join(' · '))}</div></td><td><select data-fbid="${x.id}" aria-label="Stare" style="padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--canvas);color:var(--ink)">${opt(FBS,x.status)}</select></td></tr>`}).join('')||'<tr><td colspan="5" class="muted">Niciun mesaj încă.</td></tr>'}</tbody></table></div>
     <h2>Jurnal</h2>
     <div class="tbl"><table><tbody>${adm.log.map(l=>`<tr><td class="mono" style="white-space:nowrap">${new Date(l.at).toLocaleString('ro-RO',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</td><td>${ACT[l.action]||esc(l.action)} <b>${esc(l.target_email)}</b>${l.detail&&l.detail.add_days?` cu ${l.detail.add_days} zile`:''}</td></tr>`).join('')||'<tr><td class="muted">Nicio acțiune încă.</td></tr>'}</tbody></table></div>
   </div>`;
 }
 async function loadAdmin(){
   if(!(acct&&acct.role==='admin')||adm.busy)return;adm.busy=true;adm.err='';renderAdmin();
-  const[a,b]=await Promise.all([sb.rpc('admin_list_users'),sb.from('admin_log').select('at,target_email,action,detail').order('at',{ascending:false}).limit(40)]);
+  const[a,b,c]=await Promise.all([sb.rpc('admin_list_users'),sb.from('admin_log').select('at,target_email,action,detail').order('at',{ascending:false}).limit(40),sb.from('feedback').select('id,at,email,kind,body,context,status').order('at',{ascending:false}).limit(300)]);
   adm.busy=false;if(a.error){adm.err='Nu am putut încărca lista de conturi. Verifică dacă scriptul 0003 a fost rulat în Supabase.'}else adm.users=a.data||[];
-  adm.log=b.error?[]:(b.data||[]);if(tab==='admin')renderAdmin();
+  adm.log=b.error?[]:(b.data||[]);adm.fbErr=c.error?'Feedback-ul nu e disponibil. Rulează scriptul supabase/migrations/0004_feedback.sql în Supabase.':'';adm.fb=c.error?[]:(c.data||[]);if(tab==='admin')renderAdmin();
 }
+$('#v-admin').addEventListener('change',async e=>{const id=e.target.dataset.fbid;if(!id)return;const v=e.target.value,{error}=await sb.from('feedback').update({status:v}).eq('id',+id);if(error){toast('Nu am putut schimba starea: '+(error.message||'eroare'));return}const x=adm.fb.find(q=>String(q.id)===id);if(x)x.status=v;renderAdmin();toast('Stare: '+FBS[v]+'.')});
 $('#v-admin').addEventListener('input',e=>{if(e.target.id==='admQ'){adm.q=e.target.value;const p=e.target.selectionStart;renderAdmin();const i=$('#admQ');i.focus();i.setSelectionRange(p,p)}});
 $('#v-admin').addEventListener('click',async e=>{
-  const b=e.target.closest('[data-adm]');if(!b)return;const k=b.dataset.adm;if(k==='reload'){loadAdmin();return}
+  const ff=e.target.closest('[data-fbf]');if(ff){adm.fbF=ff.dataset.fbf;renderAdmin();return}const b=e.target.closest('[data-adm]');if(!b)return;const k=b.dataset.adm;if(k==='reload'){loadAdmin();return}
   const u=adm.users.find(x=>x.user_id===(b.closest('[data-uid]')||{}).dataset?.uid);if(!u)return;let r;
   if(k==='suspend'){if(!confirm(`Suspenzi contul ${u.email}?\n\nVa fi deconectat imediat de pe toate dispozitivele și nu va mai putea intra până îl reactivezi.`))return;r=await sb.rpc('admin_update_user',{target:u.user_id,new_status:'suspended'})}
   else if(k==='activate'){r=await sb.rpc('admin_update_user',{target:u.user_id,new_status:'active',add_days:new Date(u.valid_until)<=new Date()?30:null})}
@@ -3003,7 +3050,7 @@ let inspTab='sum';
 function roomTabs(){return`<div class="itabs" role="tablist"><button type="button" data-itab="sum" aria-selected="${inspTab==='sum'}">Rezumat</button><button type="button" data-itab="det" aria-selected="${inspTab==='det'}">Detalii</button></div>`}
 function roomSummary(r){
   const root=r.of||r.id,rr=P.rooms.find(z=>z.id===root)||r,grp=P.rooms.filter(z=>z.id===root||z.of===root),gid=new Set(grp.map(z=>z.id)),its=P.items.filter(i=>gid.has(i.room));
-  const g=i=>T[i.type].g,pr=its.filter(i=>g(i)==='priza').reduce((t,i)=>t+ptsOf(i),0),lu=its.filter(i=>g(i)==='lum').length,sw=its.filter(i=>g(i)==='intr').length,de=its.filter(i=>g(i)==='ded').length;
+  const g=i=>T[i.type].g,pr=its.filter(i=>g(i)==='priza').reduce((t,i)=>t+ptsOf(i),0),lu=its.filter(i=>g(i)==='lum').length,sw=its.filter(i=>g(i)==='intr').length,de=its.filter(i=>g(i)==='ded'&&!T[i.type].onLum).length;
   const area=grp.reduce((t,z)=>t+z.w*z.h,0),dims=grp.length===1?`${Math.round(rr.w*100)} × ${Math.round(rr.h*100)} cm`:`${f(area,1)} m²`;
   const fl=R?its.filter(i=>R.flag&&R.flag[i.id]):[],ck=[];
   for(const i of fl)ck.push(`<li class="w"><i>!</i><span><b>${esc(T[i.type].n)}:</b> ${esc(R.flag[i.id])}</span><button class="btn" type="button" data-act="goitem" data-id="${i.id}">Arată</button></li>`);
@@ -3133,6 +3180,8 @@ function makeDevice(T3,it,col,H){
   if(t==='cuptor'){box(.6,.6,.56,M(0x3A3F44),0,.3,.28);box(.48,.3,.01,M(0x15181B,{opacity:.9}),0,.27,.565);box(.5,.03,.03,M(0xB9BEC3),0,.47,.575);box(.6,.02,.01,cm,0,.59,.565);return g}
   if(t==='plita'){box(.62,.86,.6,M(0xE9E6DF),0,.43,.3);box(.6,.012,.52,M(0x111315),0,.866,.3);for(const[x,z]of[[-.15,.18],[.15,.18],[-.15,.42],[.15,.42]])add(new T3.TorusGeometry(.07,.004,4,24),M(0x666b70),x,.874,z).rotation.x=Math.PI/2;box(.62,.02,.01,cm,0,.86,.6);return g}
   if(t==='boiler'){const b=add(new T3.CylinderGeometry(.22,.22,.8,28),M(white),0,-.2,.24);add(new T3.TorusGeometry(.22,.008,6,28),cm,0,.18,.24).rotation.x=Math.PI/2;return g}
+  if(t==='feon'){box(.1,.16,.03,M(white),0,0,.015);box(.11,.17,.006,cm,0,0,0);cylZ(.035,.12,M(0x3A3F44),0,.02,.09);cylZ(.028,.05,M(0x2B2F33),0,.02,.17);add(new T3.CylinderGeometry(.018,.018,.12,12),M(0x3A3F44),0,-.06,.07);return g}
+  if(t==='vent'){cylZ(.075,.02,M(white),0,0,.01,28);for(const r of[.055,.04,.025])add(new T3.TorusGeometry(r,.003,4,24),M(0xA9AFB5),0,0,.022);cylZ(.08,.006,cm,0,0,0,28);return g}
   if(t==='ac'){box(.82,.28,.2,M(white),0,0,.1);box(.7,.02,.01,M(0xC9CED3),0,-.08,.2);box(.82,.01,.2,cm,0,.14,.1);return g}
   box(.35,.35,.25,M(0xE6E8EA),0,0,.125);box(.36,.02,.01,cm,0,.16,.25);return g;
 }
@@ -3307,6 +3356,11 @@ window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredIns
 $('#installBtn').onclick=async()=>{if(!deferredInstall)return;deferredInstall.prompt();try{await deferredInstall.userChoice}catch(e){}deferredInstall=null;$('#installBtn').hidden=true};
 window.addEventListener('appinstalled',()=>{$('#installBtn').hidden=true;toast('Aplicația a fost instalată. O găsești pe ecranul de pornire.')});
 if('serviceWorker' in navigator&&window.isSecureContext&&/^https?:$/.test(location.protocol)&&!window.claude)navigator.serviceWorker.register('sw.js').catch(()=>{});
+const THEMES={dark:'Întunecată',light:'Luminoasă',auto:'Ca sistemul'};
+const themeGet=()=>{const v=lsGet('electroplan.theme');return THEMES[v]?v:'dark'};
+function applyTheme(v){const r=document.documentElement;if(v==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',v)}
+applyTheme(themeGet());
+insp.addEventListener('change',e=>{if(e.target.id!=='p-theme')return;lsSet('electroplan.theme',e.target.value);applyTheme(e.target.value)});
 readColors();renderTools();renderLayers();renderProjSel();renderLevels();
 R=computeLv();renderIso();renderStat();
 renderInspector();
@@ -3323,19 +3377,25 @@ connectCloud();
     window.addEventListener('online',check);
   }}
 let authMode='in';
-function setAuthMode(m){authMode=m;const T={in:['Intră în cont','Intră în cont','Creează cont nou','Proiectele tale sunt salvate în cont și le vezi doar tu, pe orice dispozitiv.'],up:['Cont nou','Creează contul','Am deja cont','Alege o parolă de cel puțin 6 caractere. Vei primi un e-mail de confirmare.'],reset:['Parolă nouă','Salvează parola',null,'Scrie parola nouă pentru contul tău.'],forgot:['Resetează parola','Trimite link de resetare','Înapoi la conectare','Îți trimitem pe e-mail un link prin care alegi o parolă nouă.']}[m];
+function setAuthMode(m){authMode=m;const T={in:['Intră în cont','Intră în cont','Creează cont nou','Proiectele tale sunt salvate în cont și le vezi doar tu, pe orice dispozitiv.'],up:['Cont nou','Creează contul','Am deja cont','Alege o parolă de cel puțin 6 caractere. Vei primi un e-mail de confirmare.'],reset:['Parolă nouă','Salvează parola',null,'Scrie parola nouă pentru contul tău.'],forgot:['Resetează parola','Trimite link de resetare','Înapoi la conectare','Îți trimitem pe e-mail un link prin care alegi o parolă nouă.'],verify:['Verifică-ți e-mailul','Am confirmat, intră în cont','Retrimite e-mailul','']}[m];
   $('#authT').textContent=T[0];$('#authGo').textContent=T[1];$('#authSw').hidden=!T[2];if(T[2])$('#authSw').textContent=T[2];$('#authH').textContent=T[3];$('#authMsg').textContent='';
-  $('#authPL').hidden=m==='forgot';$('#authP2L').hidden=!(m==='up'||m==='reset');$('#authE').closest('label').hidden=m==='reset';$('#authForgot').hidden=m!=='in';
+  $('#authPL').hidden=m==='forgot'||m==='verify';$('#authP2L').hidden=!(m==='up'||m==='reset');$('#authE').closest('label').hidden=m==='reset'||m==='verify';$('#authE').required=m!=='reset'&&m!=='verify';
+  if(m==='verify')$('#authH').innerHTML=`Ți-am trimis un link de confirmare pe <b style="color:#E8EEF3">${esc(pendEmail)}</b>.<br><br>1. Deschide e-mailul de confirmare. Dacă nu îl găsești în câteva minute, uită-te în Spam sau Promoții.<br>2. Apasă linkul de confirmare din e-mail.<br>3. Revino aici și intră în cont cu parola aleasă.`;$('#authForgot').hidden=m!=='in';
   $('#authP').autocomplete=m==='in'?'current-password':'new-password';}
-const authErr=e=>{const m=(e&&e.message||'').toLowerCase();if(/invalid login/.test(m))return'E-mail sau parolă greșită.';if(/not confirmed/.test(m))return'Confirmă întâi adresa: deschide linkul din e-mailul primit la înregistrare.';if(/already registered|already been registered/.test(m))return'Există deja un cont cu acest e-mail. Intră în cont sau resetează parola.';if(/at least 6|password should/.test(m))return'Parola trebuie să aibă cel puțin 6 caractere.';if(/email rate limit|over_email_send_rate/.test(m+' '+(e&&e.code||'')))return'S-a atins limita de e-mailuri pe oră. Încearcă din nou peste o oră.';if(e&&e.status===429||/rate limit/.test(m))return'Prea multe încercări. Așteaptă câteva minute.';if(/fetch|network/.test(m))return'Nu există conexiune la internet.';return e&&e.message||'A apărut o eroare.'};
-$('#authSw').onclick=()=>setAuthMode(authMode==='in'?'up':'in');
+const authErr=e=>{const m=(e&&e.message||'').toLowerCase();if(/invalid login/.test(m))return'E-mail sau parolă greșită.';if(/not confirmed/.test(m))return'Confirmă întâi adresa: deschide linkul din e-mailul primit la înregistrare.';if(/sending.*(confirmation|email)|not authorized|smtp/.test(m))return'Nu am putut trimite e-mailul de confirmare. Anunță administratorul aplicației.';if(/already registered|already been registered/.test(m))return'Există deja un cont cu acest e-mail. Intră în cont sau resetează parola.';if(/at least 6|password should/.test(m))return'Parola trebuie să aibă cel puțin 6 caractere.';if(/email rate limit|over_email_send_rate/.test(m+' '+(e&&e.code||'')))return'S-a atins limita de e-mailuri pe oră. Încearcă din nou peste o oră.';if(e&&e.status===429||/rate limit/.test(m))return'Prea multe încercări. Așteaptă câteva minute.';if(/fetch|network/.test(m))return'Nu există conexiune la internet.';return e&&e.message||'A apărut o eroare.'};
+let pendEmail='',resendAt=0;
+$('#authSw').onclick=async()=>{if(authMode!=='verify'){setAuthMode(authMode==='in'?'up':'in');return}
+  const msg=$('#authMsg'),w=Math.ceil((resendAt-Date.now())/1000);if(w>0){msg.textContent=`Poți retrimite peste ${w} secunde.`;return}
+  const b=$('#authSw');b.disabled=true;try{const{error}=await sb.auth.resend({type:'signup',email:pendEmail,options:{emailRedirectTo:location.origin+location.pathname}});
+    if(error)msg.textContent=authErr(error);else{resendAt=Date.now()+60000;msg.textContent='Am retrimis e-mailul pe '+pendEmail+'. Verifică și Spam.'}}catch(x){msg.textContent=authErr(x)}finally{b.disabled=false}};
 $('#authForgot').onclick=()=>setAuthMode('forgot');
 $('#authBox').addEventListener('submit',async e=>{
   e.preventDefault();if(!sb)return;const em=$('#authE').value.trim(),pw=$('#authP').value,pw2=$('#authP2').value,msg=$('#authMsg'),go=$('#authGo');msg.textContent='';
+  if(authMode==='verify'){setAuthMode('in');$('#authE').value=pendEmail;setTimeout(()=>$('#authP').focus(),30);return}
   if((authMode==='up'||authMode==='reset')&&pw!==pw2){msg.textContent='Parolele nu coincid.';return}
   go.disabled=true;try{
-    if(authMode==='in'){claimNext=true;const{error}=await sb.auth.signInWithPassword({email:em,password:pw});if(error){claimNext=false;msg.textContent=authErr(error)}}
-    else if(authMode==='up'){claimNext=true;const{data,error}=await sb.auth.signUp({email:em,password:pw,options:{emailRedirectTo:location.origin+location.pathname}});if(error||!data.session)claimNext=false;if(error)msg.textContent=authErr(error);else if(!data.session){setAuthMode('in');$('#authE').value=em;$('#authMsg').textContent='Cont creat. Deschide linkul de confirmare din e-mail, apoi intră în cont.'}}
+    if(authMode==='in'){claimNext=true;const{error}=await sb.auth.signInWithPassword({email:em,password:pw});if(error){claimNext=false;if(/not confirmed/i.test(error.message||'')){pendEmail=em;setAuthMode('verify');$('#authMsg').textContent='Contul nu e confirmat încă. Dacă nu găsești e-mailul, apasă „Retrimite e-mailul”.'}else msg.textContent=authErr(error)}}
+    else if(authMode==='up'){claimNext=true;const{data,error}=await sb.auth.signUp({email:em,password:pw,options:{emailRedirectTo:location.origin+location.pathname}});if(error||!data.session)claimNext=false;if(error)msg.textContent=authErr(error);else if(data.user&&Array.isArray(data.user.identities)&&!data.user.identities.length){setAuthMode('in');$('#authE').value=em;$('#authMsg').textContent='Există deja un cont cu acest e-mail. Intră în cont sau apasă „Ai uitat parola?”.'}else if(!data.session){pendEmail=em;resendAt=Date.now()+60000;setAuthMode('verify')}}
     else if(authMode==='forgot'){const{error}=await sb.auth.resetPasswordForEmail(em,{redirectTo:location.origin+location.pathname});if(error)msg.textContent=authErr(error);else{setAuthMode('in');$('#authMsg').textContent='Ți-am trimis linkul de resetare pe '+em+'.'}}
     else if(authMode==='reset'){const{error}=await sb.auth.updateUser({password:pw});if(error)msg.textContent=authErr(error);else{toast('Parola a fost schimbată.');setAuthMode('in');claimNext=true;urlLogin=false;await startUser('SIGNED_IN');hideIntro()}}
   }catch(x){msg.textContent=authErr(x)}finally{go.disabled=false}
