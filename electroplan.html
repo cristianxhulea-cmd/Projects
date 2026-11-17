@@ -132,6 +132,7 @@ main{min-height:0;position:relative}
 .ovl{position:absolute;inset:0;z-index:9;display:flex;flex-direction:column;background:var(--canvas);border-radius:inherit;overflow:hidden}
 .ovl[hidden]{display:none!important}
 .ov-h{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--panel)}
+.v3sel{display:flex;align-items:center;flex-wrap:wrap;gap:10px;flex:1;min-width:200px;font-size:13px}.v3sel label{display:flex;align-items:center;gap:6px}.v3sel input{width:72px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--canvas);color:var(--ink);font-size:14px}
 .ov-h b{font-family:var(--f-display);font-size:19px;margin-right:6px}
 .ov-tabs{display:flex;gap:6px;flex-wrap:wrap}
 #v3dBox{flex:1;min-height:0;position:relative}
@@ -524,7 +525,7 @@ body.focus #focusBtn{background:var(--accent);border-color:var(--accent);color:v
         <div class="selbar" id="selbar"></div>
         <div class="measBar" id="measBar" hidden></div>
         <div class="ovl" id="elev" hidden><div class="ov-h"><b id="elevT"></b><button class="btn ic" type="button" data-ev-n="-1" aria-label="Peretele anterior">‹</button><div class="ov-tabs" id="elevTabs"></div><button class="btn ic" type="button" data-ev-n="1" aria-label="Peretele următor">›</button><span class="muted" id="elevInfo" style="font-size:12px;flex:1;min-width:160px"></span><button class="btn ic" type="button" data-ov-x aria-label="Închide">✕</button></div><canvas id="ecv"></canvas></div>
-        <div class="ovl" id="v3d" hidden><div class="ov-h"><b>Vedere 3D</b><span class="muted" style="font-size:12px;flex:1;min-width:160px">Un deget rotește, două degete măresc și mută</span><select id="v3dIso" class="chipsel" aria-label="Circuit"></select><button class="chip" type="button" id="v3dWalls" aria-pressed="true">Pereți</button><button class="btn" type="button" id="v3dReset">Vedere inițială</button><button class="btn ic" type="button" data-ov-x aria-label="Închide">✕</button></div><div id="v3dBox"></div></div>
+        <div class="ovl" id="v3d" hidden><div class="ov-h"><b>Vedere 3D</b><span class="muted" id="v3dHint" style="font-size:12px;flex:1;min-width:160px">Un deget rotește, două degete măresc și mută. Trage de o priză sau de un întrerupător ca să-l muți.</span><span id="v3dSel" class="v3sel" hidden></span><select id="v3dIso" class="chipsel" aria-label="Circuit"></select><button class="chip" type="button" id="v3dWalls" aria-pressed="true">Pereți</button><button class="btn" type="button" id="v3dReset">Vedere inițială</button><button class="btn ic" type="button" data-ov-x aria-label="Închide">✕</button></div><div id="v3dBox"></div></div>
         <input class="nameEd" id="nameEd" hidden aria-label="Numele camerei" autocomplete="off">
         <div class="hud">
           <button class="btn ic" id="zOut" type="button" aria-label="Micșorează">−</button>
@@ -3126,7 +3127,7 @@ function renderElev(){
   $('#elevInfo').textContent=d.items.length?`${d.items.length} ${d.items.length===1?'aparat':'aparate'} · ${d.drops.length} ${d.drops.length===1?'coborâre':'coborâri'} · cotele de jos sunt în cm, de la colțul din stânga`:'';
 }
 $('#elev').addEventListener('click',e=>{const t=e.target.closest('[data-ew]');if(t){elevS.i=+t.dataset.ew;renderElev();return}if(e.target.closest('[data-ov-x]'))closeOv();if(e.target.closest('[data-ev-n]')){elevS.i=(elevS.i+(+e.target.closest('[data-ev-n]').dataset.evN)+roomWalls(elevS.rid).length)%roomWalls(elevS.rid).length;renderElev()}});
-const v3={ready:false,loading:null,scene:null,cam:null,ren:null,th:-.8,ph:.95,rad:12,tg:null,meshes:[],walls:[],iso:'',wallOn:true,raf:0};
+const v3={ready:false,loading:null,scene:null,cam:null,ren:null,th:-.8,ph:.95,rad:12,tg:null,meshes:[],walls:[],iso:'',wallOn:true,raf:0,items:new Map(),sel:null,hl:null};
 function load3(){if(window.THREE)return Promise.resolve();if(v3.loading)return v3.loading;v3.loading=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js';sc.onload=res;sc.onerror=()=>{v3.loading=null;rej(new Error('3d'))};document.head.appendChild(sc)});return v3.loading}
 async function open3D(){
   $('#v3d').hidden=false;$('#v3dBox').innerHTML='<div class="empty" style="margin:20px">Se încarcă vederea 3D…</div>';
@@ -3169,8 +3170,8 @@ function makeDevice(T3,it,col,H){
   if(t==='ac'){box(.82,.28,.2,M(white),0,0,.1);box(.7,.02,.01,M(0xC9CED3),0,-.08,.2);box(.82,.01,.2,cm,0,.14,.1);return g}
   box(.35,.35,.25,M(0xE6E8EA),0,0,.125);box(.36,.02,.01,cm,0,.16,.25);return g;
 }
-function build3D(){
-  const T3=window.THREE,box=$('#v3dBox');box.innerHTML='';
+function build3D(keep){
+  const T3=window.THREE,box=$('#v3dBox');if(v3.ren){try{v3.ren.dispose();v3.ren.forceContextLoss()}catch(e){}v3.ren=null}box.innerHTML='';v3.items=new Map();v3.hl=null;if(!keep)v3.sel=null;
   const scene=new T3.Scene();scene.background=new T3.Color(C.canvas);
   scene.add(new T3.AmbientLight(0xffffff,.75));const dl=new T3.DirectionalLight(0xffffff,.55);dl.position.set(5,12,8);scene.add(dl);
   const H=P.H,z=routeZ(),rooms=P.rooms;if(!rooms.length){box.innerHTML='<div class="empty" style="margin:20px">Desenează întâi camerele pe plan.</div>';return}
@@ -3197,29 +3198,50 @@ function build3D(){
     if(gr==='priza'||gr==='intr')m.scale.setScalar(1.6);else if(it.type==='spot')m.scale.setScalar(1.4);
     if(ceil)m.position.set(it.x,H,it.y);
     else{const[nx,nz]=wallNormal(it),floorDev=['msr','msv','cuptor','plita'].includes(it.type);m.rotation.y=Math.atan2(nx,nz);m.position.set(it.x+nx*.05,floorDev?0:h,it.y+nz*.05)}
-    m.traverse(o=>{if(o.isMesh){if(c)o.userData.ci=c.ci;v3.meshes.push(o)}});scene.add(m)}
+    m.userData.item=it.id;v3.items.set(it.id,m);m.traverse(o=>{if(o.isMesh){if(c)o.userData.ci=c.ci;v3.meshes.push(o)}});scene.add(m)}
   const ren=new T3.WebGLRenderer({antialias:true});ren.setPixelRatio(Math.min(2,devicePixelRatio||1));box.appendChild(ren.domElement);
-  const cam=new T3.PerspectiveCamera(45,1,.05,200);v3.scene=scene;v3.cam=cam;v3.ren=ren;v3.tg=new T3.Vector3((x0+x1)/2,H*.35,(y0+y1)/2);v3.span=Math.max(x1-x0,y1-y0);v3.th=-.8;v3.ph=.95;{const bb=box.getBoundingClientRect(),asp=bb.width/Math.max(1,bb.height);v3.rad0=(v3.span*1.45+3)/Math.min(1,asp*1.25);v3.rad=v3.rad0}
+  const cam=new T3.PerspectiveCamera(45,1,.05,200);v3.scene=scene;v3.cam=cam;v3.ren=ren;if(!keep||!v3.tg){v3.tg=new T3.Vector3((x0+x1)/2,H*.35,(y0+y1)/2);v3.span=Math.max(x1-x0,y1-y0);v3.th=-.8;v3.ph=.95;const bb=box.getBoundingClientRect(),asp=bb.width/Math.max(1,bb.height);v3.rad0=(v3.span*1.45+3)/Math.min(1,asp*1.25);v3.rad=v3.rad0}
   $('#v3dIso').innerHTML='<option value="">Toate circuitele</option>'+(R?R.circuits.map(c=>`<option value="${c.ci}"${String(c.ci)===v3.iso?' selected':''}>${c.id} · ${esc(c.name)}</option>`).join(''):'');
-  applyIso3();applyWalls3();size3();ctl3(ren.domElement);
+  applyIso3();applyWalls3();size3();ctl3(ren.domElement);sel3(v3.sel&&P.items.some(i=>i.id===v3.sel)?v3.sel:null);
 }
+const mv3=it=>!!it&&['priza','intr'].includes(T[it.type].g);
+function wallSpan3(it){const r=P.rooms.find(z=>z.id===it.room);if(!r)return null;const[nx]=wallNormal(it);return nx?{ax:'y',lo:r.y+.05,hi:r.y+r.h-.05,a0:r.y}:{ax:'x',lo:r.x+.05,hi:r.x+r.w-.05,a0:r.x}}
+function info3(it,h,t){const w=wallSpan3(it);return`<b>${esc(T[it.type].n)}</b><label>Înălțime <input id="v3dH" type="number" inputmode="numeric" min="10" max="${Math.round(P.H*100-10)}" step="5" value="${Math.round(h*100)}"> cm</label>${w?`<span class="muted">${f2(t-w.a0)} m de la colț</span>`:''}<button class="btn" type="button" id="v3dDone">Gata</button>`}
+const f2=v=>(Math.round(v*100)/100).toFixed(2).replace('.',',');
+function sel3(id){const T3=window.THREE;if(v3.hl){v3.scene.remove(v3.hl);v3.hl=null}v3.sel=id;const it=id&&P.items.find(i=>i.id===id),m=id&&v3.items.get(id),el=$('#v3dSel');
+  if(!it||!m){el.hidden=true;$('#v3dHint').hidden=false;rend3();return}
+  v3.hl=new T3.BoxHelper(m,0xF2A33A);v3.scene.add(v3.hl);const w=wallSpan3(it);el.innerHTML=info3(it,hOf(P,it),w?(w.ax==='x'?it.x:it.y):0);el.hidden=false;$('#v3dHint').hidden=true;rend3()}
+function pick3(el,e){const T3=window.THREE,b=el.getBoundingClientRect(),rc=new T3.Raycaster();rc.setFromCamera(new T3.Vector2((e.clientX-b.left)/b.width*2-1,-(e.clientY-b.top)/b.height*2+1),v3.cam);
+  const L=[...v3.items.values()].filter(m=>mv3(P.items.find(i=>i.id===m.userData.item))),hit=rc.intersectObjects(L,true)[0];if(!hit)return null;let o=hit.object;while(o&&o.userData.item==null)o=o.parent;return o?{id:o.userData.item,rc}:null}
+function ray3(el,e){const T3=window.THREE,b=el.getBoundingClientRect(),rc=new T3.Raycaster();rc.setFromCamera(new T3.Vector2((e.clientX-b.left)/b.width*2-1,-(e.clientY-b.top)/b.height*2+1),v3.cam);return rc.ray}
 function size3(){if(!v3.ren||$('#v3d').hidden)return;const b=$('#v3dBox').getBoundingClientRect();v3.ren.setSize(b.width,b.height);v3.cam.aspect=b.width/Math.max(1,b.height);v3.cam.updateProjectionMatrix();rend3()}
 function rend3(){if(!v3.ren)return;const{cam,tg}=v3;cam.position.set(tg.x+v3.rad*Math.sin(v3.ph)*Math.cos(v3.th),tg.y+v3.rad*Math.cos(v3.ph),tg.z+v3.rad*Math.sin(v3.ph)*Math.sin(v3.th));cam.lookAt(tg);v3.ren.render(v3.scene,cam)}
 function applyIso3(){for(const m of v3.meshes){if(m.userData.ci==null)continue;const on=v3.iso===''||String(m.userData.ci)===v3.iso;m.material.opacity=on?1:.1;m.material.depthWrite=on}rend3()}
 function applyWalls3(){for(const m of v3.walls)m.visible=v3.wallOn;$('#v3dWalls').setAttribute('aria-pressed',v3.wallOn);rend3()}
 function ctl3(el){
-  el.style.touchAction='none';const pts=new Map();let last=null;
+  el.style.touchAction='none';const pts=new Map();let last=null,drag=null;
   const st=()=>{const a=[...pts.values()];if(a.length===1)return{x:a[0].x,y:a[0].y,d:0};const[p,q]=a;return{x:(p.x+q.x)/2,y:(p.y+q.y)/2,d:Math.hypot(p.x-q.x,p.y-q.y)}};
-  el.addEventListener('pointerdown',e=>{el.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});last=st()});
-  el.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});const n=st();if(!last){last=n;return}
+  el.addEventListener('pointerdown',e=>{el.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});last=st();if(pts.size===1)v3.dn={x:e.clientX,y:e.clientY};
+    if(pts.size>1){if(drag){drag.m.position.copy(drag.p0);drag=null;rend3()}return}
+    const pk=pick3(el,e);if(!pk){drag=null;v3.tap=true;return}v3.tap=false;const it=P.items.find(i=>i.id===pk.id),m=v3.items.get(pk.id),T3=window.THREE,[nx,nz]=wallNormal(it),w=wallSpan3(it);sel3(pk.id);if(!w)return;
+    const pl=new T3.Plane().setFromNormalAndCoplanarPoint(new T3.Vector3(nx,0,nz),m.position),q=new T3.Vector3();if(!pk.rc.ray.intersectPlane(pl,q))return;
+    drag={id:pk.id,it,m,pl,w,off:m.position.clone().sub(q),p0:m.position.clone(),x0:e.clientX,y0:e.clientY,moved:false,h:hOf(P,it),t:w.ax==='x'?it.x:it.y}});
+  el.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(drag){if(!drag.moved&&Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)<6)return;drag.moved=true;const q=new window.THREE.Vector3();if(!ray3(el,e).intersectPlane(drag.pl,q))return;q.add(drag.off);
+      const s5=v=>Math.round(v*20)/20,w=drag.w,t=clamp(s5(w.ax==='x'?q.x:q.z),w.lo,w.hi),h=clamp(s5(q.y),.1,P.H-.1);drag.t=t;drag.h=h;
+      if(w.ax==='x')drag.m.position.x=t;else drag.m.position.z=t;drag.m.position.y=h;if(v3.hl)v3.hl.update();$('#v3dSel').innerHTML=info3(drag.it,h,t);rend3();return}
+    const n=st();if(!last){last=n;return}
     if(pts.size===1){v3.th+=(n.x-last.x)*.008;v3.ph=clamp(v3.ph-(n.y-last.y)*.008,.12,1.5)}
     else{if(last.d)v3.rad=clamp(v3.rad*last.d/Math.max(1,n.d),2,80);const T3=window.THREE,right=new T3.Vector3(Math.sin(v3.th),0,-Math.cos(v3.th)),fwd=new T3.Vector3(Math.cos(v3.th),0,Math.sin(v3.th)),k=v3.rad*.0016;v3.tg.add(right.multiplyScalar(-(n.x-last.x)*k)).add(fwd.multiplyScalar((n.y-last.y)*k))}
     last=n;rend3()});
-  const up=e=>{pts.delete(e.pointerId);last=pts.size?st():null};el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+  const up=e=>{if(pts.size===1&&e.type==='pointerup'&&v3.tap&&!drag){if(v3.dn&&Math.hypot(e.clientX-v3.dn.x,e.clientY-v3.dn.y)<6&&v3.sel)sel3(null)}pts.delete(e.pointerId);last=pts.size?st():null;
+    if(drag&&!pts.size){const d=drag;drag=null;if(d.moved&&e.type==='pointerup'){snap();if(d.w.ax==='x')d.it.x=d.t;else d.it.y=d.t;d.it.h=d.h;changed(true);build3D(true)}else if(d.moved){d.m.position.copy(d.p0);rend3()}}};el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
   el.addEventListener('wheel',e=>{e.preventDefault();v3.rad=clamp(v3.rad*(e.deltaY>0?1.1:.9),2,80);rend3()},{passive:false});
 }
 $('#v3d').addEventListener('click',e=>{if(e.target.closest('[data-ov-x]'))closeOv();else if(e.target.id==='v3dWalls'){v3.wallOn=!v3.wallOn;applyWalls3()}else if(e.target.id==='v3dReset'){v3.th=-.8;v3.ph=.95;v3.rad=v3.rad0||v3.rad;rend3()}});
 $('#v3dIso').addEventListener('change',e=>{v3.iso=e.target.value;applyIso3()});
+$('#v3dSel').addEventListener('change',e=>{if(e.target.id!=='v3dH')return;const it=P.items.find(i=>i.id===v3.sel);const v=+e.target.value;if(!it||!(v>0))return;snap();it.h=clamp(Math.round(v/5)*5/100,.1,P.H-.1);changed(true);build3D(true)});
+$('#v3dSel').addEventListener('click',e=>{if(e.target.id==='v3dDone')sel3(null)});
 addEventListener('resize',()=>{size3();if(!$('#elev').hidden)renderElev()});
 function groupOf(id){return P.rooms.filter(z=>z.id===id||z.of===id)}
 function fitRects(rs,pad){const x0=Math.min(...rs.map(r=>r.x)),y0=Math.min(...rs.map(r=>r.y)),x1=Math.max(...rs.map(r=>r.x+r.w)),y1=Math.max(...rs.map(r=>r.y+r.h));const side=inspOpen&&!view.rot&&W>760&&!matchMedia('(orientation:portrait) and (max-width:1100px)').matches,bot=inspOpen&&!view.rot&&!side;const AW=W-(side?(insp.offsetWidth||340)+30:0),AH=Hh-(bot?(insp.offsetHeight||Hh*.55)+20:0),sw=Math.abs(Math.sin(view.rot))>.7,FW=(sw?AH:AW)-pad*2,FH=(sw?AW:AH)-pad*2;view.auto=false;view.s=clamp(Math.min(FW/Math.max(.5,x1-x0),FH/Math.max(.5,y1-y0)),12,320);view.ox=AW/2-(x0+x1)/2*view.s;view.oy=AH/2-(y0+y1)/2*view.s}
