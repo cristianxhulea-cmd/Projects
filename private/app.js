@@ -1,646 +1,5 @@
-<!doctype html>
-<html lang="ro">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#18222C">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ElectroPlan">
-<link rel="icon" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="app-version" content="9270c91aa834">
-</head>
-<body>
-<title>ElectroPlan</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
-<style>
-:root{
-  --bg:#E9EDE8;--panel:#F8FAF6;--canvas:#FBFCFA;--ink:#18222C;--muted:#5A6671;--line:#CDD5CC;
-  --grid:#E3E8E1;--grid2:#CBD3C9;--room:#EAF0F5;--wall:#18222C;
-  --accent:#1E5DA6;--accent-ink:#FFFFFF;--accent-soft:#DCE7F4;
-  --wire-l:#7A4A26;--wire-n:#2C6BC0;--wire-pe1:#3E8E3A;--wire-pe2:#E2C21C;
-  --ok:#2E7D4F;--warn:#9A6408;--warn-bg:#FBF1DC;--bad:#B23A3A;--sel:#D99A00;
-  --c0:#1E5DA6;--c1:#B4442E;--c2:#2E7D4F;--c3:#8A4FB0;--c4:#B87300;--c5:#0D8585;--c6:#B03A7A;--c7:#5A6B1E;--tv:#1F2A33;--struct:#4A3F5C;
-  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
-  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0E1317;--panel:#161D23;--canvas:#10161B;--ink:#E3E9EE;--muted:#93A0AB;--line:#2A3640;
-  --grid:#18212A;--grid2:#24303A;--room:#172430;--wall:#DCE4EB;
-  --accent:#6EA6E6;--accent-ink:#0A1520;--accent-soft:#1B2D42;
-  --wire-l:#B07A4E;--wire-n:#5B95E0;--wire-pe1:#5DB257;--wire-pe2:#E8CC3A;
-  --ok:#5CC28A;--warn:#E5B04C;--warn-bg:#2B2414;--bad:#EE7B7B;--sel:#F2C230;
-  --c0:#6EA6E6;--c1:#EE8A6E;--c2:#5CC28A;--c3:#B98AE0;--c4:#E8B04A;--c5:#4CC6C6;--c6:#E07AB0;--c7:#A9C25A;--tv:#EEF2F6;--struct:#C3B6DA;
-  color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0E1317;--panel:#161D23;--canvas:#10161B;--ink:#E3E9EE;--muted:#93A0AB;--line:#2A3640;
-  --grid:#18212A;--grid2:#24303A;--room:#172430;--wall:#DCE4EB;
-  --accent:#6EA6E6;--accent-ink:#0A1520;--accent-soft:#1B2D42;
-  --wire-l:#B07A4E;--wire-n:#5B95E0;--wire-pe1:#5DB257;--wire-pe2:#E8CC3A;
-  --ok:#5CC28A;--warn:#E5B04C;--warn-bg:#2B2414;--bad:#EE7B7B;--sel:#F2C230;
-  --c0:#6EA6E6;--c1:#EE8A6E;--c2:#5CC28A;--c3:#B98AE0;--c4:#E8B04A;--c5:#4CC6C6;--c6:#E07AB0;--c7:#A9C25A;--tv:#EEF2F6;--struct:#C3B6DA;
-  color-scheme:dark}
-[hidden]{display:none!important}
-.intro{position:fixed;inset:0;z-index:40;overflow-y:auto;color:#E8EEF3;background:
-radial-gradient(1200px 700px at 85% 15%,rgba(110,166,230,.18),transparent 60%),
-radial-gradient(900px 600px at 10% 90%,rgba(176,122,78,.16),transparent 60%),
-repeating-linear-gradient(0deg,rgba(150,180,210,.07) 0 1px,transparent 1px 32px),
-repeating-linear-gradient(90deg,rgba(150,180,210,.07) 0 1px,transparent 1px 32px),
-repeating-linear-gradient(0deg,rgba(150,180,210,.12) 0 1px,transparent 1px 160px),
-repeating-linear-gradient(90deg,rgba(150,180,210,.12) 0 1px,transparent 1px 160px),
-#0C1621;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-.intro-art{position:absolute;right:-40px;bottom:-30px;width:min(780px,70vw);opacity:.55;pointer-events:none}
-.intro-in{position:relative;max-width:1180px;margin:0 auto;min-height:100%;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;align-items:center;padding-block:48px;padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px))}
-.intro-brand{display:flex;align-items:center;gap:12px;font-family:var(--f-display);font-weight:700;font-size:26px;letter-spacing:.03em}
-.intro-brand .wires i{width:30px;height:5px}
-.intro h1{margin:28px 0 14px;font-family:var(--f-display);font-weight:700;font-size:clamp(42px,6vw,76px);line-height:.95;letter-spacing:-.01em;text-wrap:balance}
-.intro h1 em{font-style:normal;color:#E0A26C}
-.intro .lead{margin:0;max-width:52ch;font-size:18px;line-height:1.55;color:#AFC0CF}
-.intro-steps{display:flex;flex-wrap:wrap;gap:8px 18px;margin:22px 0 30px;padding:0;list-style:none;font-family:var(--f-mono);font-size:13px;color:#8FA6BA}
-.intro-steps li::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#5B95E0;margin-right:8px;vertical-align:1px}
-.intro-acts{display:flex;flex-wrap:wrap;gap:12px}
-.ib{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:10px;border:1px solid rgba(175,192,207,.35);background:rgba(255,255,255,.04);color:#E8EEF3;font-size:16px;font-weight:600}
-.ib:hover{border-color:#AFC0CF;background:rgba(255,255,255,.08)}
-.ib.pri{background:#E0A26C;border-color:#E0A26C;color:#1A120B}
-.ib.pri:hover{background:#EAB384}
-.intro-card{background:rgba(12,22,33,.72);backdrop-filter:blur(6px);border:1px solid rgba(175,192,207,.2);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:12px}
-.intro-card h2{margin:0;font-family:var(--f-display);font-weight:600;font-size:24px;color:#E8EEF3}
-.recent{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none;max-height:min(56vh,520px);overflow-y:auto}
-.pli{position:relative}
-.recent .pli>button[data-io=open]{padding-right:48px}
-.recent .pmenu{position:absolute;top:6px;right:6px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;padding:0;border-radius:8px;font-size:20px;line-height:1;color:#AFC0CF;background:transparent;border:0}
-.recent .pmenu:hover{background:rgba(255,255,255,.08)}
-.pmenu-list{display:flex;flex-wrap:wrap;gap:6px;padding:6px 2px 2px}
-.recent .pmenu-list button{width:auto;display:inline-flex;padding:8px 12px;border-radius:8px;font-size:14px;grid-template-columns:none}
-.recent .pmenu-list .dng{color:#F2A0A0;border-color:rgba(242,160,160,.4)}
-.recent button{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;text-align:left;padding:12px 14px;border-radius:10px;border:1px solid rgba(175,192,207,.18);background:rgba(255,255,255,.03);color:#E8EEF3}
-.recent button:hover{border-color:#5B95E0;background:rgba(91,149,224,.1)}
-.recent b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.recent small{grid-column:1/-1;color:#8FA6BA;font-family:var(--f-mono);font-size:12px}
-.recent span{color:#8FA6BA;font-size:12px;white-space:nowrap}
-.intro-foot{grid-column:1/-1;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:12px;color:#7D93A7;border-top:1px solid rgba(175,192,207,.15);padding-top:16px}
-.intro-foot label{display:inline-flex;gap:8px;align-items:center}
-@media (max-width:860px){.intro-in{grid-template-columns:minmax(0,1fr);gap:28px;padding-block:28px}.intro-art{opacity:.3}}
-@media (prefers-reduced-motion:no-preference){.intro-in>*{animation:introIn .5s ease both}.intro-card{animation-delay:.12s}@keyframes introIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}}
-*,*::before,*::after{box-sizing:border-box}
-html,body{height:100%}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45;overflow:hidden}
-button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-#app{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr);grid-template-columns:minmax(0,1fr)}
-.top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--panel);border-bottom:1px solid var(--line)}
-.brand{display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:700;font-size:23px;letter-spacing:.02em;line-height:1}
-.wires{display:inline-flex;flex-direction:column;gap:2px}
-.wires i{display:block;width:18px;height:3px;border-radius:2px}
-.wires i:nth-child(1){background:var(--wire-l)}
-.wires i:nth-child(2){background:var(--wire-n)}
-.wires i:nth-child(3){background:repeating-linear-gradient(90deg,var(--wire-pe1) 0 4px,var(--wire-pe2) 4px 8px)}
-.proj{display:flex;align-items:center;gap:6px;min-width:0}
-.proj select{max-width:240px;min-width:0;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--canvas)}
-.tabs{display:flex;gap:2px;padding:3px;border-radius:8px;background:var(--bg);overflow-x:auto;max-width:100%}
-.tabs button{border:0;background:none;padding:6px 12px;border-radius:6px;font-weight:500;white-space:nowrap;color:var(--muted)}
-.tabs button[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
-.acts{display:flex;gap:6px;margin-left:auto;align-items:center}
-.sync{display:inline-flex;min-height:24px;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
-.sync::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--muted)}
-.sync[data-s="ok"]{color:var(--ok)}
-.sync[data-s="ok"]::before{background:var(--ok)}
-.sync[data-s="bad"]{color:var(--bad)}
-.sync[data-s="bad"]::before{background:var(--bad)}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel);font-size:13px;white-space:nowrap}
-.btn:hover{border-color:var(--muted)}
-.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.btn.dng{color:var(--bad)}
-.btn.ic{padding:6px 8px}
-.btn svg{width:16px;height:16px}
-main{min-height:0;position:relative}
-.view{height:100%;min-height:0}
-.plan{display:grid;grid-template-columns:68px minmax(0,1fr);position:relative}
-.tools{display:flex;flex-direction:column;gap:6px;padding:6px 4px;overflow-y:auto;background:var(--panel);border-right:1px solid var(--line)}
-.tg{display:flex;flex-direction:column;gap:2px}
-.tg+.tg{border-top:1px solid var(--line);padding-top:6px}
-.tg-h{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:100%;min-height:46px;padding:4px 2px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);font-size:9.5px;font-weight:600;text-align:center}
-.tg-h svg{width:20px;height:20px;flex:none}.tg-h span{line-height:1.1;overflow-wrap:anywhere}.tg-h i{display:none}
-.tg-h[aria-expanded=true]{background:var(--accent-soft);border-color:var(--accent)}
-.tg-h.act{border-color:var(--accent);color:var(--accent)}
-.tg-rec{border:0;background:none;min-height:0;padding:2px 4px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:9px}
-.tg.open{background:var(--bg);border-radius:8px;padding-bottom:4px}
-.tg-l{display:none;font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding-left:4px}
-.tool{display:flex;flex-direction:column;align-items:center;gap:1px;min-height:48px;padding:5px 2px;border:1px solid transparent;border-radius:7px;background:none;font-size:9.5px;line-height:1.15;text-align:center;color:var(--ink)}
-.tool:hover{background:var(--bg)}
-.tool[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
-.tool svg{width:24px;height:24px;flex:none}
-.stage{position:relative;min-width:0;min-height:0;overflow:hidden;background:var(--canvas)}
-#cv{display:block;touch-action:none;cursor:crosshair}
-.hud{position:absolute;left:10px;right:10px;bottom:10px;z-index:4;display:flex;flex-wrap:wrap;gap:6px;align-items:center;pointer-events:none}
-.hud>*{pointer-events:auto}
-.hudMore{position:absolute;right:0;bottom:calc(100% + 8px);display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;max-width:min(560px,calc(100vw - 40px));padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18)}
-.hudMore .layers{margin-left:0}
-.layers{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
-.ovl{position:absolute;inset:0;z-index:9;display:flex;flex-direction:column;background:var(--canvas);border-radius:inherit;overflow:hidden}
-.ovl[hidden]{display:none!important}
-.ov-h{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--panel)}
-.v3sel{display:flex;align-items:center;flex-wrap:wrap;gap:10px;flex:1;min-width:200px;font-size:13px}.v3sel label{display:flex;align-items:center;gap:6px}.v3sel input{width:72px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--canvas);color:var(--ink);font-size:14px}
-.ov-h b{font-family:var(--f-display);font-size:19px;margin-right:6px}
-.ov-tabs{display:flex;gap:6px;flex-wrap:wrap}
-#v3dBox{flex:1;min-height:0;position:relative}
-#v3dBox canvas{display:block}
-#ecv{display:block;flex:1}
-.stage.meas .hud,.stage.meas .selbar,.stage.meas .statc{display:none}
-.measBar{position:absolute;left:10px;right:10px;bottom:10px;z-index:7;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);padding:12px 14px}
-.measBar form{display:flex;flex-direction:column;gap:8px}
-.measIn{width:150px;font:600 26px var(--f-mono);padding:6px 10px;border:2px solid var(--sel);border-radius:8px;background:var(--canvas);color:var(--ink)}
-.selbar{position:absolute;left:10px;right:10px;top:10px;z-index:4;display:flex;flex-wrap:wrap;align-items:center;gap:8px;pointer-events:none}
-.selbar>*{pointer-events:auto}
-.selbar .tag{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;background:var(--panel);border:1px solid var(--line);font-size:13px;max-width:100%}
-.selbar .tag b{font-weight:600}
-.selbar .tag svg{width:22px;height:22px;flex:none}
-.nameEd{position:absolute;z-index:7;font:600 18px var(--f-body);padding:6px 10px;border:2px solid var(--accent);border-radius:8px;background:var(--canvas);color:var(--ink);width:min(260px,70%);transform-origin:0 50%}
-.selbar .btn{min-height:36px}
-.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:12px}
-.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
-.chipsel{padding:5px 8px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:12px;max-width:190px}
-.chipsel.on{border-color:var(--accent);background:var(--accent-soft)}
-.scale{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 8px}
-.inspector{position:absolute;top:10px;right:10px;bottom:62px;width:min(340px,calc(100% - 88px));z-index:6;overflow-y:auto;padding:16px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:16px;min-width:0}
-.inspector h2{margin:0;font-family:var(--f-display);font-weight:600;font-size:22px;line-height:1.1;text-wrap:balance}
-.inspector h4{margin:0 0 8px;font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
-.ihead{display:flex;gap:10px;align-items:center}
-.ihead svg{width:34px;height:34px;flex:none;color:var(--accent)}
-.sub{margin:2px 0 0;color:var(--muted);font-size:12.5px}
-.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.fields .full{grid-column:1/-1}
-label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);min-width:0}
-label.f input,label.f select,label.f textarea{padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--canvas);color:var(--ink);font-size:14px;min-width:0;width:100%}
-label.ck{display:flex;align-items:center;gap:8px;font-size:13px}
-.spec{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px}
-.spec dt{color:var(--muted)}
-.spec dd{margin:0;font-family:var(--f-mono);font-size:12.5px;text-align:right}
-.legend{display:flex;flex-direction:column;gap:2px;margin:0;padding:0;list-style:none}
-.legend li[aria-current="true"]{background:var(--accent-soft)}
-.legend li{cursor:pointer;display:grid;grid-template-columns:12px 34px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:13px;padding:4px 0;border-bottom:1px solid var(--line)}
-.legend li:last-child{border-bottom:0}
-.dot{width:12px;height:12px;border-radius:50%}
-.mono{font-family:var(--f-mono);font-size:12.5px}
-.muted{color:var(--muted)}
-.trunc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.warns{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
-.flagmsg{padding:8px 10px;border-radius:6px;color:var(--bad);border-left:3px solid var(--bad);background:var(--bg);font-size:13px}
-.dchk{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
-.dchk li{display:flex;flex-direction:column;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px}
-.dchk .ok{color:var(--ok)}
-.dchk .no{color:var(--warn)}
-.warns li{padding:8px 10px;border-radius:6px;background:var(--warn-bg);color:var(--warn);font-size:13px;border-left:3px solid var(--warn)}
-.okmsg{padding:8px 10px;border-radius:6px;color:var(--ok);border:1px solid var(--line);font-size:13px}
-.doc{height:100%;overflow-y:auto}
-.wrap{max-width:1120px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
-.wrap h1{margin:0;font-family:var(--f-display);font-weight:700;font-size:32px;line-height:1.05;text-wrap:balance}
-.wrap h2{margin:0;font-family:var(--f-display);font-weight:600;font-size:22px}
-.lede{margin:-12px 0 0;color:var(--muted);max-width:68ch}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.stat{background:var(--panel);padding:12px 14px;display:flex;flex-direction:column;gap:2px}
-.stat span{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.stat b{font-family:var(--f-mono);font-weight:500;font-size:20px;font-variant-numeric:tabular-nums}
-.stat small{color:var(--muted);font-size:12px}
-.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
-th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
-th{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);white-space:nowrap;background:var(--panel)}
-tbody tr:last-child td{border-bottom:0}
-td.n,th.n{text-align:right;font-family:var(--f-mono);font-size:13px;white-space:nowrap}
-tr.cat td{background:var(--bg);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-block:6px}
-tfoot td{font-weight:600;border-top:2px solid var(--ink);border-bottom:0}
-.pin{width:92px;padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:var(--canvas);text-align:right;font-family:var(--f-mono);font-size:13px}
-.cid{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-mono);font-weight:600}
-.pill{display:inline-block;padding:1px 7px;border-radius:999px;font-size:12px;font-family:var(--f-mono)}
-.pill.ok{color:var(--ok);border:1px solid currentColor}
-.pill.bad{color:var(--bad);border:1px solid currentColor}
-.rail-box{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:16px}
-.rail{min-width:620px;display:flex;flex-direction:column;gap:14px}
-.row{display:grid;gap:3px;padding:6px;border-radius:4px;background:repeating-linear-gradient(0deg,var(--grid2) 0 2px,transparent 2px 12px),var(--bg)}
-.mod{min-height:86px;border-radius:3px;background:var(--canvas);border:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between;padding:6px 4px;text-align:center;font-size:11px;line-height:1.2;position:relative;overflow:hidden}
-.mod .k{display:block;height:5px;border-radius:2px;margin:0 2px 4px}
-.mod b{font-family:var(--f-mono);font-size:12px}
-.mod small{font-family:var(--f-mono);color:var(--muted);font-size:10.5px}
-.mod.main{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
-.mod.main small{color:inherit;opacity:.75}
-.mod.rcd{border:2px solid var(--accent)}
-.mod.spare{background:none;border:1px dashed var(--grid2)}
-.note{font-size:13px;color:var(--muted);max-width:80ch;margin:0}
-.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.kb{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
-.col{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
-.col h3{margin:0;padding:2px 4px 4px;display:flex;justify-content:space-between;font-family:var(--f-display);font-weight:600;font-size:19px}
-.col h3 span{font-family:var(--f-mono);font-size:13px;color:var(--muted);font-weight:400}
-.task{border:1px solid var(--line);border-radius:8px;background:var(--canvas);padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0}
-.task[data-s="done"] .tt{color:var(--muted);text-decoration:line-through}
-.tt{font-weight:500;overflow-wrap:anywhere}
-.tm{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 10px}
-.ta{display:flex;gap:6px;justify-content:space-between}
-.ta .btn{padding:4px 8px;font-size:12px}
-.prog{height:8px;border-radius:999px;background:var(--line);overflow:hidden}
-.prog i{display:block;height:100%;background:var(--ok)}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
-.cfields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-.empty{padding:16px;color:var(--muted);text-align:center;border:1px dashed var(--line);border-radius:8px}
-dialog{border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);padding:20px;width:min(560px,calc(100vw - 32px))}
-dialog::backdrop{background:rgba(10,15,20,.45)}
-dialog h2{margin:0 0 6px;font-family:var(--f-display);font-weight:600;font-size:24px}
-dialog textarea{width:100%;min-height:150px;font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);border-radius:6px;background:var(--canvas);padding:8px;resize:vertical}
-.dl{display:flex;flex-direction:column;gap:12px}
-.upd{position:fixed;left:50%;top:calc(64px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:45;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 32px);padding:8px 8px 8px 16px;border-radius:12px;background:var(--ink);color:var(--canvas);box-shadow:0 8px 28px rgba(0,0,0,.25);font-size:14px}
-.upd .btn{border-color:transparent}
-.upd .x{background:none;border:0;color:inherit;opacity:.7;font-size:18px;padding:4px 8px}
-.guide{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px;line-height:1.45}
-.guide li::marker{font-weight:700;color:var(--accent)}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--canvas);padding:8px 14px;border-radius:8px;font-size:13px;z-index:20}
-.insp-bar{position:sticky;top:-16px;z-index:2;display:flex;align-items:center;gap:6px;margin:-16px -16px -4px;padding:8px 10px 8px 14px;background:var(--panel);border-bottom:1px solid var(--line);border-radius:12px 12px 0 0;cursor:grab;touch-action:none}
-.insp-bar .btn{width:36px;height:36px;justify-content:center;flex:none}
-.insp-t{flex:1;min-width:0;font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.insp-grip{position:absolute;left:-6px;top:0;bottom:0;width:12px;cursor:ew-resize}
-.inspector.pt .insp-grip{left:50%;top:4px;bottom:auto;width:44px;height:5px;margin-left:-22px;border-radius:3px;background:var(--line);cursor:ns-resize}
-.inspector.pt .insp-bar{padding-top:14px;cursor:ns-resize}
-.inspector:not(.pt) .insp-bar::before{content:"";position:absolute;left:3px;top:50%;width:4px;height:28px;margin-top:-14px;border-radius:2px;background:var(--line)}
-.inspector.min{bottom:auto!important;overflow:hidden;width:min(240px,calc(100% - 88px))}
-.inspector.min.pt{width:auto}
-.inspector.min>*:not(.insp-bar){display:none!important}
-.inspector.min .insp-bar{margin-bottom:-16px;border-bottom:0}
-.stage.io .selbar{right:calc(var(--inspW,340px) + 20px)}
-.btn .lbl{white-space:nowrap}
-body.focus .top{display:none}
-body.focus #app{grid-template-rows:minmax(0,1fr)}
-body.focus #focusBtn{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-:root{--r-lg:16px;--r-md:11px;--shadow:0 6px 22px rgba(15,25,35,.08);--brand:#D9894A}
-.top{min-height:62px;padding-block:8px;gap:10px 16px}
-.brand{font-size:21px}
-.proj{gap:8px}
-#projSel{display:none}
-.projBtn{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;padding:6px 12px;border-radius:var(--r-md);border:0;background:var(--bg);color:var(--ink);text-align:left;max-width:280px;min-width:0}
-.projBtn b{font-size:15px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.projBtn span{font-size:12px;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.projBtn:hover{background:var(--accent-soft)}
-#newProj{border-radius:var(--r-md);min-height:40px;width:40px;justify-content:center;padding:0}
-#newProj .lbl{display:none}
-.sync{padding:4px 10px;border-radius:999px;background:var(--bg)}
-.sync[data-s="ok"]{background:color-mix(in srgb,var(--ok) 14%,transparent)}
-.sync[data-s="bad"]{background:color-mix(in srgb,var(--bad) 14%,transparent)}
-.tabs{margin-inline:auto;padding:4px;border-radius:13px;gap:3px}
-.tabs button{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:9px;font-weight:600}
-.tabs button svg{width:17px;height:17px;flex:none}
-.acts{margin-left:0;gap:8px}
-.acts .btn.ic{width:40px;height:40px;justify-content:center;border-radius:var(--r-md)}
-#ioBtn{height:40px;border-radius:var(--r-md)}
-#ioBtn .lbl{display:none}
-@media (max-width:1180px){#fbBtn .lbl{display:none}}
-#accBtn.av{width:40px;height:40px;padding:0;justify-content:center;border-radius:50%;background:var(--ink);color:var(--canvas);border-color:var(--ink);font-weight:700;font-size:13px}
-.btn{border-radius:9px}
-.plan{grid-template-columns:92px minmax(0,1fr);background:var(--bg)}
-.tools{margin:12px 0 12px 12px;padding:8px 6px;gap:3px;border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);overflow-y:auto}
-.rail-b{display:flex;flex-direction:column;align-items:center;gap:3px;min-height:58px;padding:8px 2px;border:0;border-radius:12px;background:none;color:var(--muted);font-size:10.5px;font-weight:600;line-height:1.15;text-align:center}
-.rail-b svg{width:26px;height:26px;flex:none}
-.rail-b span{max-width:100%;overflow-wrap:anywhere}
-.rail-b:hover{background:var(--bg);color:var(--ink)}
-.rail-b.on{background:var(--accent);color:var(--accent-ink)}
-.rail-b.open:not(.on){background:var(--accent-soft);color:var(--accent)}
-.rail-sep{width:40px;border:0;border-top:1px solid var(--line);margin:4px auto}
-.fly{position:absolute;left:104px;top:12px;z-index:8;width:256px;max-height:calc(100% - 24px);overflow-y:auto;padding:14px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:0 14px 36px rgba(15,25,35,.16)}
-.fly-h{display:flex;align-items:center;justify-content:space-between}
-.fly-h b{font-family:var(--f-display);font-size:21px}
-.fly-h .btn{width:34px;height:34px;justify-content:center}
-.fly p{margin:4px 0 12px;font-size:12.5px;color:var(--muted)}
-.fly-t{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.ftile{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border:1px solid var(--line);border-radius:12px;background:var(--canvas);color:var(--ink);font-size:12px;font-weight:600;text-align:center}
-.ftile svg{width:32px;height:32px}
-.ftile:hover{border-color:var(--accent)}
-.ftile.on{border:2px solid var(--accent);background:var(--accent-soft)}
-.stage{margin:12px;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
-.statc{position:absolute;left:12px;top:12px;right:12px;z-index:4;display:flex;flex-wrap:wrap;gap:8px;pointer-events:none}
-.statc>*{pointer-events:auto}
-.schip{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:color-mix(in srgb,var(--panel) 92%,transparent);color:var(--ink);font-size:12.5px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.05);backdrop-filter:blur(4px)}
-.schip i{width:8px;height:8px;border-radius:50%;flex:none}
-.schip svg{width:15px;height:15px}
-.schip.ok{color:var(--ok)}.schip.w{color:var(--warn)}
-.stage.io .statc{right:calc(var(--inspW,340px) + 24px)}
-.selbar{left:12px;right:auto;top:60px;max-width:calc(100% - 24px);padding:5px;gap:4px;background:var(--ink);color:var(--canvas);border-radius:13px;box-shadow:0 10px 26px rgba(0,0,0,.25);pointer-events:auto}
-.selbar:empty{display:none}
-.selbar.anch .tag .muted{display:none}
-.selbar.anch{flex-wrap:wrap;max-width:min(560px,calc(100% - 24px))}
-.selbar.anch .tag{flex:none;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
-.selbar .tag{background:transparent;border:0;color:inherit;padding:6px 8px}
-.selbar .tag .muted{color:inherit;opacity:.7}
-.selbar .btn{background:transparent;border-color:transparent;color:inherit;font-weight:600;font-size:13px}
-.selbar .btn:hover{background:color-mix(in srgb,var(--canvas) 14%,transparent)}
-.selbar .btn.pri,.selbar .btn[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#1A120B}
-.selbar .btn.dng{color:#F4A3A3}
-.stage.io .selbar{right:auto}
-.hud{left:50%;right:auto;bottom:14px;transform:translateX(-50%);max-width:calc(100% - 24px);flex-wrap:nowrap;gap:4px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 28px rgba(15,25,35,.12);pointer-events:auto}
-.stage.io .hud{left:calc(50% - var(--inspW,340px)/2 - 12px)}
-.hud .btn{border-color:transparent;min-height:36px}
-.hud .btn.ic{min-width:36px;justify-content:center;font-size:17px}
-.hud .btn:hover{background:var(--bg)}
-.zpct{font:600 12.5px var(--f-mono);color:var(--ink);min-width:48px;text-align:center}
-.hud .chipsel{border-radius:9px;padding:7px 8px;font-size:13px;font-weight:600}
-.lq{margin-left:0;gap:4px;flex-wrap:nowrap;padding-left:6px;border-left:1px solid var(--line)}
-.lq .chip,.hudMore .chip{border-radius:9px;padding:7px 11px;font-weight:600;font-size:12.5px}
-#hudMoreBtn{border-left:1px solid var(--line)!important;border-radius:0 9px 9px 0}
-#zFit .lbl{display:none}
-.hudMore{right:0;bottom:calc(100% + 10px)}
-.inspector{top:12px;right:12px;bottom:12px;border-radius:var(--r-lg);box-shadow:0 14px 36px rgba(15,25,35,.14)}
-.itabs{display:flex;gap:18px;margin:-6px 0 -4px;border-bottom:1px solid var(--line)}
-.itabs button{border:0;background:none;padding:8px 0 10px;font-weight:600;font-size:13.5px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
-.itabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
-.rsum{display:flex;flex-direction:column;gap:14px}
-.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.kpis>div{background:var(--bg);border-radius:10px;padding:9px 10px;display:flex;flex-direction:column}
-.kpis b{font:600 19px var(--f-mono)}.kpis span{font-size:11.5px;color:var(--muted)}
-.rchk{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
-.rchk li{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border-radius:10px;background:var(--bg);font-size:13px}
-.rchk li span{flex:1}
-.rchk li i{font-style:normal;font-weight:800;width:16px;text-align:center}
-.rchk li i.ok{color:var(--ok)}
-.rchk li.w{background:var(--warn-bg);color:var(--warn)}
-.rchk li .btn{padding:3px 9px;font-size:12px}
-.rcirc>div{display:grid;grid-template-columns:10px 36px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 2px;border-bottom:1px solid var(--line);font-size:13px}
-.rcirc>div:last-child{border-bottom:0}
-.rcirc small{color:var(--muted)}
-.wrap{gap:22px}
-.wrap h1{font-size:34px}
-.card{border-radius:var(--r-lg);box-shadow:var(--shadow)}
-.tbl{border-radius:14px;box-shadow:var(--shadow)}
-.stats{border-radius:14px;box-shadow:var(--shadow)}
-.col{border-radius:var(--r-lg)}
-.rail-box{border-radius:var(--r-lg)}
-@media (max-width:1366px){
-  .brand .bt{display:none}
-  .tabs button{padding:8px 11px}
-}
-@media (max-width:1180px){
-  .tabs button{padding:8px 10px}
-  .tabs button span{display:none}
-  .tabs button[aria-selected="true"] span{display:inline}
-  .projBtn{max-width:200px}
-}
-@media (max-width:1440px){
-  .sync-t{display:none}
-  #ioBtn .lbl{display:none}
-  #ioBtn{padding:6px 8px}
-  .top{gap:6px 12px}
-}
-@media (max-width:1180px){
-  .bt,.sync-t{display:none}
-  .top{gap:6px 10px;padding-block:6px}
-  .proj select{max-width:170px}
-  #newProj .lbl,#ioBtn .lbl{display:none}
-  #newProj,#ioBtn{padding:6px 8px}
-  .tabs button{padding:6px 10px}
-}
-@media (max-width:760px),(orientation:portrait) and (max-width:1100px){
-  .inspector{top:auto;left:10px;right:10px;bottom:62px;width:auto;max-height:55%}
-  .stage.io .selbar{right:10px}
-  .scale,#focusBtn .lbl{display:none}
-}
-@media (max-width:640px){
-  .tabs{order:3;flex:1 1 100%;min-width:0}
-  .tabs button{padding:6px 9px;font-size:13.5px}
-  .plan{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
-  .tools{flex-direction:row;overflow-x:auto;overflow-y:hidden;border-right:0;border-bottom:1px solid var(--line);padding:6px 8px;gap:6px}
-  .tg{flex-direction:row}
-  .tg+.tg{border-top:0;padding-top:0;border-left:1px solid var(--line);padding-left:6px}
-  .tg-l{display:none}
-  .tg-h{width:auto;min-width:64px;flex-direction:column;justify-content:center;text-align:center}
-  .tg-h i{display:none}
-  .tg.open{padding:0 4px 0 0}
-  .tool{min-width:56px}
-  .kb{grid-template-columns:minmax(0,1fr)}
-  .acts{margin-left:0}
-  .brand{font-size:20px}
-}
-@media (max-width:760px),(orientation:portrait) and (max-width:1100px){
-  .inspector{top:auto;left:12px;right:12px;bottom:12px}
-  .stage.io .statc{right:12px}
-  .stage.io .hud{left:50%}
-}
-@media (max-width:640px){
-  .top{padding-block:6px;gap:6px 8px}
-  .brand .bt{display:none}
-  .projBtn{max-width:none;flex:1;padding:5px 10px}
-  .proj{flex:1;min-width:0}
-  .sync{display:none}
-  .tabs button span{display:inline}
-  .tabs button svg{display:none}
-  .plan{grid-template-columns:minmax(0,1fr)}
-  .tools{flex-direction:row;margin:8px 8px 0;padding:4px 6px;overflow-x:auto;overflow-y:hidden;gap:2px}
-  .rail-b{min-width:62px;min-height:52px;padding:6px 4px}
-  .rail-b svg{width:22px;height:22px}
-  .rail-sep{width:0;height:36px;border-top:0;border-left:1px solid var(--line);margin:auto 4px}
-  .fly{left:8px;right:8px;top:74px;width:auto}
-  .fly-t{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .stage{margin:8px}
-  .statc{left:8px;right:8px;top:8px}
-  .schip.kw{display:none}
-  .schip.pj span{display:none}
-  .hud{bottom:8px;max-width:calc(100% - 16px);flex-wrap:wrap;justify-content:center}
-  .acts{gap:5px}
-  .acts .btn.ic{width:36px;height:36px}
-  #redoBtn,#ioBtn{display:none}
-  #newProj{width:36px;min-height:36px}
-  .rail-b span{white-space:nowrap;font-size:10px}
-  .rail-b{min-width:64px}
-  #zOut,#zIn{display:none}
-  .hud{flex-wrap:nowrap}
-  #lvSel{max-width:96px}
-  #isoSel{max-width:118px}
-  .stage.io .selbar.anch{display:none}
-  .lq{display:none}
-  .zpct{display:none}
-  #hudMoreBtn .lbl{display:none}
-  .hud .chipsel{max-width:120px}
-}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
-</style>
+(function(){var s=document.createElement("style");s.textContent=":root{\n  --bg:#E9EDE8;--panel:#F8FAF6;--canvas:#FBFCFA;--ink:#18222C;--muted:#5A6671;--line:#CDD5CC;\n  --grid:#E3E8E1;--grid2:#CBD3C9;--room:#EAF0F5;--wall:#18222C;\n  --accent:#1E5DA6;--accent-ink:#FFFFFF;--accent-soft:#DCE7F4;\n  --wire-l:#7A4A26;--wire-n:#2C6BC0;--wire-pe1:#3E8E3A;--wire-pe2:#E2C21C;\n  --ok:#2E7D4F;--warn:#9A6408;--warn-bg:#FBF1DC;--bad:#B23A3A;--sel:#D99A00;\n  --c0:#1E5DA6;--c1:#B4442E;--c2:#2E7D4F;--c3:#8A4FB0;--c4:#B87300;--c5:#0D8585;--c6:#B03A7A;--c7:#5A6B1E;--tv:#1F2A33;--struct:#4A3F5C;\n  --f-display:\"Barlow Condensed\",\"Arial Narrow\",system-ui,sans-serif;\n  --f-body:\"IBM Plex Sans\",system-ui,-apple-system,\"Segoe UI\",sans-serif;\n  --f-mono:\"IBM Plex Mono\",ui-monospace,\"SFMono-Regular\",Menlo,monospace;\n}\n@media (prefers-color-scheme:dark){:root:not([data-theme=\"light\"]){\n  --bg:#0E1317;--panel:#161D23;--canvas:#10161B;--ink:#E3E9EE;--muted:#93A0AB;--line:#2A3640;\n  --grid:#18212A;--grid2:#24303A;--room:#172430;--wall:#DCE4EB;\n  --accent:#6EA6E6;--accent-ink:#0A1520;--accent-soft:#1B2D42;\n  --wire-l:#B07A4E;--wire-n:#5B95E0;--wire-pe1:#5DB257;--wire-pe2:#E8CC3A;\n  --ok:#5CC28A;--warn:#E5B04C;--warn-bg:#2B2414;--bad:#EE7B7B;--sel:#F2C230;\n  --c0:#6EA6E6;--c1:#EE8A6E;--c2:#5CC28A;--c3:#B98AE0;--c4:#E8B04A;--c5:#4CC6C6;--c6:#E07AB0;--c7:#A9C25A;--tv:#EEF2F6;--struct:#C3B6DA;\n  color-scheme:dark}}\n:root[data-theme=\"dark\"]{\n  --bg:#0E1317;--panel:#161D23;--canvas:#10161B;--ink:#E3E9EE;--muted:#93A0AB;--line:#2A3640;\n  --grid:#18212A;--grid2:#24303A;--room:#172430;--wall:#DCE4EB;\n  --accent:#6EA6E6;--accent-ink:#0A1520;--accent-soft:#1B2D42;\n  --wire-l:#B07A4E;--wire-n:#5B95E0;--wire-pe1:#5DB257;--wire-pe2:#E8CC3A;\n  --ok:#5CC28A;--warn:#E5B04C;--warn-bg:#2B2414;--bad:#EE7B7B;--sel:#F2C230;\n  --c0:#6EA6E6;--c1:#EE8A6E;--c2:#5CC28A;--c3:#B98AE0;--c4:#E8B04A;--c5:#4CC6C6;--c6:#E07AB0;--c7:#A9C25A;--tv:#EEF2F6;--struct:#C3B6DA;\n  color-scheme:dark}\n[hidden]{display:none!important}\n.intro{position:fixed;inset:0;z-index:40;overflow-y:auto;color:#E8EEF3;background:\nradial-gradient(1200px 700px at 85% 15%,rgba(110,166,230,.18),transparent 60%),\nradial-gradient(900px 600px at 10% 90%,rgba(176,122,78,.16),transparent 60%),\nrepeating-linear-gradient(0deg,rgba(150,180,210,.07) 0 1px,transparent 1px 32px),\nrepeating-linear-gradient(90deg,rgba(150,180,210,.07) 0 1px,transparent 1px 32px),\nrepeating-linear-gradient(0deg,rgba(150,180,210,.12) 0 1px,transparent 1px 160px),\nrepeating-linear-gradient(90deg,rgba(150,180,210,.12) 0 1px,transparent 1px 160px),\n#0C1621;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}\n.intro-art{position:absolute;right:-40px;bottom:-30px;width:min(780px,70vw);opacity:.55;pointer-events:none}\n.intro-in{position:relative;max-width:1180px;margin:0 auto;min-height:100%;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:48px;align-items:center;padding-block:48px;padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px))}\n.intro-brand{display:flex;align-items:center;gap:12px;font-family:var(--f-display);font-weight:700;font-size:26px;letter-spacing:.03em}\n.intro-brand .wires i{width:30px;height:5px}\n.intro h1{margin:28px 0 14px;font-family:var(--f-display);font-weight:700;font-size:clamp(42px,6vw,76px);line-height:.95;letter-spacing:-.01em;text-wrap:balance}\n.intro h1 em{font-style:normal;color:#E0A26C}\n.intro .lead{margin:0;max-width:52ch;font-size:18px;line-height:1.55;color:#AFC0CF}\n.intro-steps{display:flex;flex-wrap:wrap;gap:8px 18px;margin:22px 0 30px;padding:0;list-style:none;font-family:var(--f-mono);font-size:13px;color:#8FA6BA}\n.intro-steps li::before{content:\"\";display:inline-block;width:8px;height:8px;border-radius:50%;background:#5B95E0;margin-right:8px;vertical-align:1px}\n.intro-acts{display:flex;flex-wrap:wrap;gap:12px}\n.ib{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:10px;border:1px solid rgba(175,192,207,.35);background:rgba(255,255,255,.04);color:#E8EEF3;font-size:16px;font-weight:600}\n.ib:hover{border-color:#AFC0CF;background:rgba(255,255,255,.08)}\n.ib.pri{background:#E0A26C;border-color:#E0A26C;color:#1A120B}\n.ib.pri:hover{background:#EAB384}\n.intro-card{background:rgba(12,22,33,.72);backdrop-filter:blur(6px);border:1px solid rgba(175,192,207,.2);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:12px}\n.intro-card h2{margin:0;font-family:var(--f-display);font-weight:600;font-size:24px;color:#E8EEF3}\n.recent{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none;max-height:min(56vh,520px);overflow-y:auto}\n.pli{position:relative}\n.recent .pli>button[data-io=open]{padding-right:48px}\n.recent .pmenu{position:absolute;top:6px;right:6px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;padding:0;border-radius:8px;font-size:20px;line-height:1;color:#AFC0CF;background:transparent;border:0}\n.recent .pmenu:hover{background:rgba(255,255,255,.08)}\n.pmenu-list{display:flex;flex-wrap:wrap;gap:6px;padding:6px 2px 2px}\n.recent .pmenu-list button{width:auto;display:inline-flex;padding:8px 12px;border-radius:8px;font-size:14px;grid-template-columns:none}\n.recent .pmenu-list .dng{color:#F2A0A0;border-color:rgba(242,160,160,.4)}\n.recent button{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;text-align:left;padding:12px 14px;border-radius:10px;border:1px solid rgba(175,192,207,.18);background:rgba(255,255,255,.03);color:#E8EEF3}\n.recent button:hover{border-color:#5B95E0;background:rgba(91,149,224,.1)}\n.recent b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.recent small{grid-column:1/-1;color:#8FA6BA;font-family:var(--f-mono);font-size:12px}\n.recent span{color:#8FA6BA;font-size:12px;white-space:nowrap}\n.intro-foot{grid-column:1/-1;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:12px;color:#7D93A7;border-top:1px solid rgba(175,192,207,.15);padding-top:16px}\n.intro-foot label{display:inline-flex;gap:8px;align-items:center}\n@media (max-width:860px){.intro-in{grid-template-columns:minmax(0,1fr);gap:28px;padding-block:28px}.intro-art{opacity:.3}}\n@media (prefers-reduced-motion:no-preference){.intro-in>*{animation:introIn .5s ease both}.intro-card{animation-delay:.12s}@keyframes introIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}}\n*,*::before,*::after{box-sizing:border-box}\nhtml,body{height:100%}\nbody{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45;overflow:hidden}\nbutton,input,select,textarea{font:inherit;color:inherit}\nbutton{cursor:pointer}\n:focus-visible{outline:2px solid var(--accent);outline-offset:2px}\n#app{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr);grid-template-columns:minmax(0,1fr)}\n.top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--panel);border-bottom:1px solid var(--line)}\n.brand{display:flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:700;font-size:23px;letter-spacing:.02em;line-height:1}\n.wires{display:inline-flex;flex-direction:column;gap:2px}\n.wires i{display:block;width:18px;height:3px;border-radius:2px}\n.wires i:nth-child(1){background:var(--wire-l)}\n.wires i:nth-child(2){background:var(--wire-n)}\n.wires i:nth-child(3){background:repeating-linear-gradient(90deg,var(--wire-pe1) 0 4px,var(--wire-pe2) 4px 8px)}\n.proj{display:flex;align-items:center;gap:6px;min-width:0}\n.proj select{max-width:240px;min-width:0;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--canvas)}\n.tabs{display:flex;gap:2px;padding:3px;border-radius:8px;background:var(--bg);overflow-x:auto;max-width:100%}\n.tabs button{border:0;background:none;padding:6px 12px;border-radius:6px;font-weight:500;white-space:nowrap;color:var(--muted)}\n.tabs button[aria-selected=\"true\"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}\n.acts{display:flex;gap:6px;margin-left:auto;align-items:center}\n.sync{display:inline-flex;min-height:24px;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}\n.sync::before{content:\"\";width:8px;height:8px;border-radius:50%;background:var(--muted)}\n.sync[data-s=\"ok\"]{color:var(--ok)}\n.sync[data-s=\"ok\"]::before{background:var(--ok)}\n.sync[data-s=\"bad\"]{color:var(--bad)}\n.sync[data-s=\"bad\"]::before{background:var(--bad)}\n.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel);font-size:13px;white-space:nowrap}\n.btn:hover{border-color:var(--muted)}\n.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}\n.btn.dng{color:var(--bad)}\n.btn.ic{padding:6px 8px}\n.btn svg{width:16px;height:16px}\nmain{min-height:0;position:relative}\n.view{height:100%;min-height:0}\n.plan{display:grid;grid-template-columns:68px minmax(0,1fr);position:relative}\n.tools{display:flex;flex-direction:column;gap:6px;padding:6px 4px;overflow-y:auto;background:var(--panel);border-right:1px solid var(--line)}\n.tg{display:flex;flex-direction:column;gap:2px}\n.tg+.tg{border-top:1px solid var(--line);padding-top:6px}\n.tg-h{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:100%;min-height:46px;padding:4px 2px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);font-size:9.5px;font-weight:600;text-align:center}\n.tg-h svg{width:20px;height:20px;flex:none}.tg-h span{line-height:1.1;overflow-wrap:anywhere}.tg-h i{display:none}\n.tg-h[aria-expanded=true]{background:var(--accent-soft);border-color:var(--accent)}\n.tg-h.act{border-color:var(--accent);color:var(--accent)}\n.tg-rec{border:0;background:none;min-height:0;padding:2px 4px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:9px}\n.tg.open{background:var(--bg);border-radius:8px;padding-bottom:4px}\n.tg-l{display:none;font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding-left:4px}\n.tool{display:flex;flex-direction:column;align-items:center;gap:1px;min-height:48px;padding:5px 2px;border:1px solid transparent;border-radius:7px;background:none;font-size:9.5px;line-height:1.15;text-align:center;color:var(--ink)}\n.tool:hover{background:var(--bg)}\n.tool[aria-pressed=\"true\"]{background:var(--accent);color:var(--accent-ink)}\n.tool svg{width:24px;height:24px;flex:none}\n.stage{position:relative;min-width:0;min-height:0;overflow:hidden;background:var(--canvas)}\n#cv{display:block;touch-action:none;cursor:crosshair}\n.hud{position:absolute;left:10px;right:10px;bottom:10px;z-index:4;display:flex;flex-wrap:wrap;gap:6px;align-items:center;pointer-events:none}\n.hud>*{pointer-events:auto}\n.hudMore{position:absolute;right:0;bottom:calc(100% + 8px);display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;max-width:min(560px,calc(100vw - 40px));padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18)}\n.hudMore .layers{margin-left:0}\n.bgpages{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;max-height:60vh;overflow:auto}.bgpage{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--canvas);color:var(--ink);cursor:pointer;font:inherit;font-size:13px}.bgpage canvas{max-width:100%;height:auto;background:#fff;border-radius:4px}.bgpage:hover{border-color:var(--accent)}\n.layers{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}\n.ovl{position:absolute;inset:0;z-index:9;display:flex;flex-direction:column;background:var(--canvas);border-radius:inherit;overflow:hidden}\n.ovl[hidden]{display:none!important}\n.ov-h{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--panel)}\n.v3sel{display:flex;align-items:center;flex-wrap:wrap;gap:10px;flex:1;min-width:200px;font-size:13px}.v3sel label{display:flex;align-items:center;gap:6px}.v3sel input{width:72px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--canvas);color:var(--ink);font-size:14px}\n.ov-h b{font-family:var(--f-display);font-size:19px;margin-right:6px}\n.ov-tabs{display:flex;gap:6px;flex-wrap:wrap}\n#v3dBox{flex:1;min-height:0;position:relative}\n#v3dBox canvas{display:block}\n#ecv{display:block;flex:1}\n.stage.meas .hud,.stage.meas .selbar,.stage.meas .statc{display:none}\n.measBar{position:absolute;left:10px;right:10px;bottom:10px;z-index:7;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);padding:12px 14px}\n.measBar form{display:flex;flex-direction:column;gap:8px}\n.measIn{width:150px;font:600 26px var(--f-mono);padding:6px 10px;border:2px solid var(--sel);border-radius:8px;background:var(--canvas);color:var(--ink)}\n.selbar{position:absolute;left:10px;right:10px;top:10px;z-index:4;display:flex;flex-wrap:wrap;align-items:center;gap:8px;pointer-events:none}\n.selbar>*{pointer-events:auto}\n.selbar .tag{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;background:var(--panel);border:1px solid var(--line);font-size:13px;max-width:100%}\n.selbar .tag b{font-weight:600}\n.selbar .tag svg{width:22px;height:22px;flex:none}\n.nameEd{position:absolute;z-index:7;font:600 18px var(--f-body);padding:6px 10px;border:2px solid var(--accent);border-radius:8px;background:var(--canvas);color:var(--ink);width:min(260px,70%);transform-origin:0 50%}\n.selbar .btn{min-height:36px}\n.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:12px}\n.chip[aria-pressed=\"true\"]{border-color:var(--accent);background:var(--accent-soft)}\n.chipsel{padding:5px 8px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:12px;max-width:190px}\n.chipsel.on{border-color:var(--accent);background:var(--accent-soft)}\n.scale{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 8px}\n.inspector{position:absolute;top:10px;right:10px;bottom:62px;width:min(340px,calc(100% - 88px));z-index:6;overflow-y:auto;padding:16px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:16px;min-width:0}\n.inspector h2{margin:0;font-family:var(--f-display);font-weight:600;font-size:22px;line-height:1.1;text-wrap:balance}\n.inspector h4{margin:0 0 8px;font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}\n.ihead{display:flex;gap:10px;align-items:center}\n.ihead svg{width:34px;height:34px;flex:none;color:var(--accent)}\n.sub{margin:2px 0 0;color:var(--muted);font-size:12.5px}\n.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}\n.fields .full{grid-column:1/-1}\nlabel.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);min-width:0}\nlabel.f input,label.f select,label.f textarea{padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--canvas);color:var(--ink);font-size:14px;min-width:0;width:100%}\nlabel.ck{display:flex;align-items:center;gap:8px;font-size:13px}\n.spec{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px}\n.spec dt{color:var(--muted)}\n.spec dd{margin:0;font-family:var(--f-mono);font-size:12.5px;text-align:right}\n.legend{display:flex;flex-direction:column;gap:2px;margin:0;padding:0;list-style:none}\n.legend li[aria-current=\"true\"]{background:var(--accent-soft)}\n.legend li{cursor:pointer;display:grid;grid-template-columns:12px 34px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:13px;padding:4px 0;border-bottom:1px solid var(--line)}\n.legend li:last-child{border-bottom:0}\n.dot{width:12px;height:12px;border-radius:50%}\n.mono{font-family:var(--f-mono);font-size:12.5px}\n.muted{color:var(--muted)}\n.trunc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.warns{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}\n.flagmsg{padding:8px 10px;border-radius:6px;color:var(--bad);border-left:3px solid var(--bad);background:var(--bg);font-size:13px}\n.dchk{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}\n.dchk li{display:flex;flex-direction:column;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px}\n.dchk .ok{color:var(--ok)}\n.dchk .no{color:var(--warn)}\n.warns li{padding:8px 10px;border-radius:6px;background:var(--warn-bg);color:var(--warn);font-size:13px;border-left:3px solid var(--warn)}\n.okmsg{padding:8px 10px;border-radius:6px;color:var(--ok);border:1px solid var(--line);font-size:13px}\n.doc{height:100%;overflow-y:auto}\n.wrap{max-width:1120px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}\n.wrap h1{margin:0;font-family:var(--f-display);font-weight:700;font-size:32px;line-height:1.05;text-wrap:balance}\n.wrap h2{margin:0;font-family:var(--f-display);font-weight:600;font-size:22px}\n.lede{margin:-12px 0 0;color:var(--muted);max-width:68ch}\n.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}\n.stat{background:var(--panel);padding:12px 14px;display:flex;flex-direction:column;gap:2px}\n.stat span{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}\n.stat b{font-family:var(--f-mono);font-weight:500;font-size:20px;font-variant-numeric:tabular-nums}\n.stat small{color:var(--muted);font-size:12px}\n.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel)}\ntable{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}\nth,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}\nth{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);white-space:nowrap;background:var(--panel)}\ntbody tr:last-child td{border-bottom:0}\ntd.n,th.n{text-align:right;font-family:var(--f-mono);font-size:13px;white-space:nowrap}\ntr.cat td{background:var(--bg);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-block:6px}\ntfoot td{font-weight:600;border-top:2px solid var(--ink);border-bottom:0}\n.pin{width:92px;padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:var(--canvas);text-align:right;font-family:var(--f-mono);font-size:13px}\n.cid{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-mono);font-weight:600}\n.pill{display:inline-block;padding:1px 7px;border-radius:999px;font-size:12px;font-family:var(--f-mono)}\n.pill.ok{color:var(--ok);border:1px solid currentColor}\n.pill.bad{color:var(--bad);border:1px solid currentColor}\n.rail-box{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:16px}\n.rail{min-width:620px;display:flex;flex-direction:column;gap:14px}\n.row{display:grid;gap:3px;padding:6px;border-radius:4px;background:repeating-linear-gradient(0deg,var(--grid2) 0 2px,transparent 2px 12px),var(--bg)}\n.mod{min-height:86px;border-radius:3px;background:var(--canvas);border:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between;padding:6px 4px;text-align:center;font-size:11px;line-height:1.2;position:relative;overflow:hidden}\n.mod .k{display:block;height:5px;border-radius:2px;margin:0 2px 4px}\n.mod b{font-family:var(--f-mono);font-size:12px}\n.mod small{font-family:var(--f-mono);color:var(--muted);font-size:10.5px}\n.mod.main{background:var(--ink);color:var(--canvas);border-color:var(--ink)}\n.mod.main small{color:inherit;opacity:.75}\n.mod.rcd{border:2px solid var(--accent)}\n.mod.spare{background:none;border:1px dashed var(--grid2)}\n.note{font-size:13px;color:var(--muted);max-width:80ch;margin:0}\n.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}\n.kb{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}\n.col{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}\n.col h3{margin:0;padding:2px 4px 4px;display:flex;justify-content:space-between;font-family:var(--f-display);font-weight:600;font-size:19px}\n.col h3 span{font-family:var(--f-mono);font-size:13px;color:var(--muted);font-weight:400}\n.task{border:1px solid var(--line);border-radius:8px;background:var(--canvas);padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0}\n.task[data-s=\"done\"] .tt{color:var(--muted);text-decoration:line-through}\n.tt{font-weight:500;overflow-wrap:anywhere}\n.tm{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 10px}\n.ta{display:flex;gap:6px;justify-content:space-between}\n.ta .btn{padding:4px 8px;font-size:12px}\n.prog{height:8px;border-radius:999px;background:var(--line);overflow:hidden}\n.prog i{display:block;height:100%;background:var(--ok)}\n.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}\n.cfields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}\n.empty{padding:16px;color:var(--muted);text-align:center;border:1px dashed var(--line);border-radius:8px}\ndialog{border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);padding:20px;width:min(560px,calc(100vw - 32px))}\ndialog::backdrop{background:rgba(10,15,20,.45)}\ndialog h2{margin:0 0 6px;font-family:var(--f-display);font-weight:600;font-size:24px}\ndialog textarea{width:100%;min-height:150px;font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);border-radius:6px;background:var(--canvas);padding:8px;resize:vertical}\n.dl{display:flex;flex-direction:column;gap:12px}\n.upd{position:fixed;left:50%;top:calc(64px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:45;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 32px);padding:8px 8px 8px 16px;border-radius:12px;background:var(--ink);color:var(--canvas);box-shadow:0 8px 28px rgba(0,0,0,.25);font-size:14px}\n.upd .btn{border-color:transparent}\n.upd .x{background:none;border:0;color:inherit;opacity:.7;font-size:18px;padding:4px 8px}\n.guide{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px;line-height:1.45}\n.guide li::marker{font-weight:700;color:var(--accent)}\n.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--canvas);padding:8px 14px;border-radius:8px;font-size:13px;z-index:20}\n.insp-bar{position:sticky;top:-16px;z-index:2;display:flex;align-items:center;gap:6px;margin:-16px -16px -4px;padding:8px 10px 8px 14px;background:var(--panel);border-bottom:1px solid var(--line);border-radius:12px 12px 0 0;cursor:grab;touch-action:none}\n.insp-bar .btn{width:36px;height:36px;justify-content:center;flex:none}\n.insp-t{flex:1;min-width:0;font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.insp-grip{position:absolute;left:-6px;top:0;bottom:0;width:12px;cursor:ew-resize}\n.inspector.pt .insp-grip{left:50%;top:4px;bottom:auto;width:44px;height:5px;margin-left:-22px;border-radius:3px;background:var(--line);cursor:ns-resize}\n.inspector.pt .insp-bar{padding-top:14px;cursor:ns-resize}\n.inspector:not(.pt) .insp-bar::before{content:\"\";position:absolute;left:3px;top:50%;width:4px;height:28px;margin-top:-14px;border-radius:2px;background:var(--line)}\n.inspector.min{bottom:auto!important;overflow:hidden;width:min(240px,calc(100% - 88px))}\n.inspector.min.pt{width:auto}\n.inspector.min>*:not(.insp-bar){display:none!important}\n.inspector.min .insp-bar{margin-bottom:-16px;border-bottom:0}\n.stage.io .selbar{right:calc(var(--inspW,340px) + 20px)}\n.btn .lbl{white-space:nowrap}\nbody.focus .top{display:none}\nbody.focus #app{grid-template-rows:minmax(0,1fr)}\nbody.focus #focusBtn{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}\n:root{--r-lg:16px;--r-md:11px;--shadow:0 6px 22px rgba(15,25,35,.08);--brand:#D9894A}\n.top{min-height:62px;padding-block:8px;gap:10px 16px}\n.brand{font-size:21px}\n.proj{gap:8px}\n#projSel{display:none}\n.projBtn{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;padding:6px 12px;border-radius:var(--r-md);border:0;background:var(--bg);color:var(--ink);text-align:left;max-width:280px;min-width:0}\n.projBtn b{font-size:15px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.projBtn span{font-size:12px;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.projBtn:hover{background:var(--accent-soft)}\n#newProj{border-radius:var(--r-md);min-height:40px;width:40px;justify-content:center;padding:0}\n#newProj .lbl{display:none}\n.sync{padding:4px 10px;border-radius:999px;background:var(--bg)}\n.sync[data-s=\"ok\"]{background:color-mix(in srgb,var(--ok) 14%,transparent)}\n.sync[data-s=\"bad\"]{background:color-mix(in srgb,var(--bad) 14%,transparent)}\n.tabs{margin-inline:auto;padding:4px;border-radius:13px;gap:3px}\n.tabs button{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:9px;font-weight:600}\n.tabs button svg{width:17px;height:17px;flex:none}\n.acts{margin-left:0;gap:8px}\n.acts .btn.ic{width:40px;height:40px;justify-content:center;border-radius:var(--r-md)}\n#ioBtn{height:40px;border-radius:var(--r-md)}\n#ioBtn .lbl{display:none}\n@media (max-width:1180px){#fbBtn .lbl{display:none}}\n#accBtn.av{width:40px;height:40px;padding:0;justify-content:center;border-radius:50%;background:var(--ink);color:var(--canvas);border-color:var(--ink);font-weight:700;font-size:13px}\n.btn{border-radius:9px}\n.plan{grid-template-columns:92px minmax(0,1fr);background:var(--bg)}\n.tools{margin:12px 0 12px 12px;padding:8px 6px;gap:3px;border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);overflow-y:auto}\n.rail-b{display:flex;flex-direction:column;align-items:center;gap:3px;min-height:58px;padding:8px 2px;border:0;border-radius:12px;background:none;color:var(--muted);font-size:10.5px;font-weight:600;line-height:1.15;text-align:center}\n.rail-b svg{width:26px;height:26px;flex:none}\n.rail-b span{max-width:100%;overflow-wrap:anywhere}\n.rail-b:hover{background:var(--bg);color:var(--ink)}\n.rail-b.on{background:var(--accent);color:var(--accent-ink)}\n.rail-b.open:not(.on){background:var(--accent-soft);color:var(--accent)}\n.rail-sep{width:40px;border:0;border-top:1px solid var(--line);margin:4px auto}\n.fly{position:absolute;left:104px;top:12px;z-index:8;width:256px;max-height:calc(100% - 24px);overflow-y:auto;padding:14px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:0 14px 36px rgba(15,25,35,.16)}\n.fly-h{display:flex;align-items:center;justify-content:space-between}\n.fly-h b{font-family:var(--f-display);font-size:21px}\n.fly-h .btn{width:34px;height:34px;justify-content:center}\n.fly p{margin:4px 0 12px;font-size:12.5px;color:var(--muted)}\n.fly-t{display:grid;grid-template-columns:1fr 1fr;gap:8px}\n.ftile{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border:1px solid var(--line);border-radius:12px;background:var(--canvas);color:var(--ink);font-size:12px;font-weight:600;text-align:center}\n.ftile svg{width:32px;height:32px}\n.ftile:hover{border-color:var(--accent)}\n.ftile.on{border:2px solid var(--accent);background:var(--accent-soft)}\n.stage{margin:12px;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}\n.statc{position:absolute;left:12px;top:12px;right:12px;z-index:4;display:flex;flex-wrap:wrap;gap:8px;pointer-events:none}\n.statc>*{pointer-events:auto}\n.schip{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:color-mix(in srgb,var(--panel) 92%,transparent);color:var(--ink);font-size:12.5px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.05);backdrop-filter:blur(4px)}\n.schip i{width:8px;height:8px;border-radius:50%;flex:none}\n.schip svg{width:15px;height:15px}\n.schip.ok{color:var(--ok)}.schip.w{color:var(--warn)}\n.stage.io .statc{right:calc(var(--inspW,340px) + 24px)}\n.selbar{left:12px;right:auto;top:60px;max-width:calc(100% - 24px);padding:5px;gap:4px;background:var(--ink);color:var(--canvas);border-radius:13px;box-shadow:0 10px 26px rgba(0,0,0,.25);pointer-events:auto}\n.selbar:empty{display:none}\n.selbar.anch .tag .muted{display:none}\n.selbar.anch{flex-wrap:wrap;max-width:min(560px,calc(100% - 24px))}\n.selbar.anch .tag{flex:none;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}\n.selbar .tag{background:transparent;border:0;color:inherit;padding:6px 8px}\n.selbar .tag .muted{color:inherit;opacity:.7}\n.selbar .btn{background:transparent;border-color:transparent;color:inherit;font-weight:600;font-size:13px}\n.selbar .btn:hover{background:color-mix(in srgb,var(--canvas) 14%,transparent)}\n.selbar .btn.pri,.selbar .btn[aria-pressed=\"true\"]{background:var(--brand);border-color:var(--brand);color:#1A120B}\n.selbar .btn.dng{color:#F4A3A3}\n.stage.io .selbar{right:auto}\n.hud{left:50%;right:auto;bottom:14px;transform:translateX(-50%);max-width:calc(100% - 24px);flex-wrap:nowrap;gap:4px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 28px rgba(15,25,35,.12);pointer-events:auto}\n.stage.io .hud{left:calc(50% - var(--inspW,340px)/2 - 12px)}\n.hud .btn{border-color:transparent;min-height:36px}\n.hud .btn.ic{min-width:36px;justify-content:center;font-size:17px}\n.hud .btn:hover{background:var(--bg)}\n.zpct{font:600 12.5px var(--f-mono);color:var(--ink);min-width:48px;text-align:center}\n.hud .chipsel{border-radius:9px;padding:7px 8px;font-size:13px;font-weight:600}\n.lq{margin-left:0;gap:4px;flex-wrap:nowrap;padding-left:6px;border-left:1px solid var(--line)}\n.lq .chip,.hudMore .chip{border-radius:9px;padding:7px 11px;font-weight:600;font-size:12.5px}\n#hudMoreBtn{border-left:1px solid var(--line)!important;border-radius:0 9px 9px 0}\n#zFit .lbl{display:none}\n.hudMore{right:0;bottom:calc(100% + 10px)}\n.inspector{top:12px;right:12px;bottom:12px;border-radius:var(--r-lg);box-shadow:0 14px 36px rgba(15,25,35,.14)}\n.itabs{display:flex;gap:18px;margin:-6px 0 -4px;border-bottom:1px solid var(--line)}\n.itabs button{border:0;background:none;padding:8px 0 10px;font-weight:600;font-size:13.5px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}\n.itabs button[aria-selected=\"true\"]{color:var(--ink);border-bottom-color:var(--accent)}\n.rsum{display:flex;flex-direction:column;gap:14px}\n.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}\n.kpis>div{background:var(--bg);border-radius:10px;padding:9px 10px;display:flex;flex-direction:column}\n.kpis b{font:600 19px var(--f-mono)}.kpis span{font-size:11.5px;color:var(--muted)}\n.rchk{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}\n.rchk li{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border-radius:10px;background:var(--bg);font-size:13px}\n.rchk li span{flex:1}\n.rchk li i{font-style:normal;font-weight:800;width:16px;text-align:center}\n.rchk li i.ok{color:var(--ok)}\n.rchk li.w{background:var(--warn-bg);color:var(--warn)}\n.rchk li .btn{padding:3px 9px;font-size:12px}\n.rcirc>div{display:grid;grid-template-columns:10px 36px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 2px;border-bottom:1px solid var(--line);font-size:13px}\n.rcirc>div:last-child{border-bottom:0}\n.rcirc small{color:var(--muted)}\n.wrap{gap:22px}\n.wrap h1{font-size:34px}\n.card{border-radius:var(--r-lg);box-shadow:var(--shadow)}\n.tbl{border-radius:14px;box-shadow:var(--shadow)}\n.stats{border-radius:14px;box-shadow:var(--shadow)}\n.col{border-radius:var(--r-lg)}\n.rail-box{border-radius:var(--r-lg)}\n@media (max-width:1366px){\n  .brand .bt{display:none}\n  .tabs button{padding:8px 11px}\n}\n@media (max-width:1180px){\n  .tabs button{padding:8px 10px}\n  .tabs button span{display:none}\n  .tabs button[aria-selected=\"true\"] span{display:inline}\n  .projBtn{max-width:200px}\n}\n@media (max-width:1440px){\n  .sync-t{display:none}\n  #ioBtn .lbl{display:none}\n  #ioBtn{padding:6px 8px}\n  .top{gap:6px 12px}\n}\n@media (max-width:1180px){\n  .bt,.sync-t{display:none}\n  .top{gap:6px 10px;padding-block:6px}\n  .proj select{max-width:170px}\n  #newProj .lbl,#ioBtn .lbl{display:none}\n  #newProj,#ioBtn{padding:6px 8px}\n  .tabs button{padding:6px 10px}\n}\n@media (max-width:760px),(orientation:portrait) and (max-width:1100px){\n  .inspector{top:auto;left:10px;right:10px;bottom:62px;width:auto;max-height:55%}\n  .stage.io .selbar{right:10px}\n  .scale,#focusBtn .lbl{display:none}\n}\n@media (max-width:640px){\n  .tabs{order:3;flex:1 1 100%;min-width:0}\n  .tabs button{padding:6px 9px;font-size:13.5px}\n  .plan{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}\n  .tools{flex-direction:row;overflow-x:auto;overflow-y:hidden;border-right:0;border-bottom:1px solid var(--line);padding:6px 8px;gap:6px}\n  .tg{flex-direction:row}\n  .tg+.tg{border-top:0;padding-top:0;border-left:1px solid var(--line);padding-left:6px}\n  .tg-l{display:none}\n  .tg-h{width:auto;min-width:64px;flex-direction:column;justify-content:center;text-align:center}\n  .tg-h i{display:none}\n  .tg.open{padding:0 4px 0 0}\n  .tool{min-width:56px}\n  .kb{grid-template-columns:minmax(0,1fr)}\n  .acts{margin-left:0}\n  .brand{font-size:20px}\n}\n@media (max-width:760px),(orientation:portrait) and (max-width:1100px){\n  .inspector{top:auto;left:12px;right:12px;bottom:12px}\n  .stage.io .statc{right:12px}\n  .stage.io .hud{left:50%}\n}\n@media (max-width:640px){\n  .top{padding-block:6px;gap:6px 8px}\n  .brand .bt{display:none}\n  .projBtn{max-width:none;flex:1;padding:5px 10px}\n  .proj{flex:1;min-width:0}\n  .sync{display:none}\n  .tabs button span{display:inline}\n  .tabs button svg{display:none}\n  .plan{grid-template-columns:minmax(0,1fr)}\n  .tools{flex-direction:row;margin:8px 8px 0;padding:4px 6px;overflow-x:auto;overflow-y:hidden;gap:2px}\n  .rail-b{min-width:62px;min-height:52px;padding:6px 4px}\n  .rail-b svg{width:22px;height:22px}\n  .rail-sep{width:0;height:36px;border-top:0;border-left:1px solid var(--line);margin:auto 4px}\n  .fly{left:8px;right:8px;top:74px;width:auto}\n  .fly-t{grid-template-columns:repeat(3,minmax(0,1fr))}\n  .stage{margin:8px}\n  .statc{left:8px;right:8px;top:8px}\n  .schip.kw{display:none}\n  .schip.pj span{display:none}\n  .hud{bottom:8px;max-width:calc(100% - 16px);flex-wrap:wrap;justify-content:center}\n  .acts{gap:5px}\n  .acts .btn.ic{width:36px;height:36px}\n  #redoBtn,#ioBtn{display:none}\n  #newProj{width:36px;min-height:36px}\n  .rail-b span{white-space:nowrap;font-size:10px}\n  .rail-b{min-width:64px}\n  #zOut,#zIn{display:none}\n  .hud{flex-wrap:nowrap}\n  #lvSel{max-width:96px}\n  #isoSel{max-width:118px}\n  .stage.io .selbar.anch{display:none}\n  .lq{display:none}\n  .zpct{display:none}\n  #hudMoreBtn .lbl{display:none}\n  .hud .chipsel{max-width:120px}\n}\n@media (prefers-reduced-motion:reduce){*{transition:none!important}}\n";document.head.appendChild(s);document.body.insertAdjacentHTML("beforeend","\n\n<div class=\"intro\" id=\"intro\" hidden>\n  <svg class=\"intro-art\" viewBox=\"0 0 780 520\" aria-hidden=\"true\" fill=\"none\">\n    <g stroke=\"#AFC0CF\" stroke-width=\"6\" opacity=\".55\"><path d=\"M40 40h460v200H40zM500 40h240v300H500zM40 240h260v240H40zM300 240h200v240H300z\"/></g>\n    <g stroke=\"#AFC0CF\" stroke-width=\"2\" opacity=\".5\" stroke-dasharray=\"6 6\"><path d=\"M330 240a70 70 0 0 1 70-70M500 180a60 60 0 0 1 60 60\"/></g>\n    <path d=\"M400 470V300h-180V140h-90\" stroke=\"#B07A4E\" stroke-width=\"3\"/>\n    <path d=\"M410 470V310h200V120h60\" stroke=\"#5B95E0\" stroke-width=\"3\"/>\n    <path d=\"M390 470V290H170V380\" stroke=\"#5DB257\" stroke-width=\"3\" stroke-dasharray=\"10 8\"/>\n    <path d=\"M390 470V290H170V380\" stroke=\"#E8CC3A\" stroke-width=\"3\" stroke-dasharray=\"10 8\" stroke-dashoffset=\"9\"/>\n    <g fill=\"#0C1621\" stroke=\"#E8EEF3\" stroke-width=\"3\"><circle cx=\"130\" cy=\"140\" r=\"16\"/><circle cx=\"670\" cy=\"120\" r=\"16\"/><circle cx=\"170\" cy=\"380\" r=\"16\"/><rect x=\"380\" y=\"456\" width=\"40\" height=\"22\"/></g>\n    <g stroke=\"#E8EEF3\" stroke-width=\"3\"><path d=\"M119 129l22 22M141 129l-22 22M659 109l22 22M681 109l-22 22\"/></g>\n    <text x=\"170\" y=\"386\" fill=\"#E8EEF3\" font-family=\"IBM Plex Mono,monospace\" font-size=\"14\" font-weight=\"700\" text-anchor=\"middle\">P</text>\n  </svg>\n  <div class=\"intro-in\">\n    <section>\n      <div class=\"intro-brand\"><span class=\"wires\" aria-hidden=\"true\"><i></i><i></i><i></i></span>ElectroPlan</div>\n      <h1>Instala\u021bia electric\u0103, <em>de la schi\u021b\u0103</em> la tablou.</h1>\n      <p class=\"lead\">Desenezi casa cu penul, pui prizele \u0219i luminile, iar aplica\u021bia traseaz\u0103 circuitele, dimensioneaz\u0103 cablurile \u0219i siguran\u021bele dup\u0103 I7 \u0219i scoate materialele, schema monofilar\u0103 \u0219i PDF-ul pentru client.</p>\n      <ul class=\"intro-steps\"><li>Schi\u021b\u0103 cu penul</li><li>Circuite \u0219i tablou</li><li>Materiale \u0219i manoper\u0103</li><li>PDF pentru dosar</li></ul>\n      <div class=\"intro-acts\" id=\"introActs\"></div>\n    </section>\n    <section class=\"intro-card\">\n      <h2>Proiectele tale</h2>\n      <ul class=\"recent\" id=\"introRecent\"></ul>\n    </section>\n    <form class=\"intro-card\" id=\"authBox\" hidden style=\"grid-column:1/-1;max-width:520px\">\n      <h2 id=\"authT\">Intr\u0103 \u00een cont</h2>\n      <p style=\"margin:0;color:#AFC0CF;font-size:14px\" id=\"authH\">Proiectele tale sunt salvate \u00een cont \u0219i le vezi doar tu, pe orice dispozitiv.</p>\n      <label class=\"f\" style=\"color:#AFC0CF\">E-mail<input id=\"authE\" type=\"email\" inputmode=\"email\" autocomplete=\"username\" required style=\"background:#0C1621;color:#E8EEF3;border-color:rgba(175,192,207,.35)\"></label>\n      <label class=\"f\" style=\"color:#AFC0CF\" id=\"authPL\">Parol\u0103<input id=\"authP\" type=\"password\" autocomplete=\"current-password\" minlength=\"6\" style=\"background:#0C1621;color:#E8EEF3;border-color:rgba(175,192,207,.35)\"></label>\n      <label class=\"f\" style=\"color:#AFC0CF\" id=\"authP2L\" hidden>Repet\u0103 parola<input id=\"authP2\" type=\"password\" autocomplete=\"new-password\" minlength=\"6\" style=\"background:#0C1621;color:#E8EEF3;border-color:rgba(175,192,207,.35)\"></label>\n      <p id=\"authMsg\" style=\"margin:0;font-size:14px;color:#E0A26C\" role=\"status\"></p>\n      <div class=\"intro-acts\"><button class=\"ib pri\" type=\"submit\" id=\"authGo\">Intr\u0103 \u00een cont</button><button class=\"ib\" type=\"button\" id=\"authSw\">Creeaz\u0103 cont nou</button></div>\n      <button type=\"button\" id=\"authForgot\" style=\"align-self:flex-start;background:none;border:0;color:#8FB8EE;padding:0;font-size:14px;text-decoration:underline\">Ai uitat parola?</button>\n    </form>\n    <div class=\"intro-foot\"><span>Calcule orientative conform I7-2011. Proiectul final se verific\u0103 \u0219i se semneaz\u0103 de un electrician autorizat ANRE.</span><label><input type=\"checkbox\" id=\"introSkip\"> Nu mai afi\u0219a la pornire</label></div>\n  </div>\n</div>\n<div id=\"app\">\n  <header class=\"top\">\n    <div class=\"brand\" id=\"brandBtn\" role=\"button\" tabindex=\"0\" title=\"Ecranul de pornire\" style=\"cursor:pointer\"><span class=\"wires\" aria-hidden=\"true\"><i></i><i></i><i></i></span><span class=\"bt\">ElectroPlan</span></div>\n    <div class=\"proj\">\n      <button class=\"projBtn\" id=\"projBtn\" type=\"button\" title=\"Proiectele tale\"><b id=\"projName\"></b><span id=\"projSub\"></span></button>\n      <select id=\"projSel\" aria-label=\"Proiect\"></select>\n      <button class=\"btn\" id=\"newProj\" type=\"button\" title=\"Proiect nou\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M12 5v14M5 12h14\"/></svg><span class=\"lbl\">Proiect nou</span></button>\n      <span class=\"sync\" id=\"sync\" data-s=\"muted\" role=\"status\"><span class=\"sync-t\">Doar pe acest dispozitiv</span></span>\n    </div>\n    <nav class=\"tabs\" role=\"tablist\" aria-label=\"Sec\u021biuni\">\n      <button role=\"tab\" data-tab=\"plan\" aria-selected=\"true\" type=\"button\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M3 12h9V3M12 12v9\"/></svg><span>Plan</span></button>\n      <button role=\"tab\" data-tab=\"calcul\" aria-selected=\"false\" type=\"button\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M13 2 4 14h7l-1 8 9-12h-7z\"/></svg><span>Circuite</span></button>\n      <button role=\"tab\" data-tab=\"materiale\" aria-selected=\"false\" type=\"button\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 7h16M4 12h16M4 17h10\"/></svg><span>Materiale</span></button>\n      <button role=\"tab\" data-tab=\"oferta\" aria-selected=\"false\" type=\"button\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M7 3h7l5 5v13H7z\"/><path d=\"M14 3v5h5\"/></svg><span>Documente</span></button>\n      <button role=\"tab\" data-tab=\"lucrari\" aria-selected=\"false\" type=\"button\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 11l3 3 8-8\"/><path d=\"M20 12v7H4V5h11\"/></svg><span>Lucr\u0103ri</span></button>\n      <button role=\"tab\" data-tab=\"admin\" aria-selected=\"false\" type=\"button\" id=\"tabAdmin\" hidden><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z\"/></svg><span>Admin</span></button>\n    </nav>\n    <div class=\"acts\">\n      <button class=\"btn\" id=\"accBtn\" type=\"button\" hidden>Conecteaz\u0103-te</button>\n      <button class=\"btn pri\" id=\"installBtn\" type=\"button\" hidden>Instaleaz\u0103 aplica\u021bia</button>\n      <button class=\"btn\" id=\"fbBtn\" type=\"button\" hidden title=\"Trimite o sugestie sau o problem\u0103\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z\"/><path d=\"M8.5 10.5h7M8.5 14h4\"/></svg><span class=\"lbl\">Feedback</span></button>\n      <button class=\"btn ic\" id=\"helpBtn\" type=\"button\" title=\"Cum lucrezi cu ElectroPlan\" aria-label=\"Ajutor\" style=\"font-weight:700;min-width:34px;justify-content:center\">?</button>\n      <button class=\"btn ic\" id=\"undoBtn\" type=\"button\" title=\"Anuleaz\u0103 (Ctrl+Z)\" aria-label=\"Anuleaz\u0103\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 14 4 9l5-5\"/><path d=\"M4 9h10.5a5.5 5.5 0 0 1 0 11H11\"/></svg></button>\n      <button class=\"btn ic\" id=\"redoBtn\" type=\"button\" title=\"Ref\u0103 (Ctrl+Y)\" aria-label=\"Ref\u0103\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m15 14 5-5-5-5\"/><path d=\"M20 9H9.5a5.5 5.5 0 0 0 0 11H13\"/></svg></button>\n      <button class=\"btn\" id=\"ioBtn\" type=\"button\" title=\"Salvare / import\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3v12M7 10l5 5 5-5M5 21h14\"/></svg><span class=\"lbl\">Salvare / import</span></button>\n    </div>\n  </header>\n  <main>\n    <section class=\"view plan\" id=\"v-plan\">\n      <div class=\"tools\" id=\"tools\"></div>\n      <div class=\"fly\" id=\"fly\" hidden></div>\n      <div class=\"stage\" id=\"stage\">\n        <canvas id=\"cv\"></canvas>\n        <div class=\"statc\" id=\"statc\"></div>\n        <div class=\"selbar\" id=\"selbar\"></div>\n        <div class=\"measBar\" id=\"measBar\" hidden></div>\n        <div class=\"ovl\" id=\"elev\" hidden><div class=\"ov-h\"><b id=\"elevT\"></b><button class=\"btn ic\" type=\"button\" data-ev-n=\"-1\" aria-label=\"Peretele anterior\">\u2039</button><div class=\"ov-tabs\" id=\"elevTabs\"></div><button class=\"btn ic\" type=\"button\" data-ev-n=\"1\" aria-label=\"Peretele urm\u0103tor\">\u203a</button><span class=\"muted\" id=\"elevInfo\" style=\"font-size:12px;flex:1;min-width:160px\"></span><button class=\"btn ic\" type=\"button\" data-ov-x aria-label=\"\u00cenchide\">\u2715</button></div><canvas id=\"ecv\"></canvas></div>\n        <div class=\"ovl\" id=\"v3d\" hidden><div class=\"ov-h\"><b>Vedere 3D</b><span class=\"muted\" id=\"v3dHint\" style=\"font-size:12px;flex:1;min-width:160px\">Un deget rote\u0219te, dou\u0103 degete m\u0103resc \u0219i mut\u0103. Trage de o priz\u0103 sau de un \u00eentrerup\u0103tor ca s\u0103-l mu\u021bi.</span><span id=\"v3dSel\" class=\"v3sel\" hidden></span><select id=\"v3dRoom\" class=\"chipsel\" aria-label=\"Camer\u0103\"></select><select id=\"v3dIso\" class=\"chipsel\" aria-label=\"Circuit\"></select><button class=\"chip\" type=\"button\" id=\"v3dWalls\" aria-pressed=\"true\">Pere\u021bi</button><button class=\"btn\" type=\"button\" id=\"v3dReset\">Vedere ini\u021bial\u0103</button><button class=\"btn ic\" type=\"button\" data-ov-x aria-label=\"\u00cenchide\">\u2715</button></div><div id=\"v3dBox\"></div></div>\n        <input class=\"nameEd\" id=\"nameEd\" hidden aria-label=\"Numele camerei\" autocomplete=\"off\">\n        <div class=\"hud\">\n          <button class=\"btn ic\" id=\"zOut\" type=\"button\" aria-label=\"Mic\u0219oreaz\u0103\">\u2212</button>\n          <span class=\"zpct\" id=\"zPct\" title=\"Scara aproximativ\u0103 pe ecran\">1:50</span>\n          <button class=\"btn ic\" id=\"zIn\" type=\"button\" aria-label=\"M\u0103re\u0219te\">+</button>\n          <button class=\"btn\" id=\"zFit\" type=\"button\" title=\"Centreaz\u0103 pe elementul selectat sau pe tot planul (dubl\u0103 atingere pe plan)\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M12 2v4M12 18v4M2 12h4M18 12h4\"/></svg><span class=\"lbl\" id=\"zFitL\">Centreaz\u0103</span></button>\n          <select id=\"lvSel\" class=\"chipsel on\" aria-label=\"Nivel\"></select>\n          <select id=\"isoSel\" class=\"chipsel\" aria-label=\"Arat\u0103 traseul\"></select>\n          <div class=\"layers lq\" id=\"layersQ\"></div>\n          <button class=\"btn\" id=\"hudMoreBtn\" type=\"button\" aria-expanded=\"false\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M4 6h16M4 12h16M4 18h10\"/></svg><span class=\"lbl\">Afi\u0219are</span></button>\n          <div class=\"hudMore\" id=\"hudMore\" hidden>\n          <button class=\"btn ic\" id=\"rot90\" type=\"button\" title=\"Rote\u0219te planul cu 90\u00b0\" aria-label=\"Rote\u0219te planul cu 90\u00b0\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 11a8 8 0 1 0-2.3 5.7\"/><path d=\"M20 4v7h-7\"/></svg></button>\n          <button class=\"btn\" id=\"rotReset\" type=\"button\" hidden>\u00cendreapt\u0103</button>\n          <button class=\"btn\" id=\"bgBtn\" type=\"button\" title=\"Planul primit de la arhitect, ca fundal\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\"/><path d=\"M14 3v6h6M9 15h6M9 18h4\"/></svg><span class=\"lbl\">Plan arhitect</span></button>\n          <span class=\"scale\" id=\"scaleLbl\"></span>\n          <div class=\"layers\" id=\"layers\"></div>\n          <button class=\"btn\" id=\"focusBtn\" type=\"button\" aria-pressed=\"false\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5\"/></svg><span class=\"lbl\">Ecran mare</span></button>\n          </div>\n        </div>\n      </div>\n      <aside class=\"inspector\" id=\"insp\" aria-live=\"polite\" hidden></aside>\n    </section>\n    <section class=\"view doc\" id=\"v-calcul\" hidden></section>\n    <section class=\"view doc\" id=\"v-materiale\" hidden></section>\n    <section class=\"view doc\" id=\"v-oferta\" hidden></section>\n    <section class=\"view doc\" id=\"v-lucrari\" hidden></section>\n    <section class=\"view doc\" id=\"v-admin\" hidden></section>\n  </main>\n</div>\n\n<div class=\"upd\" id=\"updBar\" role=\"status\" hidden><span>Versiune nou\u0103 disponibil\u0103.</span><button class=\"btn pri\" type=\"button\" id=\"updGo\">Actualizeaz\u0103</button><button class=\"x\" type=\"button\" id=\"updX\" aria-label=\"Mai t\u00e2rziu\">\u00d7</button></div>\n<dialog id=\"guideDlg\">\n  <div class=\"dl\">\n    <div><h2>Cum lucrezi cu ElectroPlan</h2><p class=\"muted\" style=\"margin:0\">Patru pa\u0219i, de la casa goal\u0103 la oferta pentru client.</p></div>\n    <ol class=\"guide\">\n      <li><b>Deseneaz\u0103 planul.</b> Alege <i>Schi\u021b\u0103</i> \u0219i trage cu degetul sau penul conturul casei \u0219i pere\u021bii dintre camere, apoi apas\u0103 <i>Genereaz\u0103 planul</i>. Sau folose\u0219te <i>Camer\u0103</i> \u0219i trage dreptunghiuri.</li>\n      <li><b>M\u0103soar\u0103 camerele.</b> Atinge o camer\u0103 \u0219i apas\u0103 <i>M\u0103soar\u0103</i>: scrii lungimile cu telemetrul sau ruleta, iar planul se ajusteaz\u0103. Pune u\u0219ile \u0219i ferestrele.</li>\n      <li><b>Pune aparatele.</b> Din grupurile din st\u00e2nga alegi prize, lumini, \u00eentrerup\u0103toare, consumatori \u0219i tabloul, apoi atingi peretele. Circuitele \u0219i traseele se calculeaz\u0103 singure, dup\u0103 I7.</li>\n      <li><b>Scoate documentele.</b> La <i>Circuite</i> verifici tabloul, la <i>Materiale</i> completezi pre\u021burile o singur\u0103 dat\u0103, iar la <i>Documente</i> descarci proiectul tehnic \u0219i oferta pentru client.</li>\n    </ol>\n    <label class=\"ck\"><input type=\"checkbox\" id=\"guideOff\"> Nu mai afi\u0219a la proiectele noi</label>\n    <div class=\"bar\" style=\"justify-content:flex-end\"><button class=\"btn pri\" type=\"button\" id=\"guideOk\">Am \u00een\u021beles</button></div>\n  </div>\n</dialog>\n<dialog id=\"fbDlg\">\n  <form class=\"dl\" id=\"fbF\">\n    <div><h2>Feedback</h2><p class=\"muted\" style=\"margin:0\">Spune-ne ce ai vrea s\u0103 apar\u0103, ce nu \u00ee\u021bi place sau ce nu merge. Citim fiecare mesaj.</p></div>\n    <div class=\"bar\" role=\"radiogroup\" aria-label=\"Tip\" id=\"fbKinds\"><button class=\"chip\" type=\"button\" data-fbk=\"vreau\" aria-pressed=\"true\">A\u0219 vrea s\u0103 apar\u0103</button><button class=\"chip\" type=\"button\" data-fbk=\"nu_place\" aria-pressed=\"false\">Nu \u00eemi place</button><button class=\"chip\" type=\"button\" data-fbk=\"bug\" aria-pressed=\"false\">Nu merge</button></div>\n    <label class=\"f\">Mesajul t\u0103u<textarea id=\"fbText\" rows=\"5\" maxlength=\"4000\" style=\"font-family:inherit;font-size:15px;min-height:130px\" placeholder=\"ex. A\u0219 vrea s\u0103 pot pune \u0219i o priz\u0103 de pardoseal\u0103.\"></textarea></label>\n    <p class=\"muted\" id=\"fbCtx\" style=\"margin:0;font-size:12px\"></p>\n    <div class=\"bar\" style=\"justify-content:flex-end\"><button class=\"btn\" type=\"button\" id=\"fbC\">Renun\u021b\u0103</button><button class=\"btn pri\" type=\"submit\" id=\"fbGo\">Trimite</button></div>\n  </form>\n</dialog>\n<dialog id=\"bgDlg\"></dialog>\n<dialog id=\"accDlg\">\n  <form class=\"dl\" id=\"accF\">\n    <div><h2>Cont ElectroPlan</h2><p class=\"muted\" style=\"margin:0\" id=\"accH\">Te conectezi cu adresa de e-mail. Proiectele se salveaz\u0103 online \u0219i apar pe orice dispozitiv pe care te conectezi.</p></div>\n    <label class=\"f\" id=\"accEL\">Adresa de e-mail<input id=\"accE\" type=\"email\" inputmode=\"email\" autocomplete=\"email\" placeholder=\"nume@exemplu.ro\"></label>\n    <div class=\"bar\" style=\"justify-content:flex-end\"><button class=\"btn\" type=\"button\" id=\"accC\">\u00cenchide</button><button class=\"btn dng\" type=\"button\" id=\"accOut\" hidden>Deconecteaz\u0103-te</button><button class=\"btn\" type=\"button\" id=\"accSync\" hidden>Sincronizeaz\u0103 acum</button><button class=\"btn pri\" type=\"submit\" id=\"accGo\">Trimite linkul de conectare</button></div>\n  </form>\n</dialog>\n<dialog id=\"dimDlg\">\n  <form class=\"dl\" id=\"dimF\">\n    <div><h2 id=\"dimT\">Lungime perete</h2><p class=\"muted\" id=\"dimH\" style=\"margin:0\"></p></div>\n    <label class=\"f\">Lungime m\u0103surat\u0103 (cm)<input id=\"dimV\" type=\"number\" inputmode=\"decimal\" min=\"50\" max=\"5000\" step=\"1\" required></label>\n    <div class=\"bar\" style=\"justify-content:flex-end\"><button class=\"btn\" type=\"button\" id=\"dimC\">Renun\u021b\u0103</button><button class=\"btn pri\" type=\"submit\">Aplic\u0103</button></div>\n  </form>\n</dialog>\n<dialog id=\"adjDlg\">\n  <form class=\"dl\" id=\"adjF\">\n    <div><h2>Camer\u0103 al\u0103turat\u0103</h2><p class=\"muted\" style=\"margin:0\" id=\"adjH\"></p></div>\n    <div class=\"fields\">\n      <label class=\"f full\">Unde<select id=\"adjD\"><option value=\"r\">La dreapta</option><option value=\"d\">Dedesubt</option><option value=\"l\">La st\u00e2nga</option><option value=\"u\">Deasupra</option></select></label>\n      <label class=\"f\">L\u0103\u021bime (cm)<input id=\"adjW\" type=\"number\" inputmode=\"decimal\" min=\"50\" max=\"5000\" step=\"1\" required></label>\n      <label class=\"f\">Lungime (cm)<input id=\"adjL\" type=\"number\" inputmode=\"decimal\" min=\"50\" max=\"5000\" step=\"1\" required></label>\n      <label class=\"f full\">Tip<select id=\"adjT\"></select></label>\n    </div>\n    <div class=\"bar\" style=\"justify-content:flex-end\"><button class=\"btn\" type=\"button\" id=\"adjC\">Renun\u021b\u0103</button><button class=\"btn pri\" type=\"submit\">Adaug\u0103 camera</button></div>\n  </form>\n</dialog>\n<dialog id=\"dlg\">\n  <div class=\"dl\">\n    <div>\n      <h2>Salvare \u0219i import</h2>\n      <p class=\"muted\" style=\"margin:0\">C\u00e2nd deschizi aplica\u021bia din linkul Claude, proiectele se salveaz\u0103 \u00een contul t\u0103u \u0219i apar pe orice dispozitiv. Textul de mai jos e o copie de siguran\u021b\u0103 a proiectului curent.</p>\n    </div>\n    <textarea id=\"ioText\" aria-label=\"Proiect \u00een format JSON\"></textarea>\n    <div class=\"bar\">\n      <button class=\"btn pri\" id=\"ioCopy\" type=\"button\">Copiaz\u0103 proiectul</button>\n      <button class=\"btn\" id=\"ioImport\" type=\"button\">Import\u0103 textul lipit</button>\n      <label class=\"btn\" for=\"ioFile\">\u00cencarc\u0103 fi\u0219ier .json</label>\n      <input type=\"file\" id=\"ioFile\" accept=\".json,application/json\" hidden>\n    </div>\n    <div class=\"bar\" style=\"justify-content:space-between\">\n      <button class=\"btn dng\" id=\"ioDel\" type=\"button\">\u0218terge proiectul curent</button>\n      <button class=\"btn\" id=\"ioClose\" type=\"button\">\u00cenchide</button>\n    </div>\n  </div>\n</dialog>\n\n");})();
 
-<div class="intro" id="intro" hidden>
-  <svg class="intro-art" viewBox="0 0 780 520" aria-hidden="true" fill="none">
-    <g stroke="#AFC0CF" stroke-width="6" opacity=".55"><path d="M40 40h460v200H40zM500 40h240v300H500zM40 240h260v240H40zM300 240h200v240H300z"/></g>
-    <g stroke="#AFC0CF" stroke-width="2" opacity=".5" stroke-dasharray="6 6"><path d="M330 240a70 70 0 0 1 70-70M500 180a60 60 0 0 1 60 60"/></g>
-    <path d="M400 470V300h-180V140h-90" stroke="#B07A4E" stroke-width="3"/>
-    <path d="M410 470V310h200V120h60" stroke="#5B95E0" stroke-width="3"/>
-    <path d="M390 470V290H170V380" stroke="#5DB257" stroke-width="3" stroke-dasharray="10 8"/>
-    <path d="M390 470V290H170V380" stroke="#E8CC3A" stroke-width="3" stroke-dasharray="10 8" stroke-dashoffset="9"/>
-    <g fill="#0C1621" stroke="#E8EEF3" stroke-width="3"><circle cx="130" cy="140" r="16"/><circle cx="670" cy="120" r="16"/><circle cx="170" cy="380" r="16"/><rect x="380" y="456" width="40" height="22"/></g>
-    <g stroke="#E8EEF3" stroke-width="3"><path d="M119 129l22 22M141 129l-22 22M659 109l22 22M681 109l-22 22"/></g>
-    <text x="170" y="386" fill="#E8EEF3" font-family="IBM Plex Mono,monospace" font-size="14" font-weight="700" text-anchor="middle">P</text>
-  </svg>
-  <div class="intro-in">
-    <section>
-      <div class="intro-brand"><span class="wires" aria-hidden="true"><i></i><i></i><i></i></span>ElectroPlan</div>
-      <h1>Instalația electrică, <em>de la schiță</em> la tablou.</h1>
-      <p class="lead">Desenezi casa cu penul, pui prizele și luminile, iar aplicația trasează circuitele, dimensionează cablurile și siguranțele după I7 și scoate materialele, schema monofilară și PDF-ul pentru client.</p>
-      <ul class="intro-steps"><li>Schiță cu penul</li><li>Circuite și tablou</li><li>Materiale și manoperă</li><li>PDF pentru dosar</li></ul>
-      <div class="intro-acts" id="introActs"></div>
-    </section>
-    <section class="intro-card">
-      <h2>Proiectele tale</h2>
-      <ul class="recent" id="introRecent"></ul>
-    </section>
-    <form class="intro-card" id="authBox" hidden style="grid-column:1/-1;max-width:520px">
-      <h2 id="authT">Intră în cont</h2>
-      <p style="margin:0;color:#AFC0CF;font-size:14px" id="authH">Proiectele tale sunt salvate în cont și le vezi doar tu, pe orice dispozitiv.</p>
-      <label class="f" style="color:#AFC0CF">E-mail<input id="authE" type="email" inputmode="email" autocomplete="username" required style="background:#0C1621;color:#E8EEF3;border-color:rgba(175,192,207,.35)"></label>
-      <label class="f" style="color:#AFC0CF" id="authPL">Parolă<input id="authP" type="password" autocomplete="current-password" minlength="6" style="background:#0C1621;color:#E8EEF3;border-color:rgba(175,192,207,.35)"></label>
-      <label class="f" style="color:#AFC0CF" id="authP2L" hidden>Repetă parola<input id="authP2" type="password" autocomplete="new-password" minlength="6" style="background:#0C1621;color:#E8EEF3;border-color:rgba(175,192,207,.35)"></label>
-      <p id="authMsg" style="margin:0;font-size:14px;color:#E0A26C" role="status"></p>
-      <div class="intro-acts"><button class="ib pri" type="submit" id="authGo">Intră în cont</button><button class="ib" type="button" id="authSw">Creează cont nou</button></div>
-      <button type="button" id="authForgot" style="align-self:flex-start;background:none;border:0;color:#8FB8EE;padding:0;font-size:14px;text-decoration:underline">Ai uitat parola?</button>
-    </form>
-    <div class="intro-foot"><span>Calcule orientative conform I7-2011. Proiectul final se verifică și se semnează de un electrician autorizat ANRE.</span><label><input type="checkbox" id="introSkip"> Nu mai afișa la pornire</label></div>
-  </div>
-</div>
-<div id="app">
-  <header class="top">
-    <div class="brand" id="brandBtn" role="button" tabindex="0" title="Ecranul de pornire" style="cursor:pointer"><span class="wires" aria-hidden="true"><i></i><i></i><i></i></span><span class="bt">ElectroPlan</span></div>
-    <div class="proj">
-      <button class="projBtn" id="projBtn" type="button" title="Proiectele tale"><b id="projName"></b><span id="projSub"></span></button>
-      <select id="projSel" aria-label="Proiect"></select>
-      <button class="btn" id="newProj" type="button" title="Proiect nou"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="lbl">Proiect nou</span></button>
-      <span class="sync" id="sync" data-s="muted" role="status"><span class="sync-t">Doar pe acest dispozitiv</span></span>
-    </div>
-    <nav class="tabs" role="tablist" aria-label="Secțiuni">
-      <button role="tab" data-tab="plan" aria-selected="true" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h9V3M12 12v9"/></svg><span>Plan</span></button>
-      <button role="tab" data-tab="calcul" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><span>Circuite</span></button>
-      <button role="tab" data-tab="materiale" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span>Materiale</span></button>
-      <button role="tab" data-tab="oferta" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg><span>Documente</span></button>
-      <button role="tab" data-tab="lucrari" aria-selected="false" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7H4V5h11"/></svg><span>Lucrări</span></button>
-      <button role="tab" data-tab="admin" aria-selected="false" type="button" id="tabAdmin" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg><span>Admin</span></button>
-    </nav>
-    <div class="acts">
-      <button class="btn" id="accBtn" type="button" hidden>Conectează-te</button>
-      <button class="btn pri" id="installBtn" type="button" hidden>Instalează aplicația</button>
-      <button class="btn" id="fbBtn" type="button" hidden title="Trimite o sugestie sau o problemă"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 10.5h7M8.5 14h4"/></svg><span class="lbl">Feedback</span></button>
-      <button class="btn ic" id="helpBtn" type="button" title="Cum lucrezi cu ElectroPlan" aria-label="Ajutor" style="font-weight:700;min-width:34px;justify-content:center">?</button>
-      <button class="btn ic" id="undoBtn" type="button" title="Anulează (Ctrl+Z)" aria-label="Anulează"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
-      <button class="btn ic" id="redoBtn" type="button" title="Refă (Ctrl+Y)" aria-label="Refă"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
-      <button class="btn" id="ioBtn" type="button" title="Salvare / import"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span class="lbl">Salvare / import</span></button>
-    </div>
-  </header>
-  <main>
-    <section class="view plan" id="v-plan">
-      <div class="tools" id="tools"></div>
-      <div class="fly" id="fly" hidden></div>
-      <div class="stage" id="stage">
-        <canvas id="cv"></canvas>
-        <div class="statc" id="statc"></div>
-        <div class="selbar" id="selbar"></div>
-        <div class="measBar" id="measBar" hidden></div>
-        <div class="ovl" id="elev" hidden><div class="ov-h"><b id="elevT"></b><button class="btn ic" type="button" data-ev-n="-1" aria-label="Peretele anterior">‹</button><div class="ov-tabs" id="elevTabs"></div><button class="btn ic" type="button" data-ev-n="1" aria-label="Peretele următor">›</button><span class="muted" id="elevInfo" style="font-size:12px;flex:1;min-width:160px"></span><button class="btn ic" type="button" data-ov-x aria-label="Închide">✕</button></div><canvas id="ecv"></canvas></div>
-        <div class="ovl" id="v3d" hidden><div class="ov-h"><b>Vedere 3D</b><span class="muted" id="v3dHint" style="font-size:12px;flex:1;min-width:160px">Un deget rotește, două degete măresc și mută. Trage de o priză sau de un întrerupător ca să-l muți.</span><span id="v3dSel" class="v3sel" hidden></span><select id="v3dRoom" class="chipsel" aria-label="Cameră"></select><select id="v3dIso" class="chipsel" aria-label="Circuit"></select><button class="chip" type="button" id="v3dWalls" aria-pressed="true">Pereți</button><button class="btn" type="button" id="v3dReset">Vedere inițială</button><button class="btn ic" type="button" data-ov-x aria-label="Închide">✕</button></div><div id="v3dBox"></div></div>
-        <input class="nameEd" id="nameEd" hidden aria-label="Numele camerei" autocomplete="off">
-        <div class="hud">
-          <button class="btn ic" id="zOut" type="button" aria-label="Micșorează">−</button>
-          <span class="zpct" id="zPct" title="Scara aproximativă pe ecran">1:50</span>
-          <button class="btn ic" id="zIn" type="button" aria-label="Mărește">+</button>
-          <button class="btn" id="zFit" type="button" title="Centrează pe elementul selectat sau pe tot planul (dublă atingere pe plan)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg><span class="lbl" id="zFitL">Centrează</span></button>
-          <select id="lvSel" class="chipsel on" aria-label="Nivel"></select>
-          <select id="isoSel" class="chipsel" aria-label="Arată traseul"></select>
-          <div class="layers lq" id="layersQ"></div>
-          <button class="btn" id="hudMoreBtn" type="button" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span class="lbl">Afișare</span></button>
-          <div class="hudMore" id="hudMore" hidden>
-          <button class="btn ic" id="rot90" type="button" title="Rotește planul cu 90°" aria-label="Rotește planul cu 90°"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
-          <button class="btn" id="rotReset" type="button" hidden>Îndreaptă</button>
-          <span class="scale" id="scaleLbl"></span>
-          <div class="layers" id="layers"></div>
-          <button class="btn" id="focusBtn" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span class="lbl">Ecran mare</span></button>
-          </div>
-        </div>
-      </div>
-      <aside class="inspector" id="insp" aria-live="polite" hidden></aside>
-    </section>
-    <section class="view doc" id="v-calcul" hidden></section>
-    <section class="view doc" id="v-materiale" hidden></section>
-    <section class="view doc" id="v-oferta" hidden></section>
-    <section class="view doc" id="v-lucrari" hidden></section>
-    <section class="view doc" id="v-admin" hidden></section>
-  </main>
-</div>
-
-<div class="upd" id="updBar" role="status" hidden><span>Versiune nouă disponibilă.</span><button class="btn pri" type="button" id="updGo">Actualizează</button><button class="x" type="button" id="updX" aria-label="Mai târziu">×</button></div>
-<dialog id="guideDlg">
-  <div class="dl">
-    <div><h2>Cum lucrezi cu ElectroPlan</h2><p class="muted" style="margin:0">Patru pași, de la casa goală la oferta pentru client.</p></div>
-    <ol class="guide">
-      <li><b>Desenează planul.</b> Alege <i>Schiță</i> și trage cu degetul sau penul conturul casei și pereții dintre camere, apoi apasă <i>Generează planul</i>. Sau folosește <i>Cameră</i> și trage dreptunghiuri.</li>
-      <li><b>Măsoară camerele.</b> Atinge o cameră și apasă <i>Măsoară</i>: scrii lungimile cu telemetrul sau ruleta, iar planul se ajustează. Pune ușile și ferestrele.</li>
-      <li><b>Pune aparatele.</b> Din grupurile din stânga alegi prize, lumini, întrerupătoare, consumatori și tabloul, apoi atingi peretele. Circuitele și traseele se calculează singure, după I7.</li>
-      <li><b>Scoate documentele.</b> La <i>Circuite</i> verifici tabloul, la <i>Materiale</i> completezi prețurile o singură dată, iar la <i>Documente</i> descarci proiectul tehnic și oferta pentru client.</li>
-    </ol>
-    <label class="ck"><input type="checkbox" id="guideOff"> Nu mai afișa la proiectele noi</label>
-    <div class="bar" style="justify-content:flex-end"><button class="btn pri" type="button" id="guideOk">Am înțeles</button></div>
-  </div>
-</dialog>
-<dialog id="fbDlg">
-  <form class="dl" id="fbF">
-    <div><h2>Feedback</h2><p class="muted" style="margin:0">Spune-ne ce ai vrea să apară, ce nu îți place sau ce nu merge. Citim fiecare mesaj.</p></div>
-    <div class="bar" role="radiogroup" aria-label="Tip" id="fbKinds"><button class="chip" type="button" data-fbk="vreau" aria-pressed="true">Aș vrea să apară</button><button class="chip" type="button" data-fbk="nu_place" aria-pressed="false">Nu îmi place</button><button class="chip" type="button" data-fbk="bug" aria-pressed="false">Nu merge</button></div>
-    <label class="f">Mesajul tău<textarea id="fbText" rows="5" maxlength="4000" style="font-family:inherit;font-size:15px;min-height:130px" placeholder="ex. Aș vrea să pot pune și o priză de pardoseală."></textarea></label>
-    <p class="muted" id="fbCtx" style="margin:0;font-size:12px"></p>
-    <div class="bar" style="justify-content:flex-end"><button class="btn" type="button" id="fbC">Renunță</button><button class="btn pri" type="submit" id="fbGo">Trimite</button></div>
-  </form>
-</dialog>
-<dialog id="accDlg">
-  <form class="dl" id="accF">
-    <div><h2>Cont ElectroPlan</h2><p class="muted" style="margin:0" id="accH">Te conectezi cu adresa de e-mail. Proiectele se salvează online și apar pe orice dispozitiv pe care te conectezi.</p></div>
-    <label class="f" id="accEL">Adresa de e-mail<input id="accE" type="email" inputmode="email" autocomplete="email" placeholder="nume@exemplu.ro"></label>
-    <div class="bar" style="justify-content:flex-end"><button class="btn" type="button" id="accC">Închide</button><button class="btn dng" type="button" id="accOut" hidden>Deconectează-te</button><button class="btn" type="button" id="accSync" hidden>Sincronizează acum</button><button class="btn pri" type="submit" id="accGo">Trimite linkul de conectare</button></div>
-  </form>
-</dialog>
-<dialog id="dimDlg">
-  <form class="dl" id="dimF">
-    <div><h2 id="dimT">Lungime perete</h2><p class="muted" id="dimH" style="margin:0"></p></div>
-    <label class="f">Lungime măsurată (cm)<input id="dimV" type="number" inputmode="decimal" min="50" max="5000" step="1" required></label>
-    <div class="bar" style="justify-content:flex-end"><button class="btn" type="button" id="dimC">Renunță</button><button class="btn pri" type="submit">Aplică</button></div>
-  </form>
-</dialog>
-<dialog id="adjDlg">
-  <form class="dl" id="adjF">
-    <div><h2>Cameră alăturată</h2><p class="muted" style="margin:0" id="adjH"></p></div>
-    <div class="fields">
-      <label class="f full">Unde<select id="adjD"><option value="r">La dreapta</option><option value="d">Dedesubt</option><option value="l">La stânga</option><option value="u">Deasupra</option></select></label>
-      <label class="f">Lățime (cm)<input id="adjW" type="number" inputmode="decimal" min="50" max="5000" step="1" required></label>
-      <label class="f">Lungime (cm)<input id="adjL" type="number" inputmode="decimal" min="50" max="5000" step="1" required></label>
-      <label class="f full">Tip<select id="adjT"></select></label>
-    </div>
-    <div class="bar" style="justify-content:flex-end"><button class="btn" type="button" id="adjC">Renunță</button><button class="btn pri" type="submit">Adaugă camera</button></div>
-  </form>
-</dialog>
-<dialog id="dlg">
-  <div class="dl">
-    <div>
-      <h2>Salvare și import</h2>
-      <p class="muted" style="margin:0">Când deschizi aplicația din linkul Claude, proiectele se salvează în contul tău și apar pe orice dispozitiv. Textul de mai jos e o copie de siguranță a proiectului curent.</p>
-    </div>
-    <textarea id="ioText" aria-label="Proiect în format JSON"></textarea>
-    <div class="bar">
-      <button class="btn pri" id="ioCopy" type="button">Copiază proiectul</button>
-      <button class="btn" id="ioImport" type="button">Importă textul lipit</button>
-      <label class="btn" for="ioFile">Încarcă fișier .json</label>
-      <input type="file" id="ioFile" accept=".json,application/json" hidden>
-    </div>
-    <div class="bar" style="justify-content:space-between">
-      <button class="btn dng" id="ioDel" type="button">Șterge proiectul curent</button>
-      <button class="btn" id="ioClose" type="button">Închide</button>
-    </div>
-  </div>
-</dialog>
-
-<script>
 (()=>{
 const U=230,GAMMA=56,STD=[6,10,16,20,25,32,40,50,63],MAINS=[25,32,40,50,63],PANELS=[8,12,18,24,36,48,54,72];
 const SECTS=[1.5,2.5,4,6,10,16],IZ={1.5:16,2.5:21,4:28,6:36,10:50,16:66};
@@ -723,7 +82,24 @@ const dEnds=d=>[d.t-d.w/2,d.t+d.w/2];
 const dPt=(d,t,n)=>d.o==='h'?{x:t,y:d.c+n}:{x:d.c+n,y:t};
 const onLine=(d,it)=>Math.abs((d.o==='h'?it.y:it.x)-d.c)<.02;
 const along=(d,it)=>d.o==='h'?it.x:it.y;
-const roomAtPt=(p,q)=>p.rooms.find(r=>q.x>r.x+1e-6&&q.x<r.x+r.w-1e-6&&q.y>r.y+1e-6&&q.y<r.y+r.h-1e-6)||null;
+const chOf=r=>r&&r.ch&&r.ch.k&&r.ch.a>0&&r.ch.b>0?r.ch:null;
+function chPts(r){const c=chOf(r);if(!c)return null;const L=r.x,Rr=r.x+r.w,T=r.y,B=r.y+r.h,a=Math.min(c.a,c.fill?r.w:r.w-.1),b=Math.min(c.b,c.fill?r.h:r.h-.1);
+  return c.k==='tl'?{c:{x:L,y:T},p:{x:L+a,y:T},q:{x:L,y:T+b},a,b}:c.k==='tr'?{c:{x:Rr,y:T},p:{x:Rr-a,y:T},q:{x:Rr,y:T+b},a,b}:c.k==='bl'?{c:{x:L,y:B},p:{x:L+a,y:B},q:{x:L,y:B-b},a,b}:{c:{x:Rr,y:B},p:{x:Rr-a,y:B},q:{x:Rr,y:B-b},a,b}}
+function inCut(r,x,y){const t=chPts(r);if(!t)return false;const u=(x-t.c.x)/(t.p.x-t.c.x),v=(y-t.c.y)/(t.q.y-t.c.y);return u>1e-6&&v>1e-6&&u+v<1-1e-6}
+function roomPoly(r){const L=r.x,Rr=r.x+r.w,T=r.y,B=r.y+r.h,t=chPts(r),c=chOf(r),P4=[{x:L,y:T},{x:Rr,y:T},{x:Rr,y:B},{x:L,y:B}];if(!t)return P4;
+  const i={tl:0,tr:1,br:2,bl:3}[c.k],rep=c.k==='tl'?[t.q,t.p]:c.k==='tr'?[t.p,t.q]:c.k==='br'?[t.q,t.p]:[t.p,t.q];return[...P4.slice(0,i),...rep,...P4.slice(i+1)]}
+const areaR=r=>r.w*r.h-(chPts(r)?chPts(r).a*chPts(r).b/2:0);
+function diagOf(r){const t=chPts(r);if(!t)return null;const dx=t.q.x-t.p.x,dy=t.q.y-t.p.y,l=Math.hypot(dx,dy),mx=(t.p.x+t.q.x)/2,my=(t.p.y+t.q.y)/2;let nx=-dy/l,ny=dx/l;if((t.c.x-mx)*nx+(t.c.y-my)*ny>0){nx=-nx;ny=-ny}return{p:t.p,q:t.q,len:l,ux:dx/l,uy:dy/l,nx,ny}}
+function onDiag(r,x,y,tol){const d=diagOf(r);if(!d)return null;const px=x-d.p.x,py=y-d.p.y,t=px*d.ux+py*d.uy,n=Math.abs(px*d.nx+py*d.ny);if(t<-.05||t>d.len+.05||n>tol)return null;const tt=clamp(t,.05,d.len-.05);return{t:tt,x:+(d.p.x+d.ux*tt).toFixed(3),y:+(d.p.y+d.uy*tt).toFixed(3),dist:n}}
+function rEdges(r){const t=chPts(r),c=chOf(r),E=[{o:'h',c:r.y,lo:r.x,hi:r.x+r.w,s:1},{o:'h',c:r.y+r.h,lo:r.x,hi:r.x+r.w,s:-1},{o:'v',c:r.x,lo:r.y,hi:r.y+r.h,s:1},{o:'v',c:r.x+r.w,lo:r.y,hi:r.y+r.h,s:-1}];if(!t)return E;
+  const top=c.k[0]==='t',left=c.k[1]==='l',eh=E[top?0:1],ev=E[left?2:3];if(left)eh.lo=t.p.x;else eh.hi=t.p.x;if(top)ev.lo=t.q.y;else ev.hi=t.q.y;return E}
+function cutHit(pts,rooms){const cr=rooms.filter(chOf);if(!cr.length)return false;for(let i=0;i+1<pts.length;i++){const a=pts[i],b=pts[i+1],n=Math.max(1,Math.ceil((Math.abs(b.x-a.x)+Math.abs(b.y-a.y))/.08));for(let k=1;k<n;k++){const x=a.x+(b.x-a.x)*k/n,y=a.y+(b.y-a.y)*k/n;if(cr.some(r=>inCut(r,x,y))&&!rooms.some(r=>x>r.x+.01&&x<r.x+r.w-.01&&y>r.y+.01&&y<r.y+r.h-.01&&!inCut(r,x,y)))return true}}return false}
+function drawChDoor(r){const c=chOf(r);if(!c||!c.door)return;const d=diagOf(r),w=Math.min(c.door.w,d.len-.1),t0=(d.len-w)/2,A={x:d.p.x+d.ux*t0,y:d.p.y+d.uy*t0},B={x:A.x+d.ux*w,y:A.y+d.uy*w};
+  ctx.save();ctx.globalAlpha=1;ctx.strokeStyle=C.room;ctx.lineWidth=clamp(view.s*.1,2,7)+2;ctx.beginPath();ctx.moveTo(sx(A.x),sy(A.y));ctx.lineTo(sx(B.x),sy(B.y));ctx.stroke();
+  ctx.strokeStyle=C.wall;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(sx(A.x),sy(A.y));ctx.lineTo(sx(A.x+d.nx*w),sy(A.y+d.ny*w));ctx.stroke();
+  const a0=Math.atan2(d.ny,d.nx),a1=Math.atan2(d.uy,d.ux),df=Math.atan2(Math.sin(a1-a0),Math.cos(a1-a0));ctx.setLineDash([4,4]);ctx.lineWidth=1.2;ctx.beginPath();for(let k=0;k<=16;k++){const a=a0+df*k/16,X=sx(A.x+Math.cos(a)*w),Y=sy(A.y+Math.sin(a)*w);k?ctx.lineTo(X,Y):ctx.moveTo(X,Y)}ctx.stroke();ctx.restore()}
+function rPath(r){ctx.beginPath();roomPoly(r).forEach((q,i)=>i?ctx.lineTo(sx(q.x),sy(q.y)):ctx.moveTo(sx(q.x),sy(q.y)));ctx.closePath()}
+const roomAtPt=(p,q)=>p.rooms.find(r=>q.x>r.x+1e-6&&q.x<r.x+r.w-1e-6&&q.y>r.y+1e-6&&q.y<r.y+r.h-1e-6&&!inCut(r,q.x,q.y))||null;
 const rootOf=(p,r)=>r&&r.of?p.rooms.find(x=>x.id===r.of)||r:r;
 const doorRooms=(p,d)=>({sw:rootOf(p,roomAtPt(p,dPt(d,d.t,d.s*.15))),ot:rootOf(p,roomAtPt(p,dPt(d,d.t,-d.s*.15)))});
 function sharedSeg(a,b){
@@ -755,7 +131,7 @@ function cleanPts(pts){
   return o;
 }
 function legsOf(pts){const o=[pts[0]];for(let i=1;i<pts.length;i++){const a=o[o.length-1],b=pts[i];if(Math.abs(a.x-b.x)>1e-6&&Math.abs(a.y-b.y)>1e-6)o.push({x:b.x,y:a.y});o.push(b)}return cleanPts(o)}
-function crossRect(p1,p2,rc,e=.03){x1=Math.min(p1.x,p2.x),x2=Math.max(p1.x,p2.x),y1=Math.min(p1.y,p2.y),y2=Math.max(p1.y,p2.y);return x2>rc.x+e&&x1<rc.x+rc.w-e&&y2>rc.y+e&&y1<rc.y+rc.h-e}
+function crossRect(p1,p2,rc,e=.03){const x1=Math.min(p1.x,p2.x),x2=Math.max(p1.x,p2.x),y1=Math.min(p1.y,p2.y),y2=Math.max(p1.y,p2.y);return x2>rc.x+e&&x1<rc.x+rc.w-e&&y2>rc.y+e&&y1<rc.y+rc.h-e}
 function pathOk(pts,F,e){for(let i=0;i+1<pts.length;i++)for(const rc of F)if(crossRect(pts[i],pts[i+1],rc,e))return false;return true}
 const pathLen=pts=>{let l=0;for(let i=0;i+1<pts.length;i++)l+=Math.abs(pts[i+1].x-pts[i].x)+Math.abs(pts[i+1].y-pts[i].y);return l};
 function closedWalls(p){
@@ -774,13 +150,13 @@ function crossW(pts,Wc){
   return false;
 }
 function routeAuto(a,b,F,rooms,Wc){
-  const okP=q=>(!F.length||pathOk(q,F,-.1))&&!crossW(q,Wc);
+  const okP=q=>(!F.length||pathOk(q,F,-.1))&&!crossW(q,Wc)&&!cutHit(q,rooms);
   const c1=cleanPts([a,{x:b.x,y:a.y},b]);if(okP(c1))return c1;
   const c2=cleanPts([a,{x:a.x,y:b.y},b]);if(okP(c2))return c2;
   const st=.1,xs=[a.x,b.x,...rooms.flatMap(r=>[r.x,r.x+r.w])],ys=[a.y,b.y,...rooms.flatMap(r=>[r.y,r.y+r.h])];
   const x0=Math.floor(Math.min(...xs)/st)*st-.5,y0=Math.floor(Math.min(...ys)/st)*st-.5,nx=Math.ceil((Math.max(...xs)+.5-x0)/st)+1,ny=Math.ceil((Math.max(...ys)+.5-y0)/st)+1;
   if(nx*ny>90000)return c1;
-  const inF=(x,y)=>(Math.abs(x-a.x)+Math.abs(y-a.y)>.16&&Math.abs(x-b.x)+Math.abs(y-b.y)>.16&&F.some(rc=>x>rc.x-.1&&x<rc.x+rc.w+.1&&y>rc.y-.1&&y<rc.y+rc.h+.1))||!rooms.some(r=>x>=r.x-.001&&x<=r.x+r.w+.001&&y>=r.y-.001&&y<=r.y+r.h+.001);
+  const inF=(x,y)=>(Math.abs(x-a.x)+Math.abs(y-a.y)>.16&&Math.abs(x-b.x)+Math.abs(y-b.y)>.16&&F.some(rc=>x>rc.x-.1&&x<rc.x+rc.w+.1&&y>rc.y-.1&&y<rc.y+rc.h+.1))||!rooms.some(r=>x>=r.x-.001&&x<=r.x+r.w+.001&&y>=r.y-.001&&y<=r.y+r.h+.001&&!inCut(r,x,y));
   const blk=new Uint8Array(nx*ny);for(let j=0;j<ny;j++)for(let i=0;i<nx;i++)if(inF(x0+i*st,y0+j*st))blk[j*nx+i]=1;
   const gi=v=>clamp(Math.round((v.x-x0)/st),0,nx-1),gj=v=>clamp(Math.round((v.y-y0)/st),0,ny-1);
   const si=gi(a),sj=gj(a),ti=gi(b),tj=gj(b);blk[sj*nx+si]=0;blk[tj*nx+ti]=0;
@@ -807,7 +183,7 @@ function boxAt(r,q,z){
   return{x:q.x,y:q.y,wall:e?e.w:'',dist:e?(e.o==='h'?q.x:q.y)-e.lo:0,z};
 }
 function boxSpot(p,r,from,z,used,F=[]){
-  const E=[{o:'h',c:r.y,lo:r.x,hi:r.x+r.w,w:'sus'},{o:'h',c:r.y+r.h,lo:r.x,hi:r.x+r.w,w:'jos'},{o:'v',c:r.x,lo:r.y,hi:r.y+r.h,w:'stânga'},{o:'v',c:r.x+r.w,lo:r.y,hi:r.y+r.h,w:'dreapta'}];
+  const E=rEdges(r).map((e,i)=>({...e,w:['sus','jos','stânga','dreapta'][i]}));
   const on=(o,c)=>q=>q.o===o&&Math.abs(q.c-c)<.02;
   const bad=(e,t)=>{
     if(t<e.lo+.15||t>e.hi-.15)return true;
@@ -995,7 +371,7 @@ async function connectCloud(){
 }
 const SB_URL='https://mqyvtxrdxhaogjranrps.supabase.co',SB_KEY='sb_publishable_L2ILOYrD_mFvPdMzVVTawg_mhXFbyNe';
 let sb=null,sbUser=null,sbPullT=0,sbSid=null,claimNext=false,kickMsg='',kicking=false;
-let urlLogin=/access_token=|[?&]code=/.test(location.hash+location.search);
+let urlLogin=/access_token=|[?&]code=/.test(location.hash+location.search)||(()=>{try{const f=sessionStorage.getItem('ep.fresh')==='1';sessionStorage.removeItem('ep.fresh');return f}catch(e){return false}})();
 const jwtSid=s=>{try{return JSON.parse(atob(s.access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).session_id||null}catch(e){return null}};
 const devName=()=>{const u=navigator.userAgent;return/iPad|Tablet/i.test(u)||(/Android/i.test(u)&&!/Mobile/i.test(u))||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1)?'tabletă':/Mobi|iPhone|Android/i.test(u)?'telefon':'calculator'};
 async function claimSession(){if(!sb||!sbUser||!sbSid)return true;const{error}=await sb.from('active_sessions').upsert({user_id:sbUser.id,session_id:sbSid,device:devName(),claimed_at:new Date().toISOString()});if(!error){try{await sb.auth.signOut({scope:'others'})}catch(e){}}return true}
@@ -1035,7 +411,7 @@ function renderAccount(){const fb=$('#fbBtn');if(fb)fb.hidden=!sbUser;const b=$(
 async function sbConnect(){
   if(!SB_KEY||!/^https?:$/.test(location.protocol)){setSync('local');return}
   try{await loadSB()}catch(e){siteMode=false;setSync('local');if(!$('#intro').hidden)showIntro();toast('Nu mă pot conecta acum la cont. Lucrezi local, pe acest dispozitiv.');return}
-  sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});renderAccount();
+  sb=window.__epSb||window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});renderAccount();
   sb.auth.onAuthStateChange((ev,session)=>{
     if(session)sbSid=jwtSid(session)||sbSid;
     if(ev==='PASSWORD_RECOVERY'){sbUser=session&&session.user||null;renderAccount();setAuthMode('reset');$('#authBox').hidden=false;$('#introActs').hidden=true;$('#intro').hidden=false;return}
@@ -1371,9 +747,10 @@ function draw(){
   for(let y=gy0;sy(y)<=Hh+GM;y+=step){const mj=Math.abs(y/maj-Math.round(y/maj))<1e-6;ctx.strokeStyle=mj?C.grid2:C.grid;const Y=Math.round(sy(y))+.5;ctx.beginPath();ctx.moveTo(-GM,Y);ctx.lineTo(W+GM,Y);ctx.stroke()}
   {const ls=lvSorted(P),ix=ls.findIndex(l=>l.id===P.lvCur),bl=ix>0?ls[ix-1]:null;if(bl){const gr=lvGet(P,bl.id).rooms;ctx.save();ctx.strokeStyle=C.muted;ctx.globalAlpha=.55;ctx.lineWidth=1.5;ctx.setLineDash([6,5]);for(const r of gr)ctx.strokeRect(sx(r.x),sy(r.y),r.w*view.s,r.h*view.s);ctx.restore()}}
   const inF=r=>!focusId||(r.of||r.id)===focusId;
-  for(const r of P.rooms){ctx.globalAlpha=inF(r)?1:.3;ctx.fillStyle=C.room;ctx.fillRect(sx(r.x),sy(r.y),r.w*view.s,r.h*view.s)}ctx.globalAlpha=1;
+  for(const r of P.rooms){ctx.globalAlpha=inF(r)?1:.3;ctx.fillStyle=C.room;if(chOf(r)){rPath(r);ctx.fill()}else ctx.fillRect(sx(r.x),sy(r.y),r.w*view.s,r.h*view.s)}ctx.globalAlpha=1;
+  drawBg();
   ctx.lineWidth=clamp(view.s*.1,2,7);ctx.strokeStyle=C.wall;ctx.lineJoin='miter';
-  for(const r of P.rooms){ctx.globalAlpha=inF(r)?1:.3;ctx.strokeRect(sx(r.x),sy(r.y),r.w*view.s,r.h*view.s)}ctx.globalAlpha=1;
+  for(const r of P.rooms){ctx.globalAlpha=inF(r)?1:.3;if(chOf(r)){rPath(r);ctx.stroke();drawChDoor(r)}else ctx.strokeRect(sx(r.x),sy(r.y),r.w*view.s,r.h*view.s)}ctx.globalAlpha=1;
   labelHits=[];
   const r0=clamp(view.s*.15,7,13),occ=[],late=[],hitO=a=>occ.some(b=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y);
   for(const it of P.items){const g=T[it.type].g,hw=it.type==='tablou'?r0*1.45:g==='ded'?r0*1.35:r0+1,hh=it.type==='tablou'?r0*.8:g==='ded'?r0:r0+1;occ.push({x:sx(it.x)-hw,y:sy(it.y)-hh,w:2*hw,h:2*hh})}
@@ -1381,7 +758,7 @@ function draw(){
   if(layers.boxes||layers.routes||isoC())for(const q of(R&&R.phys&&R.phys.length?R.phys:P.jb)){const k=(JB[q.size]||JB.m).k+1;occ.push({x:sx(q.x)-k,y:sy(q.y)-k,w:2*k,h:2*k})}
   for(const r of P.rooms){
     if(r.of)continue;
-    const area=P.rooms.filter(x=>x.id===r.id||x.of===r.id).reduce((t,x)=>t+x.w*x.h,0),big=layers.dims&&view.s>=25,X0=sx(r.x),Y0=sy(r.y),RW=r.w*view.s,RH=r.h*view.s;
+    const area=P.rooms.filter(x=>x.id===r.id||x.of===r.id).reduce((t,x)=>t+areaR(x),0),big=layers.dims&&view.s>=25,X0=sx(r.x),Y0=sy(r.y),RW=r.w*view.s,RH=r.h*view.s;
     if(big){
       const wl=f(r.w,2)+' m',hl=f(r.h,2)+' m';ctx.font=`500 10.5px ${MONO}`;const ww=ctx.measureText(wl).width,hw2=ctx.measureText(hl).width;
       const hx=[X0+16,X0+RW-16-ww].find(x=>!hitO({x:x-2,y:Y0+6,w:ww+4,h:14})),vx=[X0+12,X0+RW-12].find(x=>!hitO({x:x-7,y:Y0+RH/2-hw2/2-2,w:14,h:hw2+4}));
@@ -1482,7 +859,7 @@ function draw(){
 }
 
 function hitItem(X,Y){let b=null,bd=18;for(const it of P.items){if(focusId&&it.room!==focusId&&it.type!=='tablou')continue;const d=Math.hypot(sx(it.x)-X,sy(it.y)-Y);if(d<bd){bd=d;b=it}}return b}
-function hitRoom(x,y){for(let i=P.rooms.length-1;i>=0;i--){const r=P.rooms[i];if(focusId&&(r.of||r.id)!==focusId)continue;if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h)return r}return null}
+function hitRoom(x,y){for(let i=P.rooms.length-1;i>=0;i--){const r=P.rooms[i];if(focusId&&(r.of||r.id)!==focusId)continue;if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h&&!inCut(r,x,y))return r}return null}
 function snapRoomPt(x,y){
   let X=r05(x),Y=r05(y);const tol=12/view.s;
   for(const r of P.rooms){for(const v of [r.x,r.x+r.w])if(Math.abs(x-v)<tol)X=v;for(const v of [r.y,r.y+r.h])if(Math.abs(y-v)<tol)Y=v}
@@ -1490,7 +867,7 @@ function snapRoomPt(x,y){
 }
 function placeDoor(x,y,keep){
   const tol=Math.max(.45,22/view.s),inR=hitRoom(x,y),E=[];
-  for(const r of P.rooms){E.push({o:'h',c:r.y,lo:r.x,hi:r.x+r.w,r,s:1},{o:'h',c:r.y+r.h,lo:r.x,hi:r.x+r.w,r,s:-1},{o:'v',c:r.x,lo:r.y,hi:r.y+r.h,r,s:1},{o:'v',c:r.x+r.w,lo:r.y,hi:r.y+r.h,r,s:-1})}
+  for(const r of P.rooms)for(const e of rEdges(r))E.push({...e,r});
   let best=null;
   for(const e of E){
     const t=e.o==='h'?x:y,n=e.o==='h'?y:x;if(t<e.lo-.1||t>e.hi+.1)continue;
@@ -1882,7 +1259,8 @@ function drawDoor(d,ghost,selected){
 function placePt(type,x,y){
   const r=hitRoom(x,y);let X=r05(x),Y=r05(y);
   const wall=!['lumina','spot'].includes(type);
-  if(r&&wall){const d=[[Math.abs(x-r.x),'x',r.x],[Math.abs(x-r.x-r.w),'x',r.x+r.w],[Math.abs(y-r.y),'y',r.y],[Math.abs(y-r.y-r.h),'y',r.y+r.h]].sort((a,b)=>a[0]-b[0])[0];if(d[0]<Math.max(.35,16/view.s)){if(d[1]==='x')X=d[2];else Y=d[2]}}
+  const dg=r&&wall&&onDiag(r,x,y,Math.max(.35,16/view.s));
+  if(r&&wall&&!dg){const d=[[Math.abs(x-r.x),'x',r.x],[Math.abs(x-r.x-r.w),'x',r.x+r.w],[Math.abs(y-r.y),'y',r.y],[Math.abs(y-r.y-r.h),'y',r.y+r.h]].sort((a,b)=>a[0]-b[0])[0];if(d[0]<Math.max(.35,16/view.s)){if(d[1]==='x')X=d[2];else Y=d[2]}}
   if(r&&T[type].g==='intr'){
     for(const d of P.doors){
       if(Math.abs((d.o==='h'?Y:X)-d.c)>.02)continue;
@@ -1891,6 +1269,7 @@ function placePt(type,x,y){
       const sp=switchSpot(P,d,r);if(sp){X=sp.x;Y=sp.y;break}
     }
   }
+  if(dg){const e=[Math.abs(x-r.x),Math.abs(x-r.x-r.w),Math.abs(y-r.y),Math.abs(y-r.y-r.h)];if(dg.dist<=Math.min(...e)+.05){X=dg.x;Y=dg.y}}
   return{x:X,y:Y,room:r?(r.of||r.id):null};
 }
 
@@ -1900,6 +1279,7 @@ cv.addEventListener('pointerdown',e=>{
   if(ptrs.size===2){const[a,b]=[...ptrs.values()],cx=(a.x+b.x)/2,cy=(a.y+b.y)/2;if(gest&&gest.k==='moveItem'&&gest.moved)changed();const lc=toLoc(cx,cy);gest={k:'pinch',d:Math.max(1,Math.hypot(a.x-b.x,a.y-b.y)),s:view.s,wx:wx(lc.X),wy:wy(lc.Y),an:Math.atan2(b.y-a.y,b.x-a.x),r0:view.rot};draw();return}
   if(ptrs.size>2)return;
   const{X,Y}=loc(e),x=wx(X),y=wy(Y);
+  if(bgMode&&bgDown(x,y))return;
   if(tool==='select'){
     const lh=labelHits.find(h=>X>=h.x&&X<=h.x+h.w&&Y>=h.y&&Y<=h.y+h.h);
     if(lh){const rr=P.rooms.find(z=>z.id===lh.id);if(rr){sel={kind:'room',id:rr.id};renderInspector();draw();openNameEditor(rr);return}}
@@ -1928,13 +1308,14 @@ cv.addEventListener('pointerdown',e=>{
   if(tool==='grinda'){gest={k:'st',type:'grinda',x0:x,y0:y,x,y};draw();return}
   if(tool==='scris'){gest={k:'write',pts:[{x,y}]};draw();return}
   if(tool==='schita'){if(skErase||(e.pointerType==='pen'&&(e.buttons&32))){snap();gest={k:'erase',last:{x,y},moved:false};eraseAlong({x,y},{x,y});eraseHover={x,y};draw();return}gest={k:'sketch',pts:[{x,y}]};draw();return}
-  if(tool==='room'){const q=snapRoomPt(x,y);gest={k:'room',x0:q.x,y0:q.y,x1:q.x,y1:q.y};draw();return}
+  if(tool==='room'){const q=snapRoomPt(x,y);gest={k:'room',x0:q.x,y0:q.y,x1:q.x,y1:q.y,rx:x,ry:y};draw();return}
   gest={k:'place',type:tool,x,y};draw();
 });
 cv.addEventListener('pointermove',e=>{
   if(!ptrs.has(e.pointerId)){if(tool==='schita'&&skErase&&e.pointerType!=='touch'){const q=loc(e);eraseHover={x:wx(q.X),y:wy(q.Y)};draw()}if(e.pointerType!=='touch'&&T[tool]){const q=loc(e);hover={x:wx(q.X),y:wy(q.Y)};draw()}return}
   ptrs.set(e.pointerId,{x:e.offsetX,y:e.offsetY});
   const g=gest;if(!g)return;
+  if(g.k==='bgMove'){const q=loc(e);bgMoveTo(g,wx(q.X),wy(q.Y));return}
   if(g.k==='pinch'){if(ptrs.size<2)return;const[a,b]=[...ptrs.values()],d=Math.hypot(a.x-b.x,a.y-b.y),cx=(a.x+b.x)/2,cy=(a.y+b.y)/2;view.auto=false;view.s=clamp(g.s*d/g.d,10,400);setRot(g.r0+Math.atan2(b.y-a.y,b.x-a.x)-g.an);const lc=toLoc(cx,cy);view.ox=lc.X-g.wx*view.s;view.oy=lc.Y-g.wy*view.s;draw();return}
   const{X,Y}=loc(e),x=wx(X),y=wy(Y);
   if(g.k==='resize'){
@@ -2015,6 +1396,7 @@ function up(e,cancel){
   const g=gest;if(!g)return;
   if(g.k==='pinch'){if(!ptrs.size)gest=null;return}
   gest=null;if(cancel){if(g.moved)changed();else draw();return}
+  if(g.k==='bgMove'){if(g.moved)changed();else draw();return}
   if(g.k==='pan'){if(!g.moved&&!g.keep){const now=performance.now(),dbl=now-lastTap.t<350&&Math.hypot(g.X-lastTap.x,g.Y-lastTap.y)<30;lastTap={t:dbl?0:now,x:g.X,y:g.Y};if(dbl){if(g.room&&!focusId){enterRoom(rootOf(P,P.rooms.find(z=>z.id===g.room)).id);return}if(focusId&&!g.room){exitRoom();return}sel=null;renderInspector();fit();draw();return}sel=g.room?{kind:'room',id:g.room}:null;renderInspector();draw()}return}
   if(g.k==='st'){const q=stFrom(g);if(!q||Math.abs(q.b-q.a)<.2){draw();return}snap();q.id=uid();if(q.a>q.b)[q.a,q.b]=[q.b,q.a];P.struct.push(q);sel={kind:'st',id:q.id};changed(true);return}
   if(g.k==='leg'&&g.moved&&P.routes[g.key]){const s0=R.segs.find(q=>q.key===g.key);if(s0)P.routes[g.key]=cleanPts(s0.pts).slice(1,-1)}
@@ -2024,7 +1406,7 @@ function up(e,cancel){
   if(g.k==='sketch'){let L=0;for(let i=1;i<g.pts.length;i++)L+=Math.hypot(g.pts[i].x-g.pts[i-1].x,g.pts[i].y-g.pts[i-1].y);if(L<.4){draw();return}skOpen=[];snap();P.sketch.push({pts:rdp(g.pts,.03).map(q=>({x:+q.x.toFixed(3),y:+q.y.toFixed(3)}))});changed();renderSelbar();return}
   if(g.k==='room'){
     const x=Math.min(g.x0,g.x1),y=Math.min(g.y0,g.y1),w=Math.abs(g.x1-g.x0),h=Math.abs(g.y1-g.y0);
-    if(w>=.5&&h>=.5){snap();const r={id:uid(),name:'Cameră '+(P.rooms.length+1),type:'altul',x,y,w:+w.toFixed(2),h:+h.toFixed(2)};P.rooms.push(r);sel={kind:'room',id:r.id};changed(true)}else draw();
+    if(w>=.5&&h>=.5){snap();const r={id:uid(),name:'Cameră '+(P.rooms.length+1),type:'altul',x,y,w:+w.toFixed(2),h:+h.toFixed(2)};P.rooms.push(r);sel={kind:'room',id:r.id};changed(true)}else if(!(w<.3&&h<.3&&bgAutoRoom(g.rx,g.ry)))draw();
     return;
   }
   if(g.k==='place'&&g.type==='geam'){const q=placeWin(g.x,g.y);if(!q){toast('Atinge un perete ca să pui fereastra.');draw();return}snap();q.id=uid();P.wins.push(q);sel={kind:'win',id:q.id};changed(true);return}
@@ -2192,6 +1574,9 @@ function renderInspector(){
       <label class="f full">Pereți<select data-s="room" data-f="wall" id="r-wall"><option value="">Ca în proiect (${WM[P.wallMat||'caramida']})</option>${opt(WM,r.wall||'__')}</select></label>
       <label class="f">Lățime (m)<input data-s="room" data-f="w" id="r-w" type="number" inputmode="decimal" min=".5" step=".05" value="${r.w}"></label>
       <label class="f">Lungime (m)<input data-s="room" data-f="h" id="r-h" type="number" inputmode="decimal" min=".5" step=".05" value="${r.h}"></label>
+      <label class="f full">Colț teșit (perete oblic)<select id="r-ch">${opt({'':'Fără','tl':'Stânga sus','tr':'Dreapta sus','bl':'Stânga jos','br':'Dreapta jos'},(r.ch&&r.ch.k)||'')}</select></label>
+      ${chOf(r)?`<label class="f">Teșire pe lățime (cm)<input id="r-cha" type="number" inputmode="numeric" min="20" step="5" value="${Math.round(r.ch.a*100)}"></label><label class="f">Teșire pe lungime (cm)<input id="r-chb" type="number" inputmode="numeric" min="20" step="5" value="${Math.round(r.ch.b*100)}"></label>
+      <label class="f full" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="r-chd"${r.ch.door?' checked':''}> Ușă pe peretele oblic (${f(diagOf(r).len,2)} m)</label>${r.ch.door?`<label class="f">Lățime ușă (cm)<input id="r-chw" type="number" inputmode="numeric" min="60" step="5" value="${Math.round(r.ch.door.w*100)}"></label>`:''}`:''}
     </div>
     <div id="insDyn"></div>
     <div class="bar"><button class="btn dng" type="button" data-act="del">Șterge camera și elementele ei</button></div>`}`;
@@ -2240,8 +1625,9 @@ insp.addEventListener('pointerdown',e=>{const g=e.target.closest('[data-grip],.i
   addEventListener('pointermove',mv);addEventListener('pointerup',up)});
 function renderSelbar(){
   const el=$('#selbar');if(!el)return;
+  if(bgMode){el.innerHTML=`<span class="tag"><b>${bgMode==='move'?'Mută planul':'Calibrează scara'}</b><span class="muted">${bgMode==='move'?'trage cu degetul ca să așezi planul peste camere':bgCal.length?'atinge al doilea capăt':'atinge primul capăt al unei cote cunoscute'}</span></span><button class="btn pri" type="button" data-sb="bgEnd">${bgMode==='move'?'Gata':'Renunță'}</button>`;return}
   if(tool==='scris'){el.innerHTML=`<span class="tag">${svgSym('scris')}<span>${txBusy?'Citesc scrisul…':txStrokes.length?'Când ai terminat de scris, apasă Redenumește.':'Scrie cu penul numele în chenarul camerei, de exemplu „Dormitor 1”.'}</span></span>${txStrokes.length&&!txBusy?'<button class="btn pri" type="button" data-sb="tx-ok">Redenumește</button><button class="btn" type="button" data-sb="tx-clear">Șterge scrisul</button>':''}<button class="btn" type="button" data-sb="done">Gata</button>`;return}
-  if(tool!=='select'){el.innerHTML=`<span class="tag">${svgSym(tool)}<span>${tool==='schita'?(P.sketch.length||P.sketchErase.length?`${P.sketch.length} ${P.sketch.length===1?'linie':'linii'} desenate${P.sketchErase.length?', '+P.sketchErase.length+' '+(P.sketchErase.length===1?'perete șters':'pereți șterși'):''}. Continuă sau generează planul.`:'Desenează cu penul conturul casei și pereții dintre camere, ca pe hârtie.'):tool==='room'?'Trage pe grilă ca să desenezi o cameră':tool==='usa'?'Atinge un perete ca să pui ușa':tool==='geam'?'Atinge un perete ca să pui fereastra':JBT[tool]?'Atinge un perete ca să pui doza de '+JB[JBT[tool]].lbl+'. Traseele din cameră vor trece prin ea.':tool==='gol'?'Atinge peretele și trage pe porțiunea care lipsește':tool==='rez'?'Atinge peretele de rezistență și trage de-a lungul lui':tool==='grinda'?'Trage pe plan de-a lungul grinzii':'Atinge planul ca să pui: <b>'+esc(T[tool].n)+'</b>'}</span></span>${tool==='schita'?(`<button class="btn${skErase?'':' pri'}" type="button" data-sb="sk-pen" aria-pressed="${!skErase}">Creion</button><button class="btn${skErase?' pri':''}" type="button" data-sb="sk-erase" aria-pressed="${skErase}">Radieră</button>`)+(P.sketch.length||P.sketchErase.length?'<button class="btn" type="button" data-sb="sk-undo">↶ Ultima linie</button><button class="btn dng" type="button" data-sb="sk-clear">Șterge schița</button><button class="btn pri" type="button" data-sb="sk-gen">Generează planul</button>':''):'<button class="btn pri" type="button" data-sb="done">Gata, editez</button>'}`;return}
+  if(tool!=='select'){el.innerHTML=`<span class="tag">${svgSym(tool)}<span>${tool==='schita'?(P.sketch.length||P.sketchErase.length?`${P.sketch.length} ${P.sketch.length===1?'linie':'linii'} desenate${P.sketchErase.length?', '+P.sketchErase.length+' '+(P.sketchErase.length===1?'perete șters':'pereți șterși'):''}. Continuă sau generează planul.`:'Desenează cu penul conturul casei și pereții dintre camere, ca pe hârtie.'):tool==='room'?(bgMeta()?'Atinge o cameră din planul importat sau trage ca s-o desenezi de mână':'Trage pe grilă ca să desenezi o cameră'):tool==='usa'?'Atinge un perete ca să pui ușa':tool==='geam'?'Atinge un perete ca să pui fereastra':JBT[tool]?'Atinge un perete ca să pui doza de '+JB[JBT[tool]].lbl+'. Traseele din cameră vor trece prin ea.':tool==='gol'?'Atinge peretele și trage pe porțiunea care lipsește':tool==='rez'?'Atinge peretele de rezistență și trage de-a lungul lui':tool==='grinda'?'Trage pe plan de-a lungul grinzii':'Atinge planul ca să pui: <b>'+esc(T[tool].n)+'</b>'}</span></span>${tool==='schita'?(`<button class="btn${skErase?'':' pri'}" type="button" data-sb="sk-pen" aria-pressed="${!skErase}">Creion</button><button class="btn${skErase?' pri':''}" type="button" data-sb="sk-erase" aria-pressed="${skErase}">Radieră</button>`)+(P.sketch.length||P.sketchErase.length?'<button class="btn" type="button" data-sb="sk-undo">↶ Ultima linie</button><button class="btn dng" type="button" data-sb="sk-clear">Șterge schița</button><button class="btn pri" type="button" data-sb="sk-gen">Generează planul</button>':''):'<button class="btn pri" type="button" data-sb="done">Gata, editez</button>'}`;return}
   if(pickSw){const ps=P.items.find(i=>i.id===pickSw);if(ps){el.innerHTML=`<span class="tag"><b>${esc(T[ps.type].n)}</b><span class="muted">atinge luminile pe care le aprinde; atinge din nou ca să o scoți · ${ctrlOf(P,ps).length} alese</span></span><button class="btn pri" type="button" data-sb="pickDone">Gata</button>`;return}pickSw=null}
   if(!sel&&focusId){const fr=P.rooms.find(z=>z.id===focusId),lv=(P.levels.find(l=>l.id===P.lvCur)||{}).name;if(fr){el.innerHTML=`<span class="tag"><span class="muted">${esc(lv||'')} ›</span><b>${esc(fr.name)}</b></span><button class="btn" type="button" data-sb="proj">${inspOpen?'Ascunde camera':'Detalii cameră'}</button><button class="btn pri" type="button" data-sb="exitRoom">Ieși din cameră</button>`;return}focusId=null}
   if(!sel){el.innerHTML='';return}
@@ -2284,7 +1670,7 @@ function renderDyn(){
   if(sel&&sel.kind==='room'){
     const r=P.rooms.find(i=>i.id===sel.id);if(!r){el.innerHTML='';return}
     const its=P.items.filter(i=>i.room===r.id),c=g=>its.filter(i=>T[i.type].g===g).length;
-    el.innerHTML=`<dl class="spec"><dt>Suprafață</dt><dd>${f(r.w*r.h,2)} m²</dd><dt>Perimetru</dt><dd>${f(2*(r.w+r.h),2)} m</dd><dt>Prize</dt><dd>${c('priza')}</dd><dt>Lumini / întrerupătoare</dt><dd>${c('lum')} / ${c('intr')}</dd><dt>Consumatori dedicați</dt><dd>${its.filter(i=>T[i.type].g==='ded'&&!T[i.type].onLum).length}</dd></dl>`;
+    el.innerHTML=`<dl class="spec"><dt>Suprafață</dt><dd>${f(areaR(r),2)} m²</dd><dt>Perimetru</dt><dd>${f(2*(r.w+r.h)-(chPts(r)?chPts(r).a+chPts(r).b-diagOf(r).len:0),2)} m</dd><dt>Prize</dt><dd>${c('priza')}</dd><dt>Lumini / întrerupătoare</dt><dd>${c('lum')} / ${c('intr')}</dd><dt>Consumatori dedicați</dt><dd>${its.filter(i=>T[i.type].g==='ded'&&!T[i.type].onLum).length}</dd></dl>`;
     return;
   }
   const w=R.warn.length?`<ul class="warns">${R.warn.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:(R.circuits.length?'<div class="okmsg">Toate circuitele respectă căderea de tensiune admisă.</div>':'');
@@ -2293,6 +1679,12 @@ function renderDyn(){
 }
 insp.addEventListener('focusin',e=>{if(e.target.dataset.f&&!insp._s){snap();insp._s=true}});
 insp.addEventListener('focusout',()=>{insp._s=false});
+insp.addEventListener('change',e=>{const id=e.target.id;if(!/^r-ch/.test(id)||!sel)return;const r=P.rooms.find(i=>i.id===sel.id);if(!r)return;snap();
+  if(id==='r-ch'){const k=e.target.value;if(!k)delete r.ch;else{const d=+Math.min(1,r.w/2,r.h/2).toFixed(2);r.ch={k,a:r.ch&&r.ch.a||d,b:r.ch&&r.ch.b||d,...(r.ch&&r.ch.door?{door:r.ch.door}:{})}}}
+  else if(id==='r-cha'||id==='r-chb'){const v=parseFloat(e.target.value)/100;if(!(v>0)||!r.ch)return;r.ch[id==='r-cha'?'a':'b']=+clamp(v,.2,(id==='r-cha'?r.w:r.h)-.2).toFixed(2)}
+  else if(id==='r-chd'){if(!r.ch)return;if(e.target.checked)r.ch.door={w:.8};else delete r.ch.door}
+  else if(id==='r-chw'){const v=parseFloat(e.target.value)/100;if(v>0&&r.ch&&r.ch.door)r.ch.door.w=+clamp(v,.6,Math.max(.6,diagOf(r).len-.1)).toFixed(2)}
+  changed(true)});
 insp.addEventListener('input',e=>{
   const el=e.target,k=el.dataset.f,sc=el.dataset.s;if(!k)return;
   const o=sc==='item'?P.items.find(i=>i.id===sel.id):sc==='room'?P.rooms.find(i=>i.id===sel.id):sc==='door'?P.doors.find(i=>i.id===sel.id):sc==='win'?P.wins.find(i=>i.id===sel.id):sc==='st'?P.struct.find(i=>i.id===sel.id):sc==='jb'?P.jb.find(i=>i.id===sel.id):P;if(!o)return;
@@ -2333,6 +1725,7 @@ $('#selbar').addEventListener('click',e=>{
   if(b.dataset.sb==='del')deleteSel();
   else if(b.dataset.sb==='done')setTool('select');
   else if(b.dataset.sb==='pickDone'){pickSw=null;renderSelbar();draw()}
+  else if(b.dataset.sb==='bgEnd'){bgEnd()}
   else if(b.dataset.sb==='tx-ok')recognizeName();
   else if(b.dataset.sb==='tx-clear'){txStrokes=[];renderSelbar();draw()}
   else if(b.dataset.sb==='sk-pen'){skErase=false;eraseHover=null;renderSelbar();draw()}
@@ -2390,6 +1783,7 @@ insp.addEventListener('click',e=>{
 
 $('#v-calcul').addEventListener('click',e=>{if(e.target.closest('#pdfBtn')){exportPdf();return}const b=e.target.closest('[data-iso]');if(!b)return;if(b.dataset.lv&&b.dataset.lv!==P.lvCur)switchLevel(b.dataset.lv);setIso(b.dataset.iso)});
 $('#isoSel').addEventListener('change',e=>setIso(e.target.value));
+$('#bgBtn').onclick=()=>{$('#hudMore').hidden=true;renderBgDlg()};
 $('#hudMoreBtn').onclick=e=>{e.stopPropagation();const m=$('#hudMore');m.hidden=!m.hidden;$('#hudMoreBtn').setAttribute('aria-expanded',!m.hidden)};
 document.addEventListener('pointerdown',e=>{const m=$('#hudMore');if(!m.hidden&&!e.target.closest('#hudMore,#hudMoreBtn')){m.hidden=true;$('#hudMoreBtn').setAttribute('aria-expanded','false')}});
 function renderCalc(){
@@ -3062,7 +2456,7 @@ function roomTabs(){return`<div class="itabs" role="tablist"><button type="butto
 function roomSummary(r){
   const root=r.of||r.id,rr=P.rooms.find(z=>z.id===root)||r,grp=P.rooms.filter(z=>z.id===root||z.of===root),gid=new Set(grp.map(z=>z.id)),its=P.items.filter(i=>gid.has(i.room));
   const g=i=>T[i.type].g,pr=its.filter(i=>g(i)==='priza').reduce((t,i)=>t+ptsOf(i),0),lu=its.filter(i=>g(i)==='lum').length,sw=its.filter(i=>g(i)==='intr').length,de=its.filter(i=>g(i)==='ded'&&!T[i.type].onLum).length;
-  const area=grp.reduce((t,z)=>t+z.w*z.h,0),dims=grp.length===1?`${Math.round(rr.w*100)} × ${Math.round(rr.h*100)} cm`:`${f(area,1)} m²`;
+  const area=grp.reduce((t,z)=>t+areaR(z),0),dims=grp.length===1&&!chOf(rr)?`${Math.round(rr.w*100)} × ${Math.round(rr.h*100)} cm`:`${f(area,1)} m²`;
   const fl=R?its.filter(i=>R.flag&&R.flag[i.id]):[],ck=[];
   for(const i of fl)ck.push(`<li class="w"><i>!</i><span><b>${esc(T[i.type].n)}:</b> ${esc(R.flag[i.id])}</span><button class="btn" type="button" data-act="goitem" data-id="${i.id}">Arată</button></li>`);
   if(!fl.length&&its.length)ck.push(`<li><i class="ok">✓</i><span>Aparatele respectă distanțele față de uși, ferestre și pereții de rezistență.</span></li>`);
@@ -3077,22 +2471,23 @@ function roomSummary(r){
     <div class="bar"><button class="btn pri" type="button" data-act="measure">Măsoară camera</button><button class="btn" type="button" data-act="elev">Desfășurata pereților</button>${focusId?'':'<button class="btn" type="button" data-act="enter">Intră în cameră</button>'}</div></div>`;
 }
 const routeZ=()=>R&&R.tot&&R.tot.z!=null?R.tot.z:(P.route==='pardoseala'?0:P.H-.3);
-const SIDEN={sus:'de sus',dreapta:'din dreapta',jos:'de jos','stânga':'din stânga'};
+const SIDEN={sus:'de sus',dreapta:'din dreapta',jos:'de jos','stânga':'din stânga',oblic:'oblic'};
 function roomWalls(rid,rooms){
   const grp=(rooms||P.rooms).filter(z=>z.id===rid||z.of===rid),W=[];
   for(const g of grp){
-    const E=[{k:'sus',o:'h',c:g.y,lo:g.x,hi:g.x+g.w,rev:false},{k:'dreapta',o:'v',c:g.x+g.w,lo:g.y,hi:g.y+g.h,rev:false},{k:'jos',o:'h',c:g.y+g.h,lo:g.x,hi:g.x+g.w,rev:true},{k:'stânga',o:'v',c:g.x,lo:g.y,hi:g.y+g.h,rev:true}];
+    const re=rEdges(g),E=[{k:'sus',o:'h',c:g.y,lo:re[0].lo,hi:re[0].hi,rev:false},{k:'dreapta',o:'v',c:g.x+g.w,lo:re[3].lo,hi:re[3].hi,rev:false},{k:'jos',o:'h',c:g.y+g.h,lo:re[1].lo,hi:re[1].hi,rev:true},{k:'stânga',o:'v',c:g.x,lo:re[2].lo,hi:re[2].hi,rev:true}];
+    {const d=diagOf(g);if(d&&!g.ch.fill){const k=g.ch.k,ix={tl:4,tr:1,br:2,bl:3}[k];E.splice(ix,0,{k:'oblic',o:'d',c:0,lo:0,hi:d.len,rev:false,dg:d})}}
     for(const e of E){const inner=grp.some(q=>{if(q===g)return false;const sg=sharedSeg(g,q);return sg&&sg.o===e.o&&Math.abs(sg.c-e.c)<.02&&sg.a<=e.lo+.02&&sg.b>=e.hi-.02});if(!inner)W.push({...e,g,rid})}
   }
   return W;
 }
 function elevData(w){
-  const H=w.o==='h',T_=q=>H?q.x:q.y,on=q=>Math.abs((H?q.y:q.x)-w.c)<.03&&T_(q)>=w.lo-.03&&T_(q)<=w.hi+.03,z=routeZ();
+  const H=w.o==='h',D=w.o==='d'&&w.dg,T_=q=>D?(q.x-D.p.x)*D.ux+(q.y-D.p.y)*D.uy:H?q.x:q.y,on=q=>(D?Math.abs((q.x-D.p.x)*D.nx+(q.y-D.p.y)*D.ny)<.03:Math.abs((H?q.y:q.x)-w.c)<.03)&&T_(q)>=w.lo-.03&&T_(q)<=w.hi+.03,z=routeZ();
   const gid=new Set(P.rooms.filter(q=>q.id===w.rid||q.of===w.rid).map(q=>q.id));
   const items=P.items.filter(i=>T[i.type].h!=='ceil'&&on(i)&&(gid.has(i.room)||i.type==='tablou')).map(i=>({t:T_(i),h:hOf(P,i),it:i,cid:R&&R.by[i.id]}));
   const cut=(a,b)=>[Math.max(a,w.lo),Math.min(b,w.hi)];
-  const doors=P.doors.filter(d=>d.o===w.o&&Math.abs(d.c-w.c)<.02).map(d=>cut(...dEnds(d))).filter(([a,b])=>b-a>.05);
-  const wins=P.wins.filter(d=>d.o===w.o&&Math.abs(d.c-w.c)<.02).map(d=>{const[a,b]=cut(...dEnds(d));return{a,b,s:+d.sill||0,hg:+d.hg||0}}).filter(o=>o.b-o.a>.05);
+  const doors=D?(w.g.ch.door?(()=>{const dw=Math.min(w.g.ch.door.w,D.len-.1),t0=(D.len-dw)/2;return[[t0,t0+dw]]})():[]):P.doors.filter(d=>d.o===w.o&&Math.abs(d.c-w.c)<.02).map(d=>cut(...dEnds(d))).filter(([a,b])=>b-a>.05);
+  const wins=D?[]:P.wins.filter(d=>d.o===w.o&&Math.abs(d.c-w.c)<.02).map(d=>{const[a,b]=cut(...dEnds(d));return{a,b,s:+d.sill||0,hg:+d.hg||0}}).filter(o=>o.b-o.a>.05);
   const boxes=R?R.phys.filter(q=>on(q)&&q.cis.length).map(q=>({t:T_(q),h:q.z!=null?q.z:z,id:q.id,ci:q.cis[0]})):[];
   const near=t=>items.some(o=>Math.abs(o.t-t)<.04)||boxes.some(o=>Math.abs(o.t-t)<.04);
   const drops=[],runs=[];
@@ -3161,7 +2556,7 @@ async function open3D(){
   build3D(false,focusId||'');
 }
 function cyl(T3,A,B,r,mat){const a=new T3.Vector3(...A),b=new T3.Vector3(...B),dir=b.clone().sub(a),len=dir.length();if(len<1e-4)return null;const m=new T3.Mesh(new T3.CylinderGeometry(r,r,len,8),mat);m.position.copy(a.clone().add(b).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new T3.Vector3(0,1,0),dir.normalize());return m}
-function wallNormal(it){return nrmIn(P.rooms,it)}
+function wallNormal(it){const r=P.rooms.find(z=>z.id===it.room);for(const z of P.rooms.filter(q=>chOf(q)&&(q.id===it.room||q.of===it.room||(r&&q.id===r.of)))){const d=onDiag(z,it.x,it.y,.03);if(d){const g=diagOf(z);return[g.nx,g.ny]}}return nrmIn(P.rooms,it)}
 function nrmIn(rooms,it){
   const r=rooms.find(z=>z.id===it.room)||rooms.find(z=>it.x>=z.x-.05&&it.x<=z.x+z.w+.05&&it.y>=z.y-.05&&it.y<=z.y+z.h+.05);if(!r)return[0,1];
   const d=[[Math.abs(it.x-r.x),[1,0]],[Math.abs(it.x-r.x-r.w),[-1,0]],[Math.abs(it.y-r.y),[0,1]],[Math.abs(it.y-r.y-r.h),[0,-1]]].sort((a,b)=>a[0]-b[0]);
@@ -3204,10 +2599,10 @@ function build3D(keep,room){
   const H=P.H,z=routeZ(),rooms=P.rooms;if(!rooms.length){box.innerHTML='<div class="empty" style="margin:20px">Desenează întâi camerele pe plan.</div>';return}
   const x0=Math.min(...rooms.map(r=>r.x)),x1=Math.max(...rooms.map(r=>r.x+r.w)),y0=Math.min(...rooms.map(r=>r.y)),y1=Math.max(...rooms.map(r=>r.y+r.h));
   const floorM=new T3.MeshLambertMaterial({color:new T3.Color(C.room)});
-  for(const r of rooms){const m=new T3.Mesh(new T3.PlaneGeometry(r.w,r.h),floorM);m.rotation.x=-Math.PI/2;m.position.set(r.x+r.w/2,0,r.y+r.h/2);scene.add(m)}
+  for(const r of rooms){if(chOf(r)){const sh=new T3.Shape(roomPoly(r).map(q=>new T3.Vector2(q.x,-q.y))),m=new T3.Mesh(new T3.ShapeGeometry(sh),floorM);m.rotation.x=-Math.PI/2;scene.add(m);continue}const m=new T3.Mesh(new T3.PlaneGeometry(r.w,r.h),floorM);m.rotation.x=-Math.PI/2;m.position.set(r.x+r.w/2,0,r.y+r.h/2);scene.add(m)}
   if(room!=null)v3.room=P.rooms.some(r=>r.id===room)?room:'';
   if(v3.room){const ceilM=new T3.MeshLambertMaterial({color:new T3.Color(C.room),side:T3.DoubleSide,transparent:true,opacity:.6,depthWrite:false});for(const r of groupOf(v3.room)){const m=new T3.Mesh(new T3.PlaneGeometry(r.w,r.h),ceilM);m.rotation.x=Math.PI/2;m.position.set(r.x+r.w/2,H+.001,r.y+r.h/2);scene.add(m)}}
-  const lines=new Map();for(const r of rooms)for(const[o,c,lo,hi]of[['h',r.y,r.x,r.x+r.w],['h',r.y+r.h,r.x,r.x+r.w],['v',r.x,r.y,r.y+r.h],['v',r.x+r.w,r.y,r.y+r.h]]){const k=o+'|'+Math.round(c*100);if(!lines.has(k))lines.set(k,{o,c,iv:[]});lines.get(k).iv.push([lo,hi])}
+  const lines=new Map();for(const r of rooms)for(const[o,c,lo,hi]of rEdges(r).map(e=>[e.o,e.c,e.lo,e.hi])){const k=o+'|'+Math.round(c*100);if(!lines.has(k))lines.set(k,{o,c,iv:[]});lines.get(k).iv.push([lo,hi])}
   const gols=(P.struct||[]).filter(g=>g.k==='gol');
   const wallM=new T3.MeshLambertMaterial({color:new T3.Color(C.wall),transparent:true,opacity:v3.room?.55:.22,depthWrite:false}),edgeM=new T3.LineBasicMaterial({color:new T3.Color(C.wall),transparent:true,opacity:.55});
   v3.walls=[];
@@ -3218,6 +2613,9 @@ function build3D(keep,room){
     for(const[a,b]of mg){const cuts=[a,b,...ops.flatMap(q=>[q.a,q.b]).filter(t=>t>a&&t<b)].sort((p,q)=>p-q);
       for(let i=0;i+1<cuts.length;i++){const p0=cuts[i],p1=cuts[i+1],mid=(p0+p1)/2,op=ops.find(q=>mid>q.a&&mid<q.b);if(!op)addWall(o,c,p0,p1,0,H);else{addWall(o,c,p0,p1,0,op.bot);addWall(o,c,p0,p1,op.top,H)}}}
   }
+  for(const r of rooms){const d=diagOf(r);if(!d||r.ch.fill)continue;const dw=r.ch.door?Math.min(r.ch.door.w,d.len-.1):0,t0=(d.len-dw)/2,ang=Math.atan2(d.uy,d.ux);
+    const piece=(a,b,h0,h1)=>{if(b-a<.01||h1-h0<.01)return;const len=b-a,geo=new T3.BoxGeometry(len,h1-h0,.1),m=new T3.Mesh(geo,wallM),cx=d.p.x+d.ux*(a+b)/2,cz=d.p.y+d.uy*(a+b)/2;m.position.set(cx,(h0+h1)/2,cz);m.rotation.y=-ang;scene.add(m);const e=new T3.LineSegments(new T3.EdgesGeometry(geo),edgeM);e.position.copy(m.position);e.rotation.copy(m.rotation);scene.add(e);v3.walls.push(m,e)};
+    if(dw){piece(0,t0,0,H);piece(t0+dw,d.len,0,H);piece(t0,t0+dw,2.1,H)}else piece(0,d.len,0,H)}
   v3.meshes=[];const mats={},mat=ci=>mats[ci]||(mats[ci]=new T3.MeshLambertMaterial({color:new T3.Color(C.circ[ci%8]),transparent:true,opacity:1}));
   if(R)for(const s of R.segs){const sz=(s.z??z)+((s.z??z)<.01?.03:0),P3=[[s.a.x,s.fh,s.a.y],[s.a.x,sz,s.a.y],...s.pts.map(q=>[q.x,sz,q.y]),[s.b.x,sz,s.b.y],[s.b.x,s.th,s.b.y]];
     for(let i=0;i+1<P3.length;i++){const m=cyl(T3,P3[i],P3[i+1],s.feed?.017:.011,mat(s.ci).clone());if(m){m.userData.ci=s.ci;scene.add(m);v3.meshes.push(m)}}}
@@ -3290,7 +2688,7 @@ function wallOf(it){
   return null;
 }
 function roomPanel(id){
-  const r=P.rooms.find(z=>z.id===id),grp=groupOf(id),area=grp.reduce((t,z)=>t+z.w*z.h,0),its=P.items.filter(i=>i.room===id),cis=[...new Set(its.map(i=>R.by[i.id]).filter(Boolean))];
+  const r=P.rooms.find(z=>z.id===id),grp=groupOf(id),area=grp.reduce((t,z)=>t+areaR(z),0),its=P.items.filter(i=>i.room===id),cis=[...new Set(its.map(i=>R.by[i.id]).filter(Boolean))];
   const walls=new Map();for(const it of its){const w=T[it.type].h==='ceil'?null:wallOf(it),k=w?`Peretele din ${w.n} · ${f(w.len,2)} m`:'Tavan / în cameră';if(!walls.has(k))walls.set(k,[]);walls.get(k).push({it,w})}
   const row=({it,w})=>{const c=R.by[it.id],col=c?C.circ[(R.circuits.find(q=>q.id===c)||{ci:0}).ci%8]:C.muted;return`<li><div class="bar" style="justify-content:space-between;flex-wrap:nowrap"><button class="btn" type="button" data-fsel="${it.id}" style="flex:1;justify-content:flex-start;min-width:0"><span style="color:${col};display:inline-flex">${svgSym(it.type)}</span><span class="trunc">${esc(T[it.type].n)}${it.label?' · '+esc(it.label):''}</span></button><span class="mono muted">${c||'—'}</span></div>
     <div class="fields">${w?`<label class="f">De la colț (cm)<input type="number" inputmode="decimal" step="1" data-ff="dist" data-iid="${it.id}" id="ff-d-${it.id}" value="${Math.round(w.d*100)}"></label>`:''}<label class="f">Înălțime (cm)<input type="number" inputmode="decimal" step="1" data-ff="h" data-iid="${it.id}" id="ff-h-${it.id}" value="${Math.round(hOf(P,it)*100)}"></label></div></li>`};
@@ -3367,6 +2765,7 @@ $('#ioDel').onclick=()=>{dlg.close();deleteProject(P.id)};
 let introMenu=null;
 function touchProj(p){p.updated=Date.now();cloud.last[p.id]=pbody(p);queuePush(p.id);persist();renderProjSel()}
 function deleteProject(id){
+  bgDropProject(id);
   const i=store.projects.findIndex(x=>x.id===id);if(i<0)return;const p=store.projects[i],wasCur=p===P;
   store.projects.splice(i,1);delete cloud.last[id];queuePush(id);if(!store.projects.length)store.projects.push(norm(blank('Proiect 1')));
   if(wasCur)openProject(store.projects[0]);else{persist();renderProjSel()}
@@ -3405,6 +2804,337 @@ const themeGet=()=>{const v=lsGet('electroplan.theme');return THEMES[v]?v:'dark'
 function applyTheme(v){const r=document.documentElement;if(v==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',v)}
 applyTheme(themeGet());
 insp.addEventListener('change',e=>{if(e.target.id!=='p-theme')return;lsSet('electroplan.theme',e.target.value);applyTheme(e.target.value)});
+const BG_DB='electroplan-plans',PT_M=.000352778,MASK_M=.02;
+function bgDb(){return bgDb.p||(bgDb.p=new Promise((res,rej)=>{try{const r=indexedDB.open(BG_DB,1);r.onupgradeneeded=()=>r.result.createObjectStore('bg');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}}))}
+async function bgIdb(op,key,val){const db=await bgDb();return new Promise((res,rej)=>{const t=db.transaction('bg',op==='get'||op==='keys'?'readonly':'readwrite'),s=t.objectStore('bg'),r=op==='get'?s.get(key):op==='put'?s.put(val,key):op==='del'?s.delete(key):s.getAllKeys();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+const bgKey=(pid,lv)=>pid+':'+lv,bgMeta=()=>(P.bgs||{})[P.lvCur]||null,bgc={};
+let bgMode=null,bgCal=[];
+function bgEnsure(){const m=bgMeta();if(!m)return null;const k=bgKey(P.id,P.lvCur);if(bgc[k])return bgc[k];const c=bgc[k]={state:'loading'};
+  bgIdb('get',k).then(async d=>{if(!d){c.state='missing';return}const img=new Image();img.src=URL.createObjectURL(d.img);await img.decode();Object.assign(c,{state:'ok',img,mask:d.mask,mw:d.mw,mh:d.mh,texts:d.texts||[],wins:d.wins||[],dia:d.dia||[]});draw()}).catch(()=>{c.state='missing'});return c}
+function drawBg(){const m=bgMeta();if(!m||m.hide)return;const c=bgEnsure();if(!c||c.state!=='ok')return;
+  if(!c.tc||c.tcol!==C.ink){const t=document.createElement('canvas');t.width=c.img.naturalWidth;t.height=c.img.naturalHeight;const x=t.getContext('2d');x.drawImage(c.img,0,0);x.globalCompositeOperation='source-in';x.fillStyle=C.ink;x.fillRect(0,0,t.width,t.height);c.tc=t;c.tcol=C.ink}
+  ctx.save();ctx.globalAlpha=m.op??.5;ctx.drawImage(c.tc,sx(m.x),sy(m.y),m.w*m.mpp*view.s,m.h*m.mpp*view.s);ctx.restore();
+  if(bgMode==='cal')for(const q of bgCal){ctx.save();ctx.strokeStyle=C.sel;ctx.lineWidth=2;const X=sx(q.x),Y=sy(q.y);ctx.beginPath();ctx.moveTo(X-9,Y);ctx.lineTo(X+9,Y);ctx.moveTo(X,Y-9);ctx.lineTo(X,Y+9);ctx.stroke();ctx.restore()}}
+function loadPdfJs(){if(window.pdfjsLib)return Promise.resolve();return new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';sc.onload=()=>{window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';res()};sc.onerror=()=>rej(new Error('Nu am putut încărca cititorul de PDF. Verifică conexiunea la internet.'));document.head.appendChild(sc)})}
+const mmul=(m,n)=>[m[0]*n[0]+m[2]*n[1],m[1]*n[0]+m[3]*n[1],m[0]*n[2]+m[2]*n[3],m[1]*n[2]+m[3]*n[3],m[0]*n[4]+m[2]*n[5]+m[4],m[1]*n[4]+m[3]*n[5]+m[5]];
+const mapp=(m,x,y)=>[m[0]*x+m[2]*y+m[4],m[1]*x+m[3]*y+m[5]];
+const rgbOf=a=>{if(!a)return[0,0,0];if(typeof a[0]==='string'){const h=a[0].replace('#','');return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]}return[a[0]|0,a[1]|0,a[2]|0]};
+const lumOf=c=>(.2126*c[0]+.7152*c[1]+.0722*c[2])/255;
+async function pdfVectors(page,vp){
+  const ol=await page.getOperatorList(),O=pdfjsLib.OPS,segs=[],fills=[],st=[];let ctm=[1,0,0,1,0,0],sc=[0,0,0],fc=[0,0,0],lw=1,path=null;
+  const S=new Set([O.stroke,O.closeStroke,O.fillStroke,O.eoFillStroke,O.closeFillStroke,O.closeEOFillStroke]),F=new Set([O.fill,O.eoFill,O.fillStroke,O.eoFillStroke,O.closeFillStroke,O.closeEOFillStroke]);
+  for(let i=0;i<ol.fnArray.length;i++){const fn=ol.fnArray[i],a=ol.argsArray[i];
+    if(fn===O.save)st.push([ctm,sc,fc,lw]);else if(fn===O.restore){const s=st.pop();if(s)[ctm,sc,fc,lw]=s}
+    else if(fn===O.transform)ctm=mmul(ctm,a);
+    else if(fn===O.paintFormXObjectBegin){st.push([ctm,sc,fc,lw]);if(a&&a[0]&&a[0].length===6)ctm=mmul(ctm,a[0])}else if(fn===O.paintFormXObjectEnd){const s=st.pop();if(s)[ctm,sc,fc,lw]=s}
+    else if(fn===O.setLineWidth)lw=a[0];else if(fn===O.setStrokeRGBColor)sc=rgbOf(a);else if(fn===O.setFillRGBColor)fc=rgbOf(a);
+    else if(fn===O.constructPath){const T=mmul(vp.transform,ctm),ops=a[0],cd=a[1],subs=[];let sub=null,j=0;const P2=(x,y,cv)=>{const p=mapp(T,x,y);return{x:p[0],y:p[1],cv}};
+      for(const op of ops){if(op===O.moveTo){sub=[P2(cd[j],cd[j+1])];subs.push(sub);j+=2}else if(op===O.lineTo){if(sub)sub.push(P2(cd[j],cd[j+1]));j+=2}else if(op===O.curveTo){if(sub)sub.push(P2(cd[j+4],cd[j+5],1));j+=6}else if(op===O.curveTo2||op===O.curveTo3){if(sub)sub.push(P2(cd[j+2],cd[j+3],1));j+=4}else if(op===O.closePath){if(sub&&sub.length)sub.push({...sub[0]})}else if(op===O.rectangle){const x=cd[j],y=cd[j+1],w=cd[j+2],h=cd[j+3];sub=[P2(x,y),P2(x+w,y),P2(x+w,y+h),P2(x,y+h),P2(x,y)];subs.push(sub);sub=null;j+=4}}
+      path={subs,k:Math.sqrt(Math.abs(T[0]*T[3]-T[1]*T[2]))}}
+    else if(path&&(S.has(fn)||F.has(fn)||fn===O.endPath)){
+      if(S.has(fn))for(const s of path.subs)for(let q=1;q<s.length;q++)segs.push({x1:s[q-1].x,y1:s[q-1].y,x2:s[q].x,y2:s[q].y,cv:!!s[q].cv,c:sc,lw:lw*path.k});
+      if(F.has(fn))for(const s of path.subs)if(s.length>2)fills.push({pts:s,c:fc});
+      path=null}}
+  return{segs,fills}}
+function pdfTexts(tc,vp){return tc.items.filter(it=>it.str&&it.str.trim()).map(it=>{const t=pdfjsLib.Util.transform(vp.transform,it.transform),sz=Math.hypot(t[0],t[1])||1,ux=t[0]/sz,uy=t[1]/sz,up=Math.hypot(t[2],t[3])||1,vx=t[2]/up,vy=t[3]/up,w=it.width||sz*it.str.length*.5;
+  return{s:it.str.trim(),x:t[4]+ux*w/2+vx*sz*.35,y:t[5]+uy*w/2+vy*sz*.35,ux,uy,sz}})}
+function pdfScale(segs,texts){
+  const rs=[],L=segs.filter(s=>!s.cv&&Math.hypot(s.x2-s.x1,s.y2-s.y1)>=2);
+  for(const t of texts){const m=t.s.match(/^(\d{1,4})(?:[.,](\d{1,2}))?$/);if(!m)continue;const v=parseFloat(t.s.replace(',','.'));if(v<5||v>3000)continue;
+    const tw=t.sz*t.s.length*.6,cand=[];
+    for(const s of L){let dx=s.x2-s.x1,dy=s.y2-s.y1;const l=Math.hypot(dx,dy);dx/=l;dy/=l;if(Math.abs(dx*t.uy-dy*t.ux)>.06)continue;const sg=dx*t.ux+dy*t.uy<0?-1:1;
+      const a1=(s.x1-t.x)*t.ux+(s.y1-t.y)*t.uy,a2=(s.x2-t.x)*t.ux+(s.y2-t.y)*t.uy,pd=(s.x1-t.x)*-t.uy+(s.y1-t.y)*t.ux;if(Math.abs(pd)>t.sz*1.8+4)continue;
+      cand.push({a:Math.min(a1,a2),b:Math.max(a1,a2),pd,c:s.c.join(',')})}
+    const near=cand.filter(q=>q.a<=tw&&q.b>=-tw).sort((p,q)=>Math.abs(p.pd)-Math.abs(q.pd))[0];if(!near)continue;
+    const line=cand.filter(q=>q.c===near.c&&Math.abs(q.pd-near.pd)<.6).sort((p,q)=>p.a-q.a);let a=near.a,b=near.b,ch=true;
+    while(ch){ch=false;for(const q of line){if(q.b>b&&q.a<=b+tw+4){b=q.b;ch=true}if(q.a<a&&q.b>=a-tw-4){a=q.a;ch=true}}}
+    if(b-a>=6)rs.push(v/(b-a))}
+  if(rs.length<3)return null;rs.sort((a,b)=>a-b);let bi=0,bc=0;for(let i=0;i<rs.length;i++){let c=0;for(let j=i;j<rs.length&&rs[j]<=rs[i]*1.04;j++)c++;if(c>bc){bc=c;bi=i}}
+  if(bc<3||bc<rs.length*.15)return null;const cl=rs.slice(bi,bi+bc),cmpt=cl[Math.floor(cl.length/2)];
+  let n=cmpt/100/PT_M;const std=[10,20,25,50,75,100,150,200,250,500];const sn=std.find(q=>Math.abs(q-n)/q<.04);if(sn)n=sn;
+  if(n<5||n>1000)return null;return{n:Math.round(n),mppt:(sn?sn*PT_M:cmpt/100),k:bc,of:rs.length}}
+function morph(m,w,h,r,dil){const t=new Uint8Array(m.length),o=new Uint8Array(m.length);
+  for(let y=0;y<h;y++){const b=y*w;for(let x=0;x<w;x++){let v=dil?0:1;for(let k=-r;k<=r;k++){const xx=x+k;const q=xx<0||xx>=w?(dil?0:1):m[b+xx];if(dil?q:!q){v=dil?1:0;break}}t[b+x]=v}}
+  for(let x=0;x<w;x++)for(let y=0;y<h;y++){let v=dil?0:1;for(let k=-r;k<=r;k++){const yy=y+k;const q=yy<0||yy>=h?(dil?0:1):t[yy*w+x];if(dil?q:!q){v=dil?1:0;break}}o[y*w+x]=v}return o}
+function pdfMask(geo,vp,mppt){
+  const k=mppt/MASK_M,mw=Math.ceil(vp.width*k),mh=Math.ceil(vp.height*k),cv2=document.createElement('canvas');cv2.width=mw;cv2.height=mh;const x=cv2.getContext('2d');x.fillStyle='#000';x.fillRect(0,0,mw,mh);x.strokeStyle=x.fillStyle='#fff';x.lineCap='round';
+  const hat=geo.segs.filter(s=>{if(s.cv)return false;const dx=Math.abs(s.x2-s.x1),dy=Math.abs(s.y2-s.y1),l=Math.hypot(dx,dy)*mppt;if(l<.02||l>.9)return false;const a=Math.atan2(dy,dx)*180/Math.PI;return a>15&&a<75});
+  const ck=s=>s.c.join(','),cnt={};for(const s of hat)cnt[ck(s)]=(cnt[ck(s)]||0)+1;const top=Math.max(0,...Object.values(cnt));
+  const G={},keep=hat.filter(s=>cnt[ck(s)]>=Math.max(15,top*.25)).map(s=>{const dx=s.x2-s.x1,dy=s.y2-s.y1,l=Math.hypot(dx,dy);let ex=dx/l,ey=dy/l;if(ex<0){ex=-ex;ey=-ey}const mx=(s.x1+s.x2)/2,my=(s.y1+s.y2)/2,key=ck(s)+'|'+Math.round(Math.atan2(ey,ex)*36/Math.PI)+'|'+Math.floor(mx*mppt/.4)+'|'+Math.floor(my*mppt/.4),o={s,mx,my,n:-ey*mx+ex*my,key};(G[key]||(G[key]=[])).push(o);return o});
+  const g0=.008/mppt,g1=.2/mppt,g2=.5/mppt,isHatch=o=>{let c=0;for(const q of G[o.key]){if(q===o)continue;const dn=Math.abs(q.n-o.n);if(dn>g0&&dn<g1&&Math.abs(q.mx-o.mx)<g2&&Math.abs(q.my-o.my)<g2&&++c>=3)return true}return false};
+  const hset=new Set();x.lineWidth=Math.max(2,.05/MASK_M);x.beginPath();for(const o of keep)if(isHatch(o)){hset.add(o.s);x.moveTo(o.s.x1*k,o.s.y1*k);x.lineTo(o.s.x2*k,o.s.y2*k)}x.stroke();
+  for(const f of geo.fills){if(lumOf(f.c)>.93)continue;let a=0,xs=f.pts.map(p=>p.x),ys=f.pts.map(p=>p.y);for(let i=1;i<f.pts.length;i++)a+=f.pts[i-1].x*f.pts[i].y-f.pts[i].x*f.pts[i-1].y;a=Math.abs(a/2)*mppt*mppt;
+    const bw=(Math.max(...xs)-Math.min(...xs))*mppt,bh=(Math.max(...ys)-Math.min(...ys))*mppt;if(a<.005||(!f.wall&&!f.band&&(a>6||Math.min(bw,bh)>1.2)))continue;x.beginPath();f.pts.forEach((p,i)=>i?x.lineTo(p.x*k,p.y*k):x.moveTo(p.x*k,p.y*k));x.fill()}
+  x.beginPath();for(const s of geo.segs)if(!s.cv&&s.lw>=1&&lumOf(s.c)<.55&&Math.hypot(s.x2-s.x1,s.y2-s.y1)*mppt>.2&&(Math.abs(s.x2-s.x1)<.5||Math.abs(s.y2-s.y1)<.5)){x.lineWidth=Math.max(2,s.lw*k);x.moveTo(s.x1*k,s.y1*k);x.lineTo(s.x2*k,s.y2*k)}x.stroke();
+  const d=x.getImageData(0,0,mw,mh).data;let m=new Uint8Array(mw*mh);for(let i=0;i<m.length;i++)m[i]=d[i*4]>127?1:0;
+  {const r=Math.round(.36/MASK_M),blob=morph(morph(morph(m,mw,mh,r,false),mw,mh,r,true),mw,mh,3,true);for(let i=0;i<m.length;i++)if(blob[i])m[i]=0}
+  m=despeck(morph(morph(m,mw,mh,2,true),mw,mh,2,false),mw,mh,Math.round(.04/MASK_M/MASK_M));
+  const ax=geo.segs.filter(s=>!s.cv).map(s=>{const h=Math.abs(s.y2-s.y1)<.3,v=Math.abs(s.x2-s.x1)<.3;if(!h&&!v)return null;const a=h?Math.min(s.x1,s.x2):Math.min(s.y1,s.y2),b=h?Math.max(s.x1,s.x2):Math.max(s.y1,s.y2),c0=h?(s.y1+s.y2)/2:(s.x1+s.x2)/2;return(b-a)*mppt>=.5&&(b-a)*mppt<=6?{h,a,b,c:c0}:null}).filter(Boolean);
+  const near=(X,Y)=>{const r=Math.round(.25/MASK_M),cx=Math.round(X*k),cy=Math.round(Y*k);for(let y=cy-r;y<=cy+r;y+=2)for(let x=cx-r;x<=cx+r;x+=2)if(x>=0&&y>=0&&x<mw&&y<mh&&m[y*mw+x])return true;return false};
+  const nearAx=(X,Y,dx,dy)=>{const cx=X*k,cy=Y*k;for(let t=1;t<=Math.round(.2/MASK_M);t++)for(let l=-3;l<=3;l++){const x=Math.round(cx+dx*t-dy*l),y=Math.round(cy+dy*t+dx*l);if(x>=0&&y>=0&&x<mw&&y<mh&&m[y*mw+x])return true}return false};
+  const win=[];for(let i=0;i<ax.length;i++){const p=ax[i];for(let j=i+1;j<ax.length;j++){const q=ax[j];if(p.h!==q.h)continue;const d=Math.abs(p.c-q.c)*mppt;if(d<.03||d>.35)continue;const ov=Math.min(p.b,q.b)-Math.max(p.a,q.a);if(ov<.7*Math.max(p.b-p.a,q.b-q.a))continue;
+    const a0=Math.max(p.a,q.a),b0=Math.min(p.b,q.b),cm=(p.c+q.c)/2;const e1=p.h?nearAx(a0,cm,-1,0):nearAx(cm,a0,0,-1),e2=p.h?nearAx(b0,cm,1,0):nearAx(cm,b0,0,1);if(e1&&e2){const c1=Math.min(p.c,q.c),c2=Math.max(p.c,q.c),third=ax.some(r=>r!==p&&r!==q&&r.h===p.h&&r.c>c1-.02/mppt&&r.c<c2+.02/mppt&&Math.abs(r.c-p.c)>.008/mppt&&Math.abs(r.c-q.c)>.008/mppt&&Math.min(r.b,b0)-Math.max(r.a,a0)>.7*(b0-a0));win.push({h:p.h,a:a0,b:b0,c1,c2,w3:third})}}}
+  for(const w of win){const a=Math.floor(w.a*k),b=Math.ceil(w.b*k),c1=Math.floor(w.c1*k),c2=Math.ceil(w.c2*k);for(let t=a;t<=b;t++)for(let u=c1;u<=c2;u++){const X=w.h?t:u,Y=w.h?u:t;if(X>=0&&Y>=0&&X<mw&&Y<mh)m[Y*mw+X]=1}}
+  const dgl=geo.segs.filter(s=>!s.cv&&!hset.has(s)&&!(cnt[ck(s)]>=Math.max(15,top*.25)&&Math.hypot(s.x2-s.x1,s.y2-s.y1)*mppt<.9&&!s.wall)).map(s=>{const dx=s.x2-s.x1,dy=s.y2-s.y1,l=Math.hypot(dx,dy),A=Math.abs(Math.atan2(dy,dx)*180/Math.PI)%90;return l*mppt>=.25&&l*mppt<=4&&A>=20&&A<=70?{s,l,ux:dx/l,uy:dy/l}:null}).filter(Boolean),dia=[];
+  const inQ=(Q,x,y)=>{let sg=0;for(let i=0;i<4;i++){const a=Q[i],b=Q[(i+1)%4],cr=(b.x-a.x)*(y-a.y)-(b.y-a.y)*(x-a.x);if(cr===0)continue;if(!sg)sg=Math.sign(cr);else if(Math.sign(cr)!==sg)return false}return true};
+  for(let i=0;i<dgl.length;i++){const A=dgl[i];for(let j=i+1;j<dgl.length;j++){const B=dgl[j];if(Math.abs(A.ux*B.uy-A.uy*B.ux)>.03)continue;const nx=-A.uy,ny=A.ux,d=Math.abs((B.s.x1-A.s.x1)*nx+(B.s.y1-A.s.y1)*ny)*mppt;if(d<.05||d>.4)continue;
+    const pr=(x,y)=>(x-A.s.x1)*A.ux+(y-A.s.y1)*A.uy,b0=Math.min(pr(B.s.x1,B.s.y1),pr(B.s.x2,B.s.y2)),b1=Math.max(pr(B.s.x1,B.s.y1),pr(B.s.x2,B.s.y2)),lo=Math.max(0,b0),hi=Math.min(A.l,b1);if(hi-lo<.6*Math.min(A.l,b1-b0))continue;
+    const off=((B.s.x1-A.s.x1)*nx+(B.s.y1-A.s.y1)*ny),P0={x:A.s.x1+A.ux*lo,y:A.s.y1+A.uy*lo},P1={x:A.s.x1+A.ux*hi,y:A.s.y1+A.uy*hi},C0={x:P0.x+nx*off/2,y:P0.y+ny*off/2},C1={x:P1.x+nx*off/2,y:P1.y+ny*off/2};
+    const ext=(Pt,sg)=>{for(let t=1;t<=Math.round(.25/MASK_M);t++)for(let l=-2;l<=2;l++){const x=Math.round(Pt.x*k+sg*A.ux*t-A.uy*l),y=Math.round(Pt.y*k+sg*A.uy*t+A.ux*l);if(x>=0&&y>=0&&x<mw&&y<mh&&m[y*mw+x])return true}return false};
+    if(!ext(C0,-1)&&!ext(C1,1))continue;const Q=[P0,P1,{x:P1.x+nx*off,y:P1.y+ny*off},{x:P0.x+nx*off,y:P0.y+ny*off}].map(q=>({x:q.x*k,y:q.y*k}));
+    const bx0=Math.floor(Math.min(...Q.map(q=>q.x))),bx1=Math.ceil(Math.max(...Q.map(q=>q.x))),by0=Math.floor(Math.min(...Q.map(q=>q.y))),by1=Math.ceil(Math.max(...Q.map(q=>q.y)));for(let y=by0;y<=by1;y++)for(let x=bx0;x<=bx1;x++)if(x>=0&&y>=0&&x<mw&&y<mh&&inQ(Q,x+.5,y+.5))m[y*mw+x]=1;
+    dia.push({x1:C0.x*k,y1:C0.y*k,x2:C1.x*k,y2:C1.y*k,th:d})}}
+  for(let ch=true;ch;){ch=false;for(let i=0;i<dia.length&&!ch;i++)for(let j=i+1;j<dia.length&&!ch;j++){const a=dia[i],b=dia[j],l=Math.hypot(a.x2-a.x1,a.y2-a.y1),ux=(a.x2-a.x1)/l,uy=(a.y2-a.y1)/l;
+    if(Math.abs(ux*(b.y2-b.y1)-uy*(b.x2-b.x1))/Math.hypot(b.x2-b.x1,b.y2-b.y1)>.05)continue;if(Math.abs((b.x1-a.x1)*-uy+(b.y1-a.y1)*ux)*MASK_M>.06)continue;
+    const ts=[0,l,(b.x1-a.x1)*ux+(b.y1-a.y1)*uy,(b.x2-a.x1)*ux+(b.y2-a.y1)*uy],bl=Math.min(ts[2],ts[3]),bh=Math.max(ts[2],ts[3]),gap=Math.max(bl-l,0-bh)*MASK_M;if(gap>1.3)continue;
+    const t0=Math.min(...ts),t1=Math.max(...ts);dia[i]={x1:a.x1+ux*t0,y1:a.y1+uy*t0,x2:a.x1+ux*t1,y2:a.y1+uy*t1,th:a.th};dia.splice(j,1);ch=true}}
+  return{mask:m,mw,mh,dia,win:win.filter(w=>w.w3).map(w=>({h:w.h,a:w.a*k,b:w.b*k,c:(w.c1+w.c2)/2*k}))}}
+function mainBox(m,w,h,mm){const r=Math.max(2,Math.round(.05/mm)),o=despeck(morph(morph(m,w,h,r,false),w,h,r,true),w,h,Math.round(.06/mm/mm));let x0=w,y0=h,x1=0,y1=0;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(o[y*w+x]){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}return x1<x0?{x0:0,y0:0,x1:w,y1:h}:{x0,y0,x1,y1}}
+function despeck(m,w,h,min){const seen=new Uint8Array(m.length),st=[],comp=[];for(let i=0;i<m.length;i++){if(!m[i]||seen[i])continue;comp.length=0;st.push(i);seen[i]=1;while(st.length){const j=st.pop();comp.push(j);const x=j%w;for(const k of[j-w,j+w,x>0?j-1:-1,x<w-1?j+1:-1])if(k>=0&&k<m.length&&m[k]&&!seen[k]){seen[k]=1;st.push(k)}}if(comp.length<min)for(const j of comp)m[j]=0}return m}
+function rasterMask(cvs,mpp){const k=mpp/MASK_M,mw=Math.ceil(cvs.width*k),mh=Math.ceil(cvs.height*k),c2=document.createElement('canvas');c2.width=mw;c2.height=mh;const x=c2.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,mw,mh);x.drawImage(cvs,0,0,mw,mh);
+  const d=x.getImageData(0,0,mw,mh).data;let m=new Uint8Array(mw*mh);for(let i=0;i<m.length;i++)m[i]=(d[i*4]*.3+d[i*4+1]*.59+d[i*4+2]*.11)<110?1:0;
+  m=morph(morph(m,mw,mh,2,true),mw,mh,2,false);m=morph(morph(m,mw,mh,2,false),mw,mh,2,true);return{mask:despeck(m,mw,mh,Math.round(.04/MASK_M/MASK_M)),mw,mh}}
+function inkify(cvs){const x=cvs.getContext('2d'),im=x.getImageData(0,0,cvs.width,cvs.height),d=im.data;for(let i=0;i<d.length;i+=4){const l=(d[i]*.2126+d[i+1]*.7152+d[i+2]*.0722)/255,a=d[i+3]/255;d[i]=d[i+1]=d[i+2]=0;d[i+3]=Math.round(clamp((1-l)*1.5,0,1)*a*255)}x.putImageData(im,0,0);return cvs}
+function fitBox(b){if(!b||W<10)return;const sw=Math.abs(Math.sin(view.rot))>.7,pad=Math.min(40,Math.max(16,Math.min(W,Hh)*.05)),hud=document.querySelector('.hud'),sbb=$('#selbar'),hb=(hud?hud.offsetHeight+10:0),tb=(sbb&&sbb.offsetHeight?sbb.offsetHeight+10:0),bar=Math.max(hb,tb);
+  const FW=(sw?Hh-bar*2:W)-pad*2,FH=(sw?W:Hh-(view.rot?bar*2:hb+tb))-pad*2;view.auto=false;view.s=clamp(Math.min(FW/Math.max(1,b.x1-b.x0),FH/Math.max(1,b.y1-b.y0)),10,260);
+  view.ox=(W-(b.x1-b.x0)*view.s)/2-b.x0*view.s;view.oy=(view.rot?(Hh-(b.y1-b.y0)*view.s)/2:tb+pad+(FH-(b.y1-b.y0)*view.s)/2)-b.y0*view.s}
+const DXF_WALL=/(^|[^a-z])(wall|walls|a-wall|perete|pereti|zid|zidarie|zidărie|mur|murs|structura|structură|beton|caramida|cărămidă|bca|gips|compartiment)/i,DXF_SKIP=/(dim|cot[aăe]|cote|text|mobil|furn|axe|axis|grid|hatch-pat|title|cartus|cartuș|indicator|defpoints)/i;
+async function dxfText(f){const buf=new Uint8Array(await f.arrayBuffer());let t=new TextDecoder('utf-8').decode(buf);if(/�/.test(t.slice(0,200000)))t=new TextDecoder('windows-1250').decode(buf);return t}
+function dxfParse(txt){
+  const L=txt.split(/\r\n|\r|\n/),pr=[];for(let i=0;i+1<L.length;i+=2){const c=parseInt(L[i].trim(),10);if(isNaN(c)){i--;continue}pr.push([c,L[i+1].replace(/\s+$/,'')])}
+  const ents=[],blocks={},layers={};let ins=1,sec='',cur=null,blk=null,list=ents,poly=null;
+  const flush=()=>{if(!cur)return;if(cur.t==='VERTEX'&&poly){poly.v.push(cur);cur=null;return}if(cur.t==='SEQEND'){poly=null;cur=null;return}if(cur.t==='POLYLINE'){cur.v=[];poly=cur}list.push(cur);cur=null};
+  for(let i=0;i<pr.length;i++){const[c,v]=pr[i];
+    if(c===0){flush();if(v==='SECTION'){sec='';continue}if(v==='ENDSEC'){sec='';continue}if(v==='BLOCK'){blk={name:'',bx:0,by:0,ents:[]};list=blk.ents;cur=null;continue}if(v==='ENDBLK'){if(blk){blocks[blk.name]=blk}blk=null;list=ents;continue}
+      if(sec==='ENTITIES'||sec==='BLOCKS')cur={t:v,g:[]};else if(sec==='TABLES'&&v==='LAYER')cur={t:'LAYER',g:[]};continue}
+    if(c===2&&pr[i-1]&&pr[i-1][0]===0&&pr[i-1][1]==='SECTION'){sec=v;continue}
+    if(sec==='HEADER'&&c===9&&v==='$INSUNITS'&&pr[i+1]){ins=parseInt(pr[i+1][1],10)||0;continue}
+    if(blk&&!cur){if(c===2)blk.name=v;else if(c===10)blk.bx=+v;else if(c===20)blk.by=+v;continue}
+    if(cur){cur.g.push([c,v]);if(cur.t==='LAYER'&&c===2)cur.name=v}}
+  flush();
+  for(const e of ents.filter(e=>e.t==='LAYER')){let col=0,fl=0;for(const[c,v]of e.g){if(c===62)col=+v;if(c===70)fl=+v}layers[e.name]={off:col<0||(fl&1)===1}}
+  return{ents:ents.filter(e=>e.t!=='LAYER'),blocks,layers,ins}}
+function dxfGeo(d){
+  const segs=[],fills=[],texts=[],ACI={1:[255,0,0],2:[255,255,0],3:[0,255,0],4:[0,255,255],5:[0,0,255],6:[255,0,255],7:[0,0,0],8:[128,128,128],9:[192,192,192]};
+  const get=(e,c)=>{const r=e.g.find(q=>q[0]===c);return r?r[1]:undefined},num=(e,c,dv=0)=>{const v=get(e,c);return v===undefined?dv:+v};
+  const arcPts=(cx,cy,r,a0,a1)=>{let s=a0*Math.PI/180,e=a1*Math.PI/180;if(e<=s)e+=Math.PI*2;const n=Math.max(4,Math.ceil((e-s)/(Math.PI/12))),o=[];for(let i=0;i<=n;i++){const a=s+(e-s)*i/n;o.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}return o};
+  const walk=(list,M,lay0,depth)=>{for(const e of list){let lay=get(e,8)||'0';if(lay==='0'&&lay0)lay=lay0;const ly=d.layers[lay];if(ly&&ly.off)continue;if(DXF_SKIP.test(lay)&&!DXF_WALL.test(lay)&&e.t!=='TEXT'&&e.t!=='MTEXT')continue;
+    const wall=DXF_WALL.test(lay),ci=num(e,62,7),col=wall?[0,0,0]:(ACI[Math.abs(ci)]||[90,90,90]),T=(x,y)=>[M[0]*x+M[2]*y+M[4],M[1]*x+M[3]*y+M[5]];
+    const line=(a,b,cv)=>{const p=T(a[0],a[1]),q=T(b[0],b[1]);segs.push({x1:p[0],y1:p[1],x2:q[0],y2:q[1],cv:!!cv,c:col,lw:wall?1.5:.1,wall})};
+    const poly=(pts,closed,cv)=>{for(let i=1;i<pts.length;i++)line(pts[i-1],pts[i],cv);if(closed&&pts.length>2)line(pts[pts.length-1],pts[0],cv)};
+    if(e.t==='LINE')line([num(e,10),num(e,20)],[num(e,11),num(e,21)]);
+    else if(e.t==='LWPOLYLINE'){const pts=[];let bul=false;for(const[c,v]of e.g){if(c===10)pts.push([+v,0]);else if(c===20&&pts.length)pts[pts.length-1][1]=+v;else if(c===42&&+v!==0)bul=true}poly(pts,(num(e,70)&1)===1,bul)}
+    else if(e.t==='POLYLINE'){const pts=(e.v||[]).map(q=>[num(q,10),num(q,20)]);poly(pts,(num(e,70)&1)===1,(e.v||[]).some(q=>num(q,42)!==0))}
+    else if(e.t==='ARC')poly(arcPts(num(e,10),num(e,20),num(e,40),num(e,50),num(e,51)),false,true);
+    else if(e.t==='CIRCLE')poly(arcPts(num(e,10),num(e,20),num(e,40),0,360),false,true);
+    else if(e.t==='SOLID'){const p=[[num(e,10),num(e,20)],[num(e,11),num(e,21)],[num(e,13),num(e,23)],[num(e,12),num(e,22)]].map(q=>{const t=T(q[0],q[1]);return{x:t[0],y:t[1]}});fills.push({pts:[...p,p[0]],c:col})}
+    else if(e.t==='HATCH'){const g=e.g;let i=g.findIndex(q=>q[0]===91);if(i<0)continue;const np=+g[i][1];i++;const paths=[];let bad=false;
+      for(let p=0;p<np&&i<g.length&&!bad;p++){while(i<g.length&&g[i][0]!==92)i++;if(i>=g.length)break;const fl=+g[i][1];i++;const pts=[];
+        if(fl&2){while(i<g.length&&g[i][0]!==93)i++;const nv=+g[i][1];i++;for(let k=0;k<nv&&i<g.length;){if(g[i][0]===10){pts.push([+g[i][1],+g[i+1][1]]);i+=2;k++}else i++}}
+        else{while(i<g.length&&g[i][0]!==93)i++;const ne=+g[i][1];i++;for(let k=0;k<ne&&i<g.length;k++){while(i<g.length&&g[i][0]!==72)i++;const ty=+g[i][1];i++;
+          if(ty===1){const a=[+g[i][1],+g[i+1][1]],b=[+g[i+2][1],+g[i+3][1]];if(!pts.length)pts.push(a);pts.push(b);i+=4}
+          else if(ty===2){const cx=+g[i][1],cy=+g[i+1][1],r=+g[i+2][1],a0=+g[i+3][1],a1=+g[i+4][1];pts.push(...arcPts(cx,cy,r,a0,a1));i+=6}
+          else{bad=true;break}}}
+        if(pts.length>2)paths.push(pts)}
+      for(const pts of paths)fills.push({pts:pts.map(q=>{const t=T(q[0],q[1]);return{x:t[0],y:t[1]}}),c:wall?[0,0,0]:[60,60,60],hatch:true,wall})}
+    else if(e.t==='INSERT'&&depth<5){const b=d.blocks[get(e,2)];if(!b)continue;const sx_=num(e,41,1),sy_=num(e,42,1),r=num(e,50)*Math.PI/180,px=num(e,10),py=num(e,20),cs=Math.cos(r),sn=Math.sin(r);
+      const Mi=mmul(M,[cs*sx_,sn*sx_,-sn*sy_,cs*sy_,px,py]),Mb=mmul(Mi,[1,0,0,1,-b.bx,-b.by]);walk(b.ents,Mb,lay,depth+1)}
+    else if(e.t==='TEXT'||e.t==='MTEXT'){let s=(get(e,3)||'')+(get(e,1)||'');s=s.replace(/\\P/g,' ').replace(/\{\\[^;]*;|\}|\{/g,'').replace(/\\[A-Za-z][^;]*;/g,'').trim();if(!s)continue;const p=T(num(e,10),num(e,20));texts.push({s,x:p[0],y:p[1],ux:1,uy:0,sz:num(e,40,1)})}}};
+  walk(d.ents,[1,0,0,1,0,0],null,0);return{segs,fills,texts}}
+function dxfUnits(d,geo){const u={1:.0254,2:.3048,4:.001,5:.01,6:1}[d.ins];if(u)return u;const xs=geo.segs.flatMap(s=>[s.x1,s.x2]).sort((a,b)=>a-b),span=xs.length?xs[Math.floor(xs.length*.98)]-xs[Math.floor(xs.length*.02)]:0;return span>2000?.001:span>200?.01:1}
+function dxfClusters(geo,u){const cell=1/u,occ=new Map(),key=(i,j)=>i+','+j;for(const s of geo.segs){if(s.cv)continue;const n=Math.max(1,Math.ceil(Math.hypot(s.x2-s.x1,s.y2-s.y1)/cell));for(let k=0;k<=n;k++){const x=s.x1+(s.x2-s.x1)*k/n,y=s.y1+(s.y2-s.y1)*k/n,i=Math.floor(x/cell),j=Math.floor(y/cell);occ.set(key(i,j),(occ.get(key(i,j))||0)+1)}}
+  const seen=new Set(),cl=[];for(const k of occ.keys()){if(seen.has(k))continue;const st=[k];seen.add(k);let n=0,x0=1e18,y0=1e18,x1=-1e18,y1=-1e18;while(st.length){const q=st.pop(),[i,j]=q.split(',').map(Number);n+=occ.get(q);x0=Math.min(x0,i);x1=Math.max(x1,i);y0=Math.min(y0,j);y1=Math.max(y1,j);for(let a=-2;a<=2;a++)for(let b=-2;b<=2;b++){const kk=key(i+a,j+b);if(occ.has(kk)&&!seen.has(kk)){seen.add(kk);st.push(kk)}}}cl.push({n,x0:x0*cell,y0:y0*cell,x1:(x1+1)*cell,y1:(y1+1)*cell})}
+  const big=cl.filter(c=>(c.x1-c.x0)*u>=4&&(c.y1-c.y0)*u>=4).sort((a,b)=>b.n-a.n);return big.length?big:cl.sort((a,b)=>b.n-a.n).slice(0,1)}
+function dxfCrop(geo,b,pad){const X0=b.x0-pad,Y0=b.y0-pad,X1=b.x1+pad,Y1=b.y1+pad,inn=(x,y)=>x>=X0&&x<=X1&&y>=Y0&&y<=Y1,fy=y=>Y1-y;
+  return{segs:geo.segs.filter(s=>inn(s.x1,s.y1)&&inn(s.x2,s.y2)).map(s=>({...s,x1:s.x1-X0,x2:s.x2-X0,y1:fy(s.y1),y2:fy(s.y2)})),fills:geo.fills.filter(f=>f.pts.every(p=>inn(p.x,p.y))).map(f=>({...f,pts:f.pts.map(p=>({x:p.x-X0,y:fy(p.y)}))})),texts:geo.texts.filter(t=>inn(t.x,t.y)).map(t=>({...t,x:t.x-X0,y:fy(t.y)})),w:X1-X0,h:Y1-Y0}}
+function dxfWallBands(geo,u){const ax=geo.segs.filter(s=>s.wall&&!s.cv).map(s=>{const h=Math.abs(s.y2-s.y1)*u<.01,v=Math.abs(s.x2-s.x1)*u<.01;if(!h&&!v)return null;const a=h?Math.min(s.x1,s.x2):Math.min(s.y1,s.y2),b=h?Math.max(s.x1,s.x2):Math.max(s.y1,s.y2);return(b-a)*u>=.1?{h,a,b,c:h?(s.y1+s.y2)/2:(s.x1+s.x2)/2}:null}).filter(Boolean);
+  const out=[];for(const p of ax){let best=null,bd=1e9;for(const q of ax){if(q===p||q.h!==p.h)continue;const dd=Math.abs(q.c-p.c)*u;if(dd<.05||dd>.6)continue;const lo=Math.max(p.a,q.a),hi=Math.min(p.b,q.b);if(hi-lo<.5*(p.b-p.a))continue;if(dd<bd){bd=dd;best={lo,hi,c1:Math.min(p.c,q.c),c2:Math.max(p.c,q.c)}}}
+    if(best){const{lo,hi,c1,c2}=best,pts=p.h?[{x:lo,y:c1},{x:hi,y:c1},{x:hi,y:c2},{x:lo,y:c2},{x:lo,y:c1}]:[{x:c1,y:lo},{x:c2,y:lo},{x:c2,y:hi},{x:c1,y:hi},{x:c1,y:lo}];out.push({pts,c:[0,0,0],band:true})}}
+  return out}
+function dxfRender(geo,u){const s=Math.min(u/.01,4000/Math.max(geo.w,geo.h)),cv=document.createElement('canvas');cv.width=Math.ceil(geo.w*s);cv.height=Math.ceil(geo.h*s);const x=cv.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,cv.width,cv.height);
+  x.fillStyle='#777';for(const f of geo.fills){if(f.band)continue;x.beginPath();f.pts.forEach((p,i)=>i?x.lineTo(p.x*s,p.y*s):x.moveTo(p.x*s,p.y*s));x.fill()}
+  x.lineCap='round';for(const sg of geo.segs){x.strokeStyle=sg.wall?'#000':'#555';x.lineWidth=sg.wall?1.6:1;x.beginPath();x.moveTo(sg.x1*s,sg.y1*s);x.lineTo(sg.x2*s,sg.y2*s);x.stroke()}
+  x.fillStyle='#000';for(const t of geo.texts){const fs=Math.max(8,t.sz*s);x.font=fs+'px sans-serif';x.fillText(t.s,t.x*s,t.y*s)}return{cv,s}}
+function dxfChoose(geo,cls){return new Promise(res=>{const dl=$('#bgDlg');dl.innerHTML=`<form class="dl" method="dialog"><div><h2>Alege planul</h2><p class="muted" style="margin:0">Desenul are ${cls.length} planuri. Atinge planul nivelului „${esc((P.levels.find(l=>l.id===P.lvCur)||{}).name||'')}”.</p></div><div class="bgpages" id="bgPages"></div><div class="bar" style="justify-content:flex-end"><button class="btn" type="button" data-bgp="0">Renunță</button></div></form>`;
+  dl.onclick=e=>{const b=e.target.closest('[data-bgp]');if(!b)return;dl.close();res(+b.dataset.bgp)};if(!dl.open)dl.showModal();
+  cls.slice(0,12).forEach((b,i)=>{const w=b.x1-b.x0,h=b.y1-b.y0,s=150/Math.max(w,h),c=document.createElement('canvas');c.width=Math.ceil(w*s);c.height=Math.ceil(h*s);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.strokeStyle='#000';x.lineWidth=1;x.beginPath();
+    for(const sg of geo.segs){if(sg.x1<b.x0||sg.x1>b.x1||sg.y1<b.y0||sg.y1>b.y1)continue;x.moveTo((sg.x1-b.x0)*s,(b.y1-sg.y1)*s);x.lineTo((sg.x2-b.x0)*s,(b.y1-sg.y2)*s)}x.stroke();
+    const bt=document.createElement('button');bt.type='button';bt.className='bgpage';bt.dataset.bgp=i+1;bt.append(c);const sp=document.createElement('span');sp.textContent='Planul '+(i+1);bt.append(sp);$('#bgPages').append(bt)})})}
+async function dxfImport(f,busy){const d=dxfParse(await dxfText(f)),all=dxfGeo(d);if(!all.segs.length)throw new Error('Fișierul DXF nu conține linii. Dacă e DWG, salvează-l din AutoCAD ca DXF.');
+  const u=dxfUnits(d,all),cls=dxfClusters(all,u);let n=1;if(cls.length>1){n=await dxfChoose(all,cls);if(!n)return null}
+  busy.innerHTML='<div class="dl"><h2>Citesc planul…</h2><p class="muted" style="margin:0">Caut pereții, ușile și ferestrele.</p></div>';if(!busy.open)busy.showModal();await new Promise(r=>setTimeout(r,50));
+  const geo=dxfCrop(all,cls[n-1],1/u);geo.fills.push(...dxfWallBands(geo,u));const vp={width:geo.w,height:geo.h},mk=pdfMask(geo,vp,u),r=dxfRender(geo,u);
+  return{cvs:r.cv,mpp:u/r.s,mk,texts:geo.texts.filter(t=>/[a-zăâîșț]{3,}/i.test(t.s)).map(t=>({s:t.s,u:t.x*r.s,v:t.y*r.s})),info:{scale:null,cote:0,src:'dxf',unit:Math.round(u*1000)===1?'mm':Math.round(u*100)===1?'cm':u===1?'m':'in'}}}
+function bgPick(){const i=document.createElement('input');i.type='file';i.accept='application/pdf,.pdf,.dxf,image/*';i.onchange=()=>{const f=i.files&&i.files[0];if(f)bgImport(f)};i.click()}
+function bgChoosePage(doc){return new Promise(async res=>{const dl=$('#bgDlg');dl.innerHTML=`<form class="dl" method="dialog"><div><h2>Alege pagina</h2><p class="muted" style="margin:0">PDF-ul are ${doc.numPages} pagini. Atinge pagina cu planul nivelului „${esc((P.levels.find(l=>l.id===P.lvCur)||{}).name||'')}”.</p></div><div class="bgpages" id="bgPages"></div><div class="bar" style="justify-content:flex-end"><button class="btn" type="button" data-bgp="0">Renunță</button></div></form>`;
+  dl.onclick=e=>{const b=e.target.closest('[data-bgp]');if(!b)return;dl.close();res(+b.dataset.bgp)};if(!dl.open)dl.showModal();
+  for(let n=1;n<=Math.min(doc.numPages,12);n++){const pg=await doc.getPage(n),v=pg.getViewport({scale:1}),s=150/Math.max(v.width,v.height),c=document.createElement('canvas'),vv=pg.getViewport({scale:s});c.width=vv.width;c.height=vv.height;await pg.render({canvasContext:c.getContext('2d'),viewport:vv}).promise;
+    const b=document.createElement('button');b.type='button';b.className='bgpage';b.dataset.bgp=n;b.append(c);const sp=document.createElement('span');sp.textContent='Pagina '+n;b.append(sp);const host=$('#bgPages');if(!host)return;host.append(b)}})}
+async function bgImport(f){
+  const busy=$('#bgDlg');try{
+    let cvs,mpp,mk,texts=[],info={name:f.name};
+    if(/\.dxf$/i.test(f.name)){toast('Citesc desenul DXF…');const r=await dxfImport(f,busy);if(!r){if(busy.open)busy.close();return}cvs=r.cvs;mpp=r.mpp;mk=r.mk;texts=r.texts;Object.assign(info,r.info)}
+    else if(/pdf/i.test(f.type)||/\.pdf$/i.test(f.name)){
+      toast('Citesc planul…');await loadPdfJs();const doc=await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;
+      const n=doc.numPages>1?await bgChoosePage(doc):1;if(!n)return;
+      busy.innerHTML='<div class="dl"><h2>Citesc planul…</h2><p class="muted" style="margin:0">Caut pereții și scara din cote. Durează câteva secunde.</p></div>';if(!busy.open)busy.showModal();await new Promise(r=>setTimeout(r,50));
+      const page=await doc.getPage(n),vp=page.getViewport({scale:1}),geo=await pdfVectors(page,vp),tx=pdfTexts(await page.getTextContent(),vp),sc=pdfScale(geo.segs,tx);
+      const mppt=sc?sc.mppt:50*PT_M,pxpt=clamp(mppt/.01,1,3.5),v2=page.getViewport({scale:Math.min(pxpt,4000/Math.max(vp.width,vp.height))});
+      cvs=document.createElement('canvas');cvs.width=Math.ceil(v2.width);cvs.height=Math.ceil(v2.height);await page.render({canvasContext:cvs.getContext('2d'),viewport:v2}).promise;
+      mpp=mppt/v2.scale;mk=pdfMask(geo,vp,mppt);texts=tx.filter(t=>/[a-zăâîșț]{3,}/i.test(t.s)).map(t=>({s:t.s,u:t.x*v2.scale,v:t.y*v2.scale}));Object.assign(info,{page:n,scale:sc?sc.n:null,cote:sc?sc.k:0})}
+    else{const img=new Image();img.src=URL.createObjectURL(f);await img.decode();const s=Math.min(1,4000/Math.max(img.naturalWidth,img.naturalHeight));cvs=document.createElement('canvas');cvs.width=Math.round(img.naturalWidth*s);cvs.height=Math.round(img.naturalHeight*s);const x=cvs.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,cvs.width,cvs.height);x.drawImage(img,0,0,cvs.width,cvs.height);
+      mpp=15/cvs.width;mk=rasterMask(cvs,mpp);Object.assign(info,{scale:null,cote:0})}
+    const blob=await new Promise(r=>inkify(cvs).toBlob(r,'image/png'));
+    const prev=bgMeta(),m={x:prev?prev.x:0,y:prev?prev.y:0,mpp,mmpp:mpp*cvs.width/mk.mw,w:cvs.width,h:cvs.height,op:prev?prev.op:.55,...info};
+    await bgIdb('put',bgKey(P.id,P.lvCur),{img:blob,mask:mk.mask,mw:mk.mw,mh:mk.mh,texts,wins:mk.win||[],dia:mk.dia||[]});
+    if(!P.bgs)P.bgs={};P.bgs[P.lvCur]=m;delete bgc[bgKey(P.id,P.lvCur)];if(busy.open)busy.close();
+    const c=bgEnsure();for(let i=0;i<40&&c.state==='loading';i++)await new Promise(r=>setTimeout(r,50));
+    const fresh=!P.rooms.length;if(fresh&&c.state==='ok'){const bb=mainBox(c.mask,c.mw,c.mh,m.mmpp);fitBox({x0:m.x+bb.x0*m.mmpp,y0:m.y+bb.y0*m.mmpp,x1:m.x+bb.x1*m.mmpp,y1:m.y+bb.y1*m.mmpp})}changed();
+    if(m.scale||m.src==='dxf'){if(fresh&&c.state==='ok')bgBuildPlan();else{setTool('room');renderBgDlg();toast(`Planul e importat la scara 1:${m.scale}, calculată din ${m.cote} cote.`)}}
+    else{toast('Nu am găsit cote în plan. Calibrează scara: atinge capetele unei distanțe cunoscute.');bgStart('cal')}
+  }catch(e){if(busy.open)busy.close();toast('Nu am putut citi fișierul. '+(e&&e.message||''))}}
+function bgStart(mo){bgMode=mo;bgCal=[];renderSelbar();draw()}
+function bgEnd(){bgMode=null;bgCal=[];renderSelbar();draw()}
+function bgDown(x,y){if(!bgMode)return false;const m=bgMeta();if(!m){bgEnd();return false}
+  if(bgMode==='move'){gest={k:'bgMove',x0:x,y0:y,mx:m.x,my:m.y,moved:false};return true}
+  bgCal.push({x,y});draw();if(bgCal.length<2)return true;
+  const d=Math.hypot(bgCal[1].x-bgCal[0].x,bgCal[1].y-bgCal[0].y);const v=prompt('Cât este distanța reală între cele două puncte? Scrie în centimetri.',Math.round(d*100));
+  if(v!=null&&+String(v).replace(',','.')>0&&d>.01){const f=(+String(v).replace(',','.')/100)/d,ax=bgCal[0].x,ay=bgCal[0].y;m.x=ax-(ax-m.x)*f;m.y=ay-(ay-m.y)*f;m.mpp*=f;m.mmpp*=f;m.scale=null;changed();toast('Scara a fost calibrată.')}
+  bgEnd();return true}
+function bgMoveTo(g,x,y){const m=bgMeta();if(!m)return;g.moved=true;m.x=+(g.mx+x-g.x0).toFixed(3);m.y=+(g.my+y-g.y0).toFixed(3);draw()}
+const ROOMW=/(living|sufragerie|camera de zi|dormitor|camera|bucatarie|baie|wc|toaleta|hol|holul|birou|debara|camara|dressing|terasa|patio|garaj|vestiar|scara|casa scarii|spalatorie|logie|balcon|centrala|tehnic|intrare|foaier|loc de joaca|studio|oficiu)/;
+function bgOcc(c,m){const mw=c.mw,mh=c.mh,occ=new Uint8Array(mw*mh);for(const r of P.rooms){const a=Math.max(0,Math.round((r.x-m.x)/m.mmpp)+1),b=Math.min(mw-1,Math.round((r.x+r.w-m.x)/m.mmpp)-1),t=Math.max(0,Math.round((r.y-m.y)/m.mmpp)+1),u=Math.min(mh-1,Math.round((r.y+r.h-m.y)/m.mmpp)-1);for(let yy=t;yy<=u;yy++)if(b>=a)occ.fill(1,yy*mw+a,yy*mw+b+1)}return occ}
+function bgRect(c,m,px,py,occ){const mw=c.mw,mh=c.mh,mk=c.mask;if(px<1||py<1||px>=mw-1||py>=mh-1)return{err:'out'};
+  const fr=(X,Y)=>!mk[Y*mw+X]&&!occ[Y*mw+X];if(!fr(px,py))return{err:occ[py*mw+px]?'occ':'wall'};
+  const lim=Math.round(14/m.mmpp),up=new Int32Array(mw).fill(-1),dn=new Int32Array(mw).fill(-1);
+  const col=X=>{if(up[X]<0){let u=0;while(u<lim&&py-u-1>=0&&fr(X,py-u-1))u++;let d=0;while(d<lim&&py+d+1<mh&&fr(X,py+d+1))d++;up[X]=fr(X,py)?u:-2;dn[X]=d}return up[X]};
+  const R0=Math.round(.3/m.mmpp),hitH=(Y,X,dir)=>{for(let k=1;k<=R0;k++){const yy=Y+dir*k;if(yy<0||yy>=mh)return false;if(mk[yy*mw+X]||occ[yy*mw+X])return true}return false},hitV=(X,Y,dir)=>{for(let k=1;k<=R0;k++){const xx=X+dir*k;if(xx<0||xx>=mw)return false;if(mk[Y*mw+xx]||occ[Y*mw+xx])return true}return false};
+  const covH=(Y,a,b,dir)=>{let n=0,c=0;for(let X=a;X<=b;X+=2){c++;if(hitH(Y,X,dir))n++}return n/Math.max(1,c)},covV=(X,a,b,dir)=>{let n=0,c=0;for(let Y=a;Y<=b;Y+=2){c++;if(hitV(X,Y,dir))n++}return n/Math.max(1,c)};
+  const score=(L,Rr,u,d)=>{const a=(Rr-L+1)*(u+d+1),t=py-u,b=py+d;const cv=Math.min(covH(t,L,Rr,-1),covH(b,L,Rr,1),covV(L,t,b,-1),covV(Rr,t,b,1));return cv>=.5?a:a*.02};
+  let L=px,Rr=px,cu=col(px),cd=dn[px],best={a:score(px,px,cu,cd),L,Rr,u:cu,d:cd};
+  while(true){const nl=L-1>=0&&Math.abs(L-1-px)<lim&&col(L-1)>=0?L-1:-1,nr=Rr+1<mw&&Math.abs(Rr+1-px)<lim&&col(Rr+1)>=0?Rr+1:-1;if(nl<0&&nr<0)break;
+    const hl=nl<0?-1:Math.min(cu,up[nl])+Math.min(cd,dn[nl]),hr=nr<0?-1:Math.min(cu,up[nr])+Math.min(cd,dn[nr]);
+    if(hl>=hr){L=nl;cu=Math.min(cu,up[nl]);cd=Math.min(cd,dn[nl])}else{Rr=nr;cu=Math.min(cu,up[nr]);cd=Math.min(cd,dn[nr])}
+    const a=score(L,Rr,cu,cd);if(a>best.a)best={a,L,Rr,u:cu,d:cd};if(cu+cd<6)break}
+  let x0=best.L,x1=best.Rr+1,y0=py-best.u,y1=py+best.d+1;if(!c.box)c.box=mainBox(mk,mw,mh,m.mmpp);
+  x0=Math.max(x0,c.box.x0);x1=Math.min(x1,c.box.x1);y0=Math.max(y0,c.box.y0);y1=Math.min(y1,c.box.y1);if(x1-x0<2||y1-y0<2)return{err:'out'};
+  const tt=py-best.u,bb=py+best.d,sides=[covH(tt,best.L,best.Rr,-1),covH(bb,best.L,best.Rr,1),covV(best.L,tt,bb,-1),covV(best.Rr,tt,bb,1)];
+  return{x0,x1,y0,y1,good:best.a>=(best.Rr-best.L+1)*(best.u+best.d+1)*.5,s3:sides.filter(v=>v>=.5).length>=3}}
+function bgRoomFrom(c,m,q,extra=[]){const mw=c.mw,mh=c.mh,mk=c.mask,{x0,x1,y0,y1}=q;
+  const thick=(side)=>{const vals=[];for(const f of[.25,.5,.75]){let n=0;const maxn=Math.round(.7/m.mmpp);if(side==='l'||side==='r'){const Y=Math.round(y0+(y1-y0)*f),X0=side==='l'?x0-1:x1;for(let k=0;k<maxn;k++){const X=side==='l'?X0-k:X0+k;if(X<0||X>=mw||!mk[Y*mw+X])break;n++}}else{const X=Math.round(x0+(x1-x0)*f),Y0=side==='t'?y0-1:y1;for(let k=0;k<maxn;k++){const Y=side==='t'?Y0-k:Y0+k;if(Y<0||Y>=mh||!mk[Y*mw+X])break;n++}}vals.push(n)}vals.sort((a,b)=>a-b);const v=vals[1]*m.mmpp;return v>=.04&&v<.68?v/2:0};
+  let rx0=m.x+x0*m.mmpp-thick('l'),rx1=m.x+x1*m.mmpp+thick('r'),ry0=m.y+y0*m.mmpp-thick('t'),ry1=m.y+y1*m.mmpp+thick('b');
+  const ed=[];for(const r of[...P.rooms,...extra])ed.push(['x',r.x],['x',r.x+r.w],['y',r.y],['y',r.y+r.h]);const sn=(v,ax)=>{let b=v,bd=.12;for(const[a,e]of ed)if(a===ax&&Math.abs(e-v)<bd){bd=Math.abs(e-v);b=e}return+b.toFixed(2)};
+  rx0=sn(rx0,'x');rx1=sn(rx1,'x');ry0=sn(ry0,'y');ry1=sn(ry1,'y');const w=+(rx1-rx0).toFixed(2),h=+(ry1-ry0).toFixed(2);
+  if(w<.6||h<.6)return null;
+  const norm2=s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');let name=null;
+  for(const t of c.texts){const tx=m.x+t.u*m.mpp,ty=m.y+t.v*m.mpp;if(tx>rx0&&tx<rx1&&ty>ry0&&ty<ry1&&ROOMW.test(norm2(t.s))){name=t.s.charAt(0)+t.s.slice(1).toLowerCase();break}}
+  return{x:+rx0.toFixed(2),y:+ry0.toFixed(2),w,h,name,type:name?guessType(name):null}}
+function bgAutoRoom(x,y){const m=bgMeta();if(!m||m.hide)return false;const c=bgEnsure();if(!c||c.state!=='ok')return false;
+  const px=Math.round((x-m.x)/m.mmpp),py=Math.round((y-m.y)/m.mmpp),q=bgRect(c,m,px,py,bgOcc(c,m));
+  if(q.err==='out'&&(px<1||py<1||px>=c.mw-1||py>=c.mh-1))return false;
+  if(q.err){toast(q.err==='occ'?'Aici există deja o cameră.':q.err==='wall'?'Ai atins un perete. Atinge în interiorul camerei.':'Ai atins în afara casei. Atinge în interiorul unei camere.');return true}
+  const g=bgRoomFrom(c,m,q);if(!g){toast('Spațiul e prea mic pentru o cameră. Atinge în mijlocul camerei.');return true}
+  snap();const r={id:uid(),name:g.name||'Cameră '+(P.rooms.filter(z=>!z.of).length+1),type:g.type||'altul',x:g.x,y:g.y,w:g.w,h:g.h};P.rooms.push(r);sel={kind:'room',id:r.id};changed(true);
+  toast(`Am adăugat ${r.name}: ${String(r.w).replace('.',',')} × ${String(r.h).replace('.',',')} m. Atinge următoarea cameră.`);return true}
+function bgAutoAll(silent){const m=bgMeta(),c=bgEnsure();if(!m||!c||c.state!=='ok'){toast('Importă întâi planul pe acest dispozitiv.');return 0}
+  if(!c.box)c.box=mainBox(c.mask,c.mw,c.mh,m.mmpp);const st=Math.max(4,Math.round(.5/m.mmpp)),min2=1.2/(m.mmpp*m.mmpp),minS=.8/m.mmpp,added=[];let first=true;
+  for(let pass=0;pass<3;pass++){const occ=bgOcc(c,m);for(const a of added){const r=a;const ax=Math.max(0,Math.round((r.x-m.x)/m.mmpp)+1),bx=Math.min(c.mw-1,Math.round((r.x+r.w-m.x)/m.mmpp)-1),t=Math.max(0,Math.round((r.y-m.y)/m.mmpp)+1),u=Math.min(c.mh-1,Math.round((r.y+r.h-m.y)/m.mmpp)-1);for(let yy=t;yy<=u;yy++)if(bx>=ax)occ.fill(1,yy*c.mw+ax,yy*c.mw+bx+1)}
+    const cand=[];for(let py=c.box.y0+st/2|0;py<c.box.y1;py+=st)for(let px=c.box.x0+st/2|0;px<c.box.x1;px+=st){if(c.mask[py*c.mw+px]||occ[py*c.mw+px])continue;if(cand.some(q=>px>=q.x0&&px<q.x1&&py>=q.y0&&py<q.y1))continue;const q=bgRect(c,m,px,py,occ);if(q.err)continue;if(!q.good||bgOut(c,m,q)){cand.push({...q,bad:1});continue}const w=q.x1-q.x0,h=q.y1-q.y0;if(w*h<min2||Math.min(w,h)<minS)continue;q.a=w*h;cand.push(q)}
+    const cg=cand.filter(q=>!q.bad);cg.sort((p,q)=>q.a-p.a);const acc=[];for(const q of cg){if(acc.some(o=>q.x0<o.x1-1&&q.x1>o.x0+1&&q.y0<o.y1-1&&q.y1>o.y0+1))continue;acc.push(q)}
+    if(!acc.length)break;for(const q of acc){const g=bgRoomFrom(c,m,q,added);if(!g)continue;if(first){snap();first=false}const r={id:uid(),name:g.name||'',type:g.type||'altul',x:g.x,y:g.y,w:g.w,h:g.h};added.push(r)}
+    P.rooms.push(...added.filter(r=>!P.rooms.includes(r)))}
+  {let n=P.rooms.filter(z=>!z.of&&!added.includes(z)).length;for(const r of added.slice().sort((p,q)=>p.y-q.y||p.x-q.x))if(!r.name)r.name='Cameră '+(++n)}
+  if(silent)return added.length;sel=null;changed(true);
+  toast(added.length?`Am găsit ${added.length} ${added.length===1?'cameră':'camere'}. Verifică-le: atinge o cameră ca s-o redenumești, trage de margini ca s-o ajustezi, iar pe cele în plus (terase, curte) le poți șterge.`:'Nu am găsit camere noi. Atinge camerele una câte una.')}
+function bgOpenings(c,m){const mk=c.mask,mw=c.mw,mh=c.mh,mm=m.mmpp,L={},out={doors:[],wins:[],gols:[]};
+  for(const r of P.rooms)for(const e of rEdges(r)){const k=e.o+Math.round(e.c*50);(L[k]||(L[k]=[])).push(e)}
+  const half=Math.round(.15/mm),wallAt=(o,cc,t)=>{const X=Math.round(((o==='h'?t:cc)-m.x)/mm),Y=Math.round(((o==='h'?cc:t)-m.y)/mm);for(let k=-half;k<=half;k++){const x=o==='h'?X:X+k,y=o==='h'?Y+k:Y;if(x<0||y<0||x>=mw||y>=mh||mk[y*mw+x])return true}return false};
+  for(const es of Object.values(L)){const o=es[0].o,cc=+(es.reduce((a,e)=>a+e.c,0)/es.length).toFixed(2),iv=es.map(e=>[e.lo,e.hi]).sort((a,b)=>a[0]-b[0]),sp=[];for(const v of iv){const l=sp[sp.length-1];if(l&&v[0]<=l[1]+.02)l[1]=Math.max(l[1],v[1]);else sp.push([...v])}
+    for(const[a,b]of sp){let r0=null;for(let t=a+.12;t<=b-.12+1e-9;t+=mm){const open=!wallAt(o,cc,t);if(open&&r0==null)r0=t;if((!open||t+mm>b-.12)&&r0!=null){const r1=open?t:t-mm,len=r1-r0+mm,tm=(r0+r1)/2,sd=es.filter(e=>tm>=e.lo-.01&&tm<=e.hi+.01);
+      const cx=o==='h'?tm:cc,cy=o==='h'?cc:tm,inC=P.rooms.some(r=>chOf(r)&&[[.06,0],[-.06,0],[0,.06],[0,-.06]].some(([dx,dy])=>inCut(r,cx+dx,cy+dy)));if(inC){r0=null;continue}
+      if(len>=.55&&len<=1.35)out.doors.push({id:uid(),o,c:cc,t:+tm.toFixed(2),w:clamp(Math.round(len*20)/20,.6,1.2),hinge:0,s:sd[0]?sd[0].s:1,kind:sd.length>1?'int':'ext'});
+      else if(len>1.35&&sd.length>1)out.gols.push({id:uid(),k:'gol',o,c:cc,a:+r0.toFixed(2),b:+(r1+mm).toFixed(2)});r0=null}}}}
+  for(const w of c.wins||[]){const o=w.h?'h':'v',cc=(o==='h'?m.y:m.x)+w.c*mm,t0=(o==='h'?m.x:m.y)+w.a*mm,t1=(o==='h'?m.x:m.y)+w.b*mm,tm=(t0+t1)/2;let best=null,bd=.35;
+    for(const es of Object.values(L))for(const e of es)if(e.o===o&&tm>=e.lo&&tm<=e.hi&&Math.abs(e.c-cc)<bd){bd=Math.abs(e.c-cc);best=e}
+    if(best&&!out.wins.some(q=>q.o===o&&Math.abs(q.c-best.c)<.05&&Math.abs(q.t-tm)<.3))out.wins.push({id:uid(),o,c:best.c,t:+tm.toFixed(2),w:+Math.max(.4,t1-t0).toFixed(2),sill:.9,hg:1.2,kind:'geam'})}
+  return out}
+function bgExt(c,m){if(c.ext)return c.ext;const mw=c.mw,mh=c.mh,d=morph(c.mask,mw,mh,Math.round(.9/m.mmpp),true),ext=new Uint8Array(mw*mh),st=[];
+  for(let x=0;x<mw;x++){st.push(x,(mh-1)*mw+x)}for(let y=0;y<mh;y++){st.push(y*mw,y*mw+mw-1)}
+  while(st.length){const j=st.pop();if(ext[j]||d[j])continue;ext[j]=1;const x=j%mw;if(j>=mw)st.push(j-mw);if(j<mw*(mh-1))st.push(j+mw);if(x>0)st.push(j-1);if(x<mw-1)st.push(j+1)}
+  return c.ext=ext}
+const bgOut=(c,m,q)=>{const ext=bgExt(c,m);let n=0,k=0;for(let i=1;i<4;i++)for(let j=1;j<4;j++){const x=Math.round(q.x0+(q.x1-q.x0)*i/4),y=Math.round(q.y0+(q.y1-q.y0)*j/4);k++;if(ext[y*c.mw+x])n++}return n/k>=.3};
+function bgShapes(c,m,base){const mk=c.mask,mw=c.mw,mh=c.mh,mm=m.mmpp,half=Math.round(.15/mm);
+  const wallAt=(o,cc,t)=>{const X=Math.round(((o==='h'?t:cc)-m.x)/mm),Y=Math.round(((o==='h'?cc:t)-m.y)/mm);for(let k=-half;k<=half;k++){const x=o==='h'?X:X+k,y=o==='h'?Y+k:Y;if(x<0||y<0||x>=mw||y>=mh||mk[y*mw+x])return true}return false};
+  const shared=(a,b)=>{const E=r=>[['h',r.y,r.x,r.x+r.w],['h',r.y+r.h,r.x,r.x+r.w],['v',r.x,r.y,r.y+r.h],['v',r.x+r.w,r.y,r.y+r.h]];for(const p of E(a))for(const q of E(b))if(p[0]===q[0]&&Math.abs(p[1]-q[1])<.03){const lo=Math.max(p[2],q[2]),hi=Math.min(p[3],q[3]);if(hi-lo>.3)return{o:p[0],c:(p[1]+q[1])/2,a:lo,b:hi}}return null};
+  const openLen=g=>{let n=0,run=0,best=0;for(let t=g.a+mm/2;t<g.b;t+=mm){if(wallAt(g.o,g.c,t)){run=0}else{n++;run++;if(run>best)best=run}}return{frac:n*mm/(g.b-g.a),run:best*mm}};
+  const pieces=[],own=new Map();for(const r of base)own.set(r,r);
+  if(!c.box)c.box=mainBox(mk,mw,mh,mm);const st=Math.max(3,Math.round(.3/mm));
+  for(let pass=0;pass<3;pass++){const occ=bgOcc(c,m),tried=new Uint8Array(mw*mh),cand=[];
+    for(let py=c.box.y0+1;py<c.box.y1;py+=st)for(let px=c.box.x0+1;px<c.box.x1;px+=st){if(mk[py*mw+px]||occ[py*mw+px]||tried[py*mw+px])continue;const q=bgRect(c,m,px,py,occ);if(q.err)continue;for(let yy=q.y0;yy<q.y1;yy+=2)tried.fill(1,yy*mw+q.x0,yy*mw+q.x1);
+      const w=(q.x1-q.x0)*mm,h=(q.y1-q.y0)*mm;if(!q.s3||w*h<3||Math.min(w,h)<1.2||bgOut(c,m,q))continue;cand.push({...q,a:w*h})}
+    if(!cand.length)break;cand.sort((p,q)=>q.a-p.a);const q=cand[0],g=bgRoomFrom(c,m,q,[]);if(!g)break;const r={id:uid(),name:g.name||'',type:g.type||'altul',x:g.x,y:g.y,w:g.w,h:g.h};P.rooms.push(r);base.push(r);own.set(r,r)}
+  for(let pass=0;pass<4;pass++){const occ=bgOcc(c,m),tried=new Uint8Array(mw*mh);let got=0;
+    for(let py=c.box.y0+1;py<c.box.y1;py+=st)for(let px=c.box.x0+1;px<c.box.x1;px+=st){if(mk[py*mw+px]||occ[py*mw+px]||tried[py*mw+px])continue;const q=bgRect(c,m,px,py,occ);if(q.err)continue;for(let yy=q.y0;yy<q.y1;yy+=2)tried.fill(1,yy*mw+q.x0,yy*mw+q.x1);const w=q.x1-q.x0,h=q.y1-q.y0;if(w*h*mm*mm<.25||Math.min(w,h)*mm<.4||bgOut(c,m,q))continue;
+      const g=bgRoomFrom(c,m,q,[]);if(!g)continue;let host=null,hl=0;for(const r of P.rooms){if(!own.has(r))continue;const sg=shared(g,r);if(!sg)continue;const ol=openLen(sg);if(ol.run>=1.25&&ol.frac>=.5&&sg.b-sg.a>hl){hl=sg.b-sg.a;host=r}}
+      if(!host)continue;const r={id:uid(),name:'',type:'altul',x:g.x,y:g.y,w:g.w,h:g.h};P.rooms.push(r);own.set(r,own.get(host));pieces.push(r);got++;for(let yy=q.y0;yy<q.y1;yy++)occ.fill(1,yy*mw+q.x0,yy*mw+q.x1)}
+    if(!got)break}
+  const all=[...base,...pieces],par=new Map(all.map(r=>[r,own.get(r)||r])),find=r=>{while(par.get(r)!==r)r=par.get(r);return r};
+  for(let i=0;i<all.length;i++)for(let j=i+1;j<all.length;j++){const sg=shared(all[i],all[j]);if(!sg)continue;const ol=openLen(sg);if(ol.run>=1.3&&ol.frac>=.6){const a=find(all[i]),b=find(all[j]);if(a!==b)par.set(b,a)}}
+  const groups=new Map();for(const r of all){const k=find(r);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(r)}
+  let shaped=0;for(const g of groups.values()){if(g.length<2)continue;g.sort((a,b)=>b.w*b.h-a.w*a.h);const root=g[0];if(!root.name)root.name=(g.find(r=>r.name)||{}).name||'';shaped++;
+    for(const r of g.slice(1)){r.of=root.id;r.name=root.name;r.type=root.type;for(const y of g){if(y===r||(y!==root&&y.of!==root.id))continue;const sg=sharedSeg(r,y);if(sg)P.struct.push({id:uid(),k:'gol',auto:true,of:r.id,...sg})}}}
+  let n=P.rooms.filter(z=>!z.of&&z.name&&!all.includes(z)).length;for(const r of all.filter(z=>!z.of).sort((p,q)=>p.y-q.y||p.x-q.x))if(!r.name)r.name='Cameră '+(++n);for(const r of all)if(r.of){const rt=all.find(z=>z.id===r.of);if(rt)r.name=rt.name}
+  return{pieces:pieces.length,shaped}}
+function bgBuildPlan(){const dl=$('#bgDlg');dl.onclick=null;dl.innerHTML='<div class="dl"><h2>Creez planul…</h2><p class="muted" style="margin:0">Caut camerele, ușile și ferestrele. Durează câteva secunde.</p></div>';if(!dl.open)dl.showModal();setTimeout(()=>{try{bgBuildPlan0()}finally{if(dl.open&&/Creez planul/.test(dl.textContent))dl.close()}},60)}
+function bgChamfers(c,m,news){if(!c.dia||!c.dia.length)return 0;const mm=m.mmpp,D=c.dia.map(d=>({a:{x:m.x+d.x1*mm,y:m.y+d.y1*mm},b:{x:m.x+d.x2*mm,y:m.y+d.y2*mm}}));let n=0;
+  const roots=news.filter(r=>!r.of&&P.rooms.includes(r));
+  for(const root of roots){const grp=P.rooms.filter(z=>z.id===root.id||z.of===root.id),x0=Math.min(...grp.map(z=>z.x)),y0=Math.min(...grp.map(z=>z.y)),x1=Math.max(...grp.map(z=>z.x+z.w)),y1=Math.max(...grp.map(z=>z.y+z.h)),ar=grp.reduce((t,z)=>t+z.w*z.h,0);
+    for(const d of D){let ph=null,pv=null;for(const p of[d.a,d.b]){const nh=[y0,y1].find(Y=>Math.abs(p.y-Y)<.6&&p.x>x0-.6&&p.x<x1+.6),nv=[x0,x1].find(X=>Math.abs(p.x-X)<.6&&p.y>y0-.6&&p.y<y1+.6);const dh=nh===undefined?9:Math.abs(p.y-nh),dv=nv===undefined?9:Math.abs(p.x-nv);if(dh<=dv&&nh!==undefined&&!ph)ph={x:p.x,y:nh,ry:p.y};else if(nv!==undefined&&!pv)pv={x:nv,y:p.y,rx:p.x};else if(nh!==undefined&&!ph)ph={x:p.x,y:nh,ry:p.y}}
+      if(!ph||!pv)continue;const k=(ph.y===y0?'t':'b')+(pv.x===x0?'l':'r'),others=P.rooms.filter(z=>!grp.includes(z)),snp=(v,ax)=>{let b=v,bd=.2;for(const z of others)for(const e of ax==='x'?[z.x,z.x+z.w]:[z.y,z.y+z.h])if(Math.abs(e-v)<bd){bd=Math.abs(e-v);b=e}return b};
+      let X0=x0,X1=x1,Y0=y0,Y1=y1;if(k[1]==='l')X0=snp(Math.min(x0,pv.rx),'x');else X1=snp(Math.max(x1,pv.rx),'x');if(k[0]==='t')Y0=snp(Math.min(y0,ph.ry),'y');else Y1=snp(Math.max(y1,ph.ry),'y');
+      if(others.some(z=>{const ox=Math.min(z.x+z.w,X1)-Math.max(z.x,X0),oy=Math.min(z.y+z.h,Y1)-Math.max(z.y,Y0);return ox>.05&&oy>.05&&ox*oy>.15}))continue;
+      const cx=k[1]==='l'?X0:X1,cy=k[0]==='t'?Y0:Y1,a=+clamp(Math.abs(ph.x-cx),0,X1-X0).toFixed(2),b=+clamp(Math.abs(pv.y-cy),0,Y1-Y0).toFixed(2);if(a<.25||b<.25||a>(X1-X0)-.3||b>(Y1-Y0)-.3)continue;
+      const want=(X1-X0)*(Y1-Y0)-a*b/2;if(Math.abs(ar-want)>want*.45)continue;
+      const kids=grp.filter(z=>z!==root),kid=new Set(kids.map(z=>z.id));P.rooms=P.rooms.filter(z=>!kid.has(z.id));P.struct=P.struct.filter(g=>!(g.k==='gol'&&g.auto&&kid.has(g.of)));
+      Object.assign(root,{x:+X0.toFixed(2),y:+Y0.toFixed(2),w:+(X1-X0).toFixed(2),h:+(Y1-Y0).toFixed(2),ch:{k,a,b}});
+      const g=diagOf(root),mk=c.mask;let run=0,best=0;for(let t=.05;t<g.len-.05;t+=mm){const X=Math.round((g.p.x+g.ux*t-m.x)/mm),Y=Math.round((g.p.y+g.uy*t-m.y)/mm);let wall=false;for(let l=-4;l<=4;l++){const xx=Math.round(X+g.nx*l),yy=Math.round(Y+g.ny*l);if(xx>=0&&yy>=0&&xx<c.mw&&yy<c.mh&&mk[yy*c.mw+xx]){wall=true;break}}if(wall)run=0;else{run++;best=Math.max(best,run)}}
+      if(best*mm>=.55&&best*mm<=1.3)root.ch.door={w:+clamp(Math.round(best*mm*20)/20,.6,1.2).toFixed(2)};n++;bgTriangle(c,m,root);break}}
+  return n}
+function bgTriangle(c,m,room){const t=chPts(room);if(!t)return;const mk=c.mask,mm=m.mmpp,opp={tl:'br',tr:'bl',bl:'tr',br:'tl'}[room.ch.k];
+  const fr={id:uid(),name:'',type:'altul',x:+Math.min(t.c.x,t.p.x).toFixed(2),y:+Math.min(t.c.y,t.q.y).toFixed(2),w:+t.a.toFixed(2),h:+t.b.toFixed(2),ch:{k:opp,a:+t.a.toFixed(2),b:+t.b.toFixed(2),fill:true}};
+  const openOn=(o,cc,lo,hi)=>{let n=0,k=0;for(let v=lo+mm;v<hi-mm;v+=mm){k++;const X=Math.round(((o==='h'?v:cc)-m.x)/mm),Y=Math.round(((o==='h'?cc:v)-m.y)/mm);let w=false;for(let l=-6;l<=6;l++){const x=o==='h'?X:X+l,y=o==='h'?Y+l:Y;if(x>=0&&y>=0&&x<c.mw&&y<c.mh&&mk[y*c.mw+x]){w=true;break}}if(!w)n++}return k?n/k:0};
+  const legs=[{o:'h',c:t.c.y,lo:Math.min(t.c.x,t.p.x),hi:Math.max(t.c.x,t.p.x)},{o:'v',c:t.c.x,lo:Math.min(t.c.y,t.q.y),hi:Math.max(t.c.y,t.q.y)}],nb=new Set();
+  for(const L of legs){if(openOn(L.o,L.c,L.lo,L.hi)<.6)continue;for(const r of P.rooms){if(r===room||r.of===room.id)continue;const E=rEdges(r);for(const e of E)if(e.o===L.o&&Math.abs(e.c-L.c)<.08&&Math.min(e.hi,L.hi)-Math.max(e.lo,L.lo)>.1)nb.add(rootOf(P,r))}}
+  if(!nb.size)return;const roots=[...nb].sort((a,b)=>groupOf(b.id).reduce((s2,z)=>s2+areaR(z),0)-groupOf(a.id).reduce((s2,z)=>s2+areaR(z),0)),root=roots[0];
+  for(const o of roots.slice(1)){for(const z of P.rooms)if(z.id===o.id||z.of===o.id){z.of=root.id;z.name=root.name;z.type=root.type}}
+  fr.of=root.id;fr.name=root.name;fr.type=root.type;P.rooms.push(fr);
+  const grp=P.rooms.filter(z=>z.id===root.id||z.of===root.id);for(const z of grp){if(z===fr)continue;const sg=sharedSeg(fr,z);if(sg)P.struct.push({id:uid(),k:'gol',auto:true,of:fr.id,...sg});}
+}
+function bgBuildPlan0(){const m=bgMeta(),c=bgEnsure();if(!m||!c||c.state!=='ok'){toast('Importă întâi planul pe acest dispozitiv.');return}
+  const pre=new Set(P.rooms),n=bgAutoAll(true);if(!n){setTool('room');renderBgDlg();toast('Nu am putut desluși camerele din acest plan. Atinge camerele una câte una cu unealta Cameră.');return}
+  const sh=bgShapes(c,m,P.rooms.filter(r=>!pre.has(r)));const nch=bgChamfers(c,m,P.rooms.filter(r=>!pre.has(r)));const op=bgOpenings(c,m);op.gols=op.gols.filter(g=>!P.struct.some(q=>q.k==='gol'&&q.o===g.o&&Math.abs(q.c-g.c)<.05&&q.b>g.a&&q.a<g.b));P.doors.push(...op.doors.filter(d=>!P.doors.some(q=>q.o===d.o&&Math.abs(q.c-d.c)<.05&&Math.abs(q.t-d.t)<.3)));P.wins.push(...op.wins);P.struct.push(...op.gols);
+  for(const d of op.doors){try{const q=doorRooms(P,d);d.kind=q.ot?'int':'ext'}catch(e){}}
+  m.hide=true;sel=null;setTool('select');fit();changed(true);
+  const nr=P.rooms.filter(r=>!r.of&&!pre.has(r)).length;toast(`Am creat planul ${m.src==='dxf'?'din DXF (unități: '+m.unit+')':'la scara 1:'+(m.scale||'calibrată')}: ${nr} camere${(()=>{const k=P.rooms.filter(r=>!r.of&&!pre.has(r)&&P.rooms.some(z=>z.of===r.id)).length;return k?' ('+k+' cu formă compusă)':''})()}${nch?', '+nch+' cu colț teșit':''}, ${op.doors.length} uși, ${op.wins.length} ferestre${op.gols.length?', '+op.gols.length+' goluri':''}. Verifică-l și ajustează ce e nevoie. Planul arhitectului îl vezi din Afișare → Plan arhitect.`)}
+function renderBgDlg(){const dl=$('#bgDlg'),m=bgMeta(),c=m&&bgEnsure();
+  dl.onclick=null;dl.innerHTML=`<form class="dl" method="dialog"><div><h2>Plan de la arhitect</h2><p class="muted" style="margin:0">${m?`${esc(m.name||'Plan')}${m.page?' · pagina '+m.page:''}${m.src==='dxf'?' · DXF, unități '+m.unit:m.scale?' · scara 1:'+m.scale:' · scară calibrată manual'}${c&&c.state==='missing'?'<br><b>Planul a fost importat pe alt dispozitiv. Importă-l din nou aici ca să-l vezi.</b>':''}`:'Importă planul în PDF sau DXF, exportat din AutoCAD sau ArchiCAD, ori o poză a planului. Scara se calculează din cote, iar apoi atingi fiecare cameră și aplicația o desenează singură.'}</p></div>
+  ${m?`<label class="f">Vizibilitate<input type="range" id="bgOp" min=".1" max="1" step=".05" value="${m.op??.55}"></label>
+  <label class="chk" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="bgHide"${m.hide?'':' checked'}> Arată planul arhitectului sub desen, ca să compari</label>
+  ${P.rooms.length?'':'<button class="btn pri" type="button" data-bg="auto" style="justify-content:center">Creează planul din PDF</button>'}
+  <p class="muted" style="margin:0;font-size:12.5px">${P.rooms.length?'Ca să adaugi o cameră lipsă, alege unealta Cameră și atinge-o pe plan.':'Sau alege unealta Cameră și atinge camerele una câte una.'}</p>
+  <div class="bar"><button class="btn" type="button" data-bg="cal">Calibrează scara</button><button class="btn" type="button" data-bg="move">Mută planul</button><button class="btn" type="button" data-bg="pick">Înlocuiește</button><button class="btn" type="button" data-bg="del" style="color:var(--bad)">Șterge planul</button></div>`:''}
+  <p class="muted" style="margin:0;font-size:12px">Fișierul rămâne doar pe acest dispozitiv și nu se trimite nicăieri.</p>
+  <div class="bar" style="justify-content:flex-end"><button class="btn" type="button" data-bg="x">Închide</button>${m?'':'<button class="btn pri" type="button" data-bg="pick">Alege fișierul</button>'}</div></form>`;
+  if(!dl.open)dl.showModal()}
+$('#bgDlg').addEventListener('click',e=>{const b=e.target.closest('[data-bg]');if(!b)return;const k=b.dataset.bg,dl=$('#bgDlg');
+  if(k==='x'){dl.close();return}if(k==='pick'){dl.close();bgPick();return}
+  if(k==='cal'){dl.close();bgStart('cal');toast('Atinge pe plan capetele unei cote cunoscute, de exemplu un perete cotat.');return}
+  if(k==='move'){dl.close();bgStart('move');return}
+  if(k==='auto'){dl.close();setTimeout(bgBuildPlan,30);return}
+  if(k==='del'){if(!confirm('Ștergi planul importat de la acest nivel? Camerele desenate rămân.'))return;const key=bgKey(P.id,P.lvCur);bgIdb('del',key).catch(()=>{});delete bgc[key];delete P.bgs[P.lvCur];dl.close();changed();return}});
+$('#bgDlg').addEventListener('input',e=>{const m=bgMeta();if(!m)return;if(e.target.id==='bgOp'){m.op=+e.target.value;draw()}if(e.target.id==='bgHide'){m.hide=!e.target.checked;draw()}});
+$('#bgDlg').addEventListener('change',e=>{if(e.target.id==='bgOp'||e.target.id==='bgHide')save()});
+async function bgDropProject(id){try{for(const k of await bgIdb('keys'))if(String(k).startsWith(id+':')){await bgIdb('del',k);delete bgc[k]}}catch(e){}}
 readColors();renderTools();renderLayers();renderProjSel();renderLevels();
 R=computeLv();renderIso();renderStat();
 renderInspector();
@@ -3484,7 +3214,3 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#intro').hidden
 {let skip=false;try{skip=localStorage.getItem('electroplan.noIntro')==='1'}catch(e){}if(!skip&&!(location.hash||'').slice(1))showIntro()}
 const h0=(location.hash||'').slice(1);if(['calcul','materiale','lucrari'].includes(h0))showTab(h0);
 })();
-</script>
-
-</body>
-</html>

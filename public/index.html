@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ElectroPlan</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#18222C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ElectroPlan">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="app-version" content="f6a76a94a7a9">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style id="ep-shell-css">
+html,body{margin:0;min-height:100%;background:#0C1621}
+#ep-shell{min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px 16px;box-sizing:border-box;color:#E8EEF3;font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+#ep-shell *{box-sizing:border-box}
+.ep-card{width:100%;max-width:420px;background:#13212E;border:1px solid rgba(175,192,207,.18);border-radius:14px;padding:26px 22px;display:flex;flex-direction:column;gap:14px}
+.ep-brand{display:flex;align-items:center;gap:10px;font:700 26px/1 "Barlow Condensed",system-ui,sans-serif;letter-spacing:.3px}
+.ep-wires{display:inline-flex;flex-direction:column;gap:3px}.ep-wires i{display:block;width:22px;height:3px;border-radius:2px}
+.ep-wires i:nth-child(1){background:#B07A4E}.ep-wires i:nth-child(2){background:#5B95E0}.ep-wires i:nth-child(3){background:#5DB257}
+.ep-card h1{margin:4px 0 0;font:600 20px/1.2 "IBM Plex Sans",system-ui,sans-serif}
+.ep-card p{margin:0;color:#AFC0CF;font-size:14px}
+.ep-card label{display:flex;flex-direction:column;gap:6px;color:#AFC0CF;font-size:13px}
+.ep-card input{font:inherit;font-size:16px;padding:11px 12px;border-radius:8px;border:1px solid rgba(175,192,207,.35);background:#0C1621;color:#E8EEF3;outline:none}
+.ep-card input:focus{border-color:#5B95E0}
+.ep-go{font:600 16px "IBM Plex Sans",system-ui,sans-serif;padding:12px;border:0;border-radius:8px;background:#5B95E0;color:#0C1621;cursor:pointer}
+.ep-go:disabled{opacity:.6;cursor:default}
+.ep-links{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ep-links button{background:none;border:0;padding:4px 0;color:#8DB8EE;font:inherit;font-size:14px;cursor:pointer}
+.ep-msg{min-height:1.2em;color:#F2A33A;font-size:14px}
+.ep-spin{width:28px;height:28px;border:3px solid rgba(175,192,207,.25);border-top-color:#5B95E0;border-radius:50%;animation:ep-r 1s linear infinite;align-self:center}
+@keyframes ep-r{to{transform:rotate(360deg)}}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div id="ep-shell">
+  <form class="ep-card" id="ep-form" novalidate hidden>
+    <div class="ep-brand"><span class="ep-wires" aria-hidden="true"><i></i><i></i><i></i></span>ElectroPlan</div>
+    <h1 id="ep-t">Intră în cont</h1>
+    <p id="ep-h">Proiectele tale sunt salvate în cont și le vezi doar tu, pe orice dispozitiv.</p>
+    <label id="ep-el">E-mail<input id="ep-e" type="email" inputmode="email" autocomplete="username"></label>
+    <label id="ep-pl">Parolă<input id="ep-p" type="password" autocomplete="current-password"></label>
+    <label id="ep-p2l" hidden>Repetă parola<input id="ep-p2" type="password" autocomplete="new-password"></label>
+    <div class="ep-msg" id="ep-m" role="status"></div>
+    <button class="ep-go" id="ep-go" type="submit">Intră în cont</button>
+    <div class="ep-links"><button type="button" id="ep-forgot">Ai uitat parola?</button><button type="button" id="ep-sw">Creează cont nou</button></div>
+  </form>
+  <div class="ep-card" id="ep-wait">
+    <div class="ep-brand"><span class="ep-wires" aria-hidden="true"><i></i><i></i><i></i></span>ElectroPlan</div>
+    <div class="ep-spin" id="ep-spin"></div>
+    <p id="ep-wm">Se încarcă aplicația…</p>
+    <button class="ep-go" type="button" id="ep-retry" hidden>Încearcă din nou</button>
+    <div class="ep-links"><button type="button" id="ep-out" hidden>Ieși din cont</button></div>
+  </div>
+</div>
+<script>
+(()=>{
+const SB_URL='https://mqyvtxrdxhaogjranrps.supabase.co',SB_KEY='sb_publishable_L2ILOYrD_mFvPdMzVVTawg_mhXFbyNe',BUCKET='app',CACHE='ep-app-code';
+const V=document.querySelector('meta[name="app-version"]').content;
+const $=s=>document.getElementById(s);
+let sb=null,mode='in',started=false,fresh=/access_token=|[?&]code=/.test(location.hash+location.search),busy=false;
+const T={in:['Intră în cont','Intră în cont','Creează cont nou','Proiectele tale sunt salvate în cont și le vezi doar tu, pe orice dispozitiv.'],up:['Cont nou','Creează contul','Am deja cont','Alege o parolă de cel puțin 6 caractere. Primești 14 zile de probă.'],forgot:['Resetează parola','Trimite link de resetare','Înapoi la conectare','Îți trimitem pe e-mail un link prin care alegi o parolă nouă.'],reset:['Parolă nouă','Salvează parola',null,'Scrie parola nouă pentru contul tău.']};
+function setMode(m,msg){mode=m;const t=T[m];$('ep-t').textContent=t[0];$('ep-go').textContent=t[1];$('ep-sw').hidden=!t[2];if(t[2])$('ep-sw').textContent=t[2];$('ep-h').textContent=t[3];
+  $('ep-el').hidden=m==='reset';$('ep-pl').hidden=m==='forgot';$('ep-p2l').hidden=!(m==='up'||m==='reset');$('ep-forgot').hidden=m!=='in';
+  $('ep-p').autocomplete=m==='in'?'current-password':'new-password';$('ep-m').textContent=msg||'';$('ep-form').hidden=false;$('ep-wait').hidden=true;
+  setTimeout(()=>{const f=m==='reset'?$('ep-p'):$('ep-e');if(f&&!f.value)f.focus()},30)}
+function wait(msg,opts={}){$('ep-form').hidden=true;$('ep-wait').hidden=false;$('ep-wm').textContent=msg;$('ep-spin').hidden=!!opts.stop;$('ep-retry').hidden=!opts.retry;$('ep-out').hidden=!opts.out}
+const err=e=>{const m=(e&&e.message||'').toLowerCase();if(/invalid login/.test(m))return'E-mail sau parolă greșită.';if(/not confirmed/.test(m))return'Contul nu e confirmat încă. Deschide linkul din e-mailul primit la înregistrare.';if(/already registered|already been registered/.test(m))return'Există deja un cont cu acest e-mail. Intră în cont sau resetează parola.';if(/at least 6|password should/.test(m))return'Parola trebuie să aibă cel puțin 6 caractere.';if(/sending.*(confirmation|email)|smtp/.test(m))return'Nu am putut trimite e-mailul. Anunță administratorul aplicației.';if(/rate limit|over_email/.test(m+' '+(e&&e.code||''))||e&&e.status===429)return'Prea multe încercări. Așteaptă câteva minute.';if(/fetch|network/.test(m))return'Nu există conexiune la internet.';return e&&e.message||'A apărut o eroare.'};
+const okAcct=a=>!!a&&(a.role==='admin'||(['trial','active'].includes(a.status)&&new Date(a.valid_until)>new Date()));
+const lastUser=()=>{try{return localStorage.getItem('ep.codeUser')||''}catch(e){return''}};
+async function cached(uid){try{if(!('caches' in window))return null;const c=await caches.open(CACHE);const r=await c.match('/__app/'+uid+'/'+V)||await(async()=>{const ks=await c.keys();const k=ks.reverse().find(q=>q.url.includes('/__app/'+uid+'/'));return k?c.match(k):null})();return r?await r.text():null}catch(e){return null}}
+async function store(uid,code){try{if(!('caches' in window))return;const c=await caches.open(CACHE);for(const k of await c.keys())await c.delete(k);await c.put('/__app/'+uid+'/'+V,new Response(code,{headers:{'content-type':'text/javascript'}}));localStorage.setItem('ep.codeUser',uid)}catch(e){}}
+async function wipe(){try{if('caches' in window)await caches.delete(CACHE);localStorage.removeItem('ep.codeUser')}catch(e){}}
+function run(code){if(started)return;started=true;if(fresh){try{sessionStorage.setItem('ep.fresh','1')}catch(e){}}
+  window.__epSb=sb;$('ep-shell').remove();const st=$('ep-shell-css');if(st)st.remove();const s=document.createElement('script');s.textContent=code+'\n//# sourceURL=electroplan-app.js';document.body.appendChild(s)}
+async function load(user){
+  if(busy)return;busy=true;wait('Se încarcă aplicația…');
+  try{
+    const{data:a,error:pe}=await sb.from('profiles').select('role,status,valid_until').eq('user_id',user.id).maybeSingle();
+    if(pe){if(/fetch|network/i.test(pe.message||'')){const c=await cached(user.id);if(c)return run(c);wait('Nu există conexiune la internet. Prima deschidere a aplicației pe acest dispozitiv are nevoie de internet.',{stop:1,retry:1});return}throw pe}
+    if(!okAcct(a)){await wipe();wait(a&&a.status==='suspended'?'Contul tău a fost suspendat. Pentru detalii, contactează administratorul ElectroPlan.':'Perioada de probă sau abonamentul tău a expirat. Contactează administratorul ElectroPlan ca să-l prelungești.',{stop:1,out:1});return}
+    for(let i=0;i<20;i++){
+      const{data,error}=await sb.storage.from(BUCKET).download(V+'.js');
+      if(data){const code=await data.text();await store(user.id,code);return run(code)}
+      if(error&&/fetch|network/i.test(error.message||'')){const c=await cached(user.id);if(c)return run(c);wait('Nu există conexiune la internet.',{stop:1,retry:1});return}
+      if(i===0)wait('Se pregătește versiunea nouă a aplicației…');await new Promise(r=>setTimeout(r,4000))}
+    const c=await cached(user.id);if(c)return run(c);
+    wait('Aplicația nu e disponibilă momentan. Încearcă din nou peste câteva minute.',{stop:1,retry:1,out:1});
+  }catch(e){const c=await cached(user.id);if(c)return run(c);wait(err(e),{stop:1,retry:1,out:1})}
+  finally{busy=false}
+}
+async function boot(){
+  if(!window.supabase){const uid=lastUser();const c=uid&&await cached(uid);if(c&&hasToken())return run(c);wait('Nu există conexiune la internet. Prima deschidere a aplicației pe acest dispozitiv are nevoie de internet.',{stop:1,retry:1});return}
+  sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  let rec=false;
+  sb.auth.onAuthStateChange(ev=>{if(started)return;if(ev==='PASSWORD_RECOVERY'){rec=true;setMode('reset')}});
+  const{data}=await sb.auth.getSession();
+  if(rec)return;
+  const s=data&&data.session;
+  if(s)return load(s.user);
+  if(!navigator.onLine&&hasToken()){const uid=lastUser();const c=uid&&await cached(uid);if(c)return run(c)}
+  setMode('in');
+}
+const hasToken=()=>{try{return Object.keys(localStorage).some(k=>/^sb-.*-auth-token$/.test(k))}catch(e){return false}};
+$('ep-sw').onclick=()=>setMode(mode==='in'?'up':'in');
+$('ep-forgot').onclick=()=>setMode('forgot');
+$('ep-retry').onclick=()=>location.reload();
+$('ep-out').onclick=async()=>{await wipe();try{await sb.auth.signOut()}catch(e){}setMode('in')};
+$('ep-form').addEventListener('submit',async e=>{
+  e.preventDefault();if(!sb)return;const em=$('ep-e').value.trim(),pw=$('ep-p').value,pw2=$('ep-p2').value,m=$('ep-m'),go=$('ep-go');m.textContent='';
+  if(mode!=='reset'&&!/^\S+@\S+\.\S+$/.test(em)){m.textContent='Scrie adresa de e-mail.';return}
+  if(mode!=='forgot'&&pw.length<6){m.textContent='Parola trebuie să aibă cel puțin 6 caractere.';return}
+  if((mode==='up'||mode==='reset')&&pw!==pw2){m.textContent='Parolele nu coincid.';return}
+  go.disabled=true;
+  try{
+    if(mode==='in'){const{data,error}=await sb.auth.signInWithPassword({email:em,password:pw});if(error){m.textContent=err(error);return}fresh=true;return load(data.user)}
+    if(mode==='up'){const{data,error}=await sb.auth.signUp({email:em,password:pw,options:{emailRedirectTo:location.origin+location.pathname}});if(error){m.textContent=err(error);return}
+      if(data.user&&Array.isArray(data.user.identities)&&!data.user.identities.length){$('ep-e').value=em;setMode('in','Există deja un cont cu acest e-mail. Intră în cont sau apasă „Ai uitat parola?”.');return}
+      if(data.session){fresh=true;return load(data.user)}
+      setMode('in','Ți-am trimis un link de confirmare pe '+em+'. Deschide-l, apoi intră în cont. Dacă nu îl găsești, uită-te în Spam.');return}
+    if(mode==='forgot'){const{error}=await sb.auth.resetPasswordForEmail(em,{redirectTo:location.origin+location.pathname});if(error){m.textContent=err(error);return}setMode('in','Ți-am trimis linkul de resetare pe '+em+'.');return}
+    if(mode==='reset'){const{data,error}=await sb.auth.updateUser({password:pw});if(error){m.textContent=err(error);return}fresh=true;history.replaceState(null,'',location.pathname);return load(data.user)}
+  }catch(x){m.textContent=err(x)}finally{go.disabled=false}
+});
+const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js';sc.onload=boot;sc.onerror=boot;document.head.appendChild(sc);
+if('serviceWorker' in navigator&&window.isSecureContext)navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+</script>
+</body>
+</html>
