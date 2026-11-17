@@ -2899,7 +2899,7 @@ function fitBox(b){if(!b||W<10)return;const sw=Math.abs(Math.sin(view.rot))>.7,p
   const FW=(sw?Hh-bar*2:W)-pad*2,FH=(sw?W:Hh-(view.rot?bar*2:hb+tb))-pad*2;view.auto=false;view.s=clamp(Math.min(FW/Math.max(1,b.x1-b.x0),FH/Math.max(1,b.y1-b.y0)),10,260);
   view.ox=(W-(b.x1-b.x0)*view.s)/2-b.x0*view.s;view.oy=(view.rot?(Hh-(b.y1-b.y0)*view.s)/2:tb+pad+(FH-(b.y1-b.y0)*view.s)/2)-b.y0*view.s}
 const DXF_WALL=/(^|[^a-z])(wall|walls|a-wall|perete|pereti|zid|zidarie|zidărie|mur|murs|structura|structură|beton|caramida|cărămidă|bca|gips|compartiment)/i,DXF_SKIP=/(dim|cot[aăe]|cote|text|mobil|furn|axe|axis|grid|hatch-pat|title|cartus|cartuș|indicator|defpoints)/i;
-async function dxfText(f){const buf=new Uint8Array(await f.arrayBuffer());let t=new TextDecoder('utf-8').decode(buf);if(/�/.test(t.slice(0,200000)))t=new TextDecoder('windows-1250').decode(buf);return t}
+async function dxfText(f){const buf=new Uint8Array(await f.arrayBuffer());let t=new TextDecoder('utf-8').decode(buf);if(/\uFFFD/.test(t.slice(0,200000)))t=new TextDecoder('windows-1250').decode(buf);return t}
 function dxfParse(txt){
   const L=txt.split(/\r\n|\r|\n/),pr=[];for(let i=0;i+1<L.length;i+=2){const c=parseInt(L[i].trim(),10);if(isNaN(c)){i--;continue}pr.push([c,L[i+1].replace(/\s+$/,'')])}
   const ents=[],blocks={},layers={};let ins=1,sec='',cur=null,blk=null,list=ents,poly=null;
